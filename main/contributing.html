@@ -556,14 +556,14 @@ documentation generation:</p>
 New top-level modules (i.e., <code class="docutils literal notranslate"><span class="pre">bayesflow.mynewmodule</span></code>) have to be manually added to the list in <code class="docutils literal notranslate"><span class="pre">docsrc/source/api/bayesflow.rst</span></code> to be included.</p>
 <p>You can re-build the for your local state with:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docsrc
-make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span><span class="nb">local</span>
+make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>local-docs
 <span class="c1"># in case of issues, try `make clean-all`</span>
 </pre></div>
 </div>
 <p>Note that files ignored by git (i.e., listed in <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code>) are not included in the documentation.</p>
-<p>We also provide a multi-version documentation. To generate it, run</p>
+<p>We also provide a multi-version documentation, which renders the branches <code class="docutils literal notranslate"><span class="pre">main</span></code> and <code class="docutils literal notranslate"><span class="pre">stable-legacy</span></code>. To generate it, run</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>docsrc
-make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>docs
+make<span class="w"> </span>clean<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>production-docs
 </pre></div>
 </div>
 <p>This will create and cache virtual environments for the build at <code class="docutils literal notranslate"><span class="pre">docsrc/.docs_venvs</span></code>.
