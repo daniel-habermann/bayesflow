@@ -415,6 +415,11 @@
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.make_simulator.html#bayesflow.simulators.make_simulator">[docs]</a>
 <span class="nd">@singledispatch</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">make_simulator</span><span class="p">(</span><span class="n">arg</span><span class="p">,</span> <span class="o">*</span><span class="n">_</span><span class="p">,</span> <span class="o">**</span><span class="n">__</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This is a dispatch function that will accept a list of simulators (callables) returning</span>
+<span class="sd">    dictionaries with simulated outputs. The outputs of simulators will be passed to following</span>
+<span class="sd">    simulators if the latter accept keyword arguments associated with the keys of previous outputs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cannot infer simulator from </span><span class="si">{</span><span class="n">arg</span><span class="si">!r}</span><span class="s2">.&quot;</span><span class="p">)</span></div>
 
 

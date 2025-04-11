@@ -420,8 +420,27 @@
 <span class="sd">    when sampling from the true distribution. By minimizing an expected score, estimates with</span>
 <span class="sd">    different properties can be obtained.</span>
 
-<span class="sd">    To define a custom ``ScoringRule``, inherit from this class and overwrite the score method.</span>
+<span class="sd">    To define a custom :py:class:`ScoringRule`, inherit from this class and overwrite the score method.</span>
 <span class="sd">    For proper serialization, any new constructor arguments must be taken care of in a `get_config` method.</span>
+
+<span class="sd">    Estimates are typically parameterized by projection heads consisting of a neural network component</span>
+<span class="sd">    and a link to project into the correct output space.</span>
+
+<span class="sd">    A :py:class:`ScoringRule` can score estimates consisting of multiple parts. See :py:class:`MultivariateNormalScore`</span>
+<span class="sd">    for an example of a :py:class:`ParametricDistributionScore`. That score evaluates an estimated mean</span>
+<span class="sd">    and covariance simultaneously.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NOT_TRANSFORMING_LIKE_VECTOR_WARNING</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This variable contains names of prediction heads that should lead to a warning when the adapter is applied</span>
+<span class="sd">    in inverse direction to them.</span>
+
+<span class="sd">    Prediction heads can output estimates in spaces other than the target distribution space.</span>
+<span class="sd">    To such estimates the adapter cannot be straightforwardly applied in inverse direction,</span>
+<span class="sd">    because the adapter is built to map vectors from the inference variable space. When subclassing</span>
+<span class="sd">    :py:class:`ScoringRule`, add the names of such heads to the following list to warn users about difficulties</span>
+<span class="sd">    with a type of estimate whenever the adapter is applied to them in inverse direction.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -474,12 +493,15 @@
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule.get_subnet">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_subnet</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">Layer</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;For a specified key, request a subnet to be used for projecting the shared condition embedding</span>
-<span class="sd">        before reshaping to the heads output shape.</span>
+<span class="sd">        before further projection and reshaping to the heads output shape.</span>
+
+<span class="sd">        If no subnet was specified for the key (e.g. upon initialization),</span>
+<span class="sd">        return just an instance of keras.layers.Identity.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        key : str</span>
-<span class="sd">            Name of head for which to request a link.</span>
+<span class="sd">            Name of head for which to request a subnet.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -496,6 +518,8 @@
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule.get_link">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_link</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">Layer</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;For a specified key, request a link from network output to estimation target.</span>
+
+<span class="sd">        If no link was specified for the key (e.g. upon initialization), return a linear activation.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -517,15 +541,26 @@
 
 <div class="viewcode-block" id="ScoringRule.get_head">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule.get_head">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;For a specified head key and shape, request corresponding head network.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_head</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For a specified head key and output shape, request corresponding head network.</span>
+
+<span class="sd">        A head network has the following components that are called sequentially:</span>
+
+<span class="sd">        1. subnet: A keras.Layer.</span>
+<span class="sd">        2. dense: A trainable linear projection with as many units as are required by the next component.</span>
+<span class="sd">        3. reshape: Changes shape of output of projection to match requirements of next component.</span>
+<span class="sd">        4. link: Transforms unconstrained values into a constrained space for the final estimator.</span>
+<span class="sd">           See :py:mod:`~bayesflow.links` for examples.</span>
+
+<span class="sd">        This method initializes the components in reverse order to meet all requirements and returns them.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        key : str</span>
 <span class="sd">            Name of head for which to request a link.</span>
-<span class="sd">        shape: Shape</span>
-<span class="sd">            The necessary shape for the point estimators.</span>
+<span class="sd">        output_shape: Shape</span>
+<span class="sd">            The necessary shape of estimated values for the given key as returned by</span>
+<span class="sd">            :py:func:`get_head_shapes_from_target_shape()`.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
@@ -533,10 +568,19 @@
 <span class="sd">            Head network consisting of a learnable projection, a reshape and a link operation</span>
 <span class="sd">            to parameterize estimates.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">subnet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subnet</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
-        <span class="n">dense</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">shape</span><span class="p">))</span>
-        <span class="n">reshape</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span><span class="n">target_shape</span><span class="o">=</span><span class="n">shape</span><span class="p">)</span>
+        <span class="c1"># initialize head components back to front</span>
         <span class="n">link</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_link</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># link input shape can differ from output shape</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">link</span><span class="p">,</span> <span class="s2">&quot;compute_input_shape&quot;</span><span class="p">):</span>
+            <span class="n">link_input_shape</span> <span class="o">=</span> <span class="n">link</span><span class="o">.</span><span class="n">compute_input_shape</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">link_input_shape</span> <span class="o">=</span> <span class="n">output_shape</span>
+
+        <span class="n">reshape</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Reshape</span><span class="p">(</span><span class="n">target_shape</span><span class="o">=</span><span class="n">link_input_shape</span><span class="p">)</span>
+        <span class="n">dense</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="n">math</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">link_input_shape</span><span class="p">))</span>
+        <span class="n">subnet</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_subnet</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">Sequential</span><span class="p">([</span><span class="n">subnet</span><span class="p">,</span> <span class="n">dense</span><span class="p">,</span> <span class="n">reshape</span><span class="p">,</span> <span class="n">link</span><span class="p">])</span></div>
 
 
@@ -562,11 +606,11 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        The following shows how to score estimates with a ``MeanScore``. All ``ScoringRule`` s follow this pattern,</span>
-<span class="sd">        only differing in the structure of the estimates dictionary.</span>
+<span class="sd">        The following shows how to score estimates with a :py:class:`MeanScore`. All :py:class:`ScoringRule`\ s</span>
+<span class="sd">        follow this pattern, only differing in the structure of the estimates dictionary.</span>
 
 <span class="sd">        &gt;&gt;&gt; import keras</span>
-<span class="sd">        ... from bayesflow.scores import MeanScore</span>
+<span class="sd">        &gt;&gt;&gt; from bayesflow.scores import MeanScore</span>
 <span class="sd">        &gt;&gt;&gt;</span>
 <span class="sd">        &gt;&gt;&gt; # batch of samples from a normal distribution</span>
 <span class="sd">        &gt;&gt;&gt; samples = keras.random.normal(shape=(100,))</span>
@@ -591,7 +635,7 @@
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule.aggregate">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the mean of scores, optionally applying weights.</span>
+<span class="sd">        Computes the mean of **scores**, optionally applying **weights**.</span>
 
 <span class="sd">        This function computes the mean value of the given scores. When weights are provided,</span>
 <span class="sd">        it first multiplies the scores by the weights and then computes the mean of the result.</span>
@@ -608,8 +652,8 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Tensor</span>
-<span class="sd">            The aggregated score computed as a weighted mean if `weights` is provided,</span>
-<span class="sd">            or as the simple mean of `scores` otherwise.</span>
+<span class="sd">            The aggregated score computed as a weighted mean if **weights** is provided,</span>
+<span class="sd">            or as the simple mean of **scores** otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

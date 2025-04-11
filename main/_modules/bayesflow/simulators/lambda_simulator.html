@@ -401,7 +401,9 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.simulators.lambda_simulator</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Mapping</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">batched_call</span><span class="p">,</span> <span class="n">filter_kwargs</span><span class="p">,</span> <span class="n">tree_stack</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">allow_batch_size</span>
@@ -415,7 +417,20 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">LambdaSimulator</span><span class="p">(</span><span class="n">Simulator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a simulator based on a sampling function.&quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_fn</span><span class="p">:</span> <span class="nb">callable</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_batched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_fn</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]],</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">is_batched</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a simulator based on a simple callable function</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        sample_fn : Callable[[Sequence[int]], Mapping[str, any]]</span>
+<span class="sd">            A function that generates samples. It should accept `batch_shape` as its first argument</span>
+<span class="sd">            (if `is_batched=True`), followed by keyword arguments.</span>
+<span class="sd">        is_batched : bool, optional</span>
+<span class="sd">            Whether the `sample_fn` is implemented to handle batched sampling directly.</span>
+<span class="sd">            If False, `sample_fn` will be called once per sample and results will be stacked.</span>
+<span class="sd">            Default is False.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sample_fn</span> <span class="o">=</span> <span class="n">sample_fn</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_batched</span> <span class="o">=</span> <span class="n">is_batched</span>
 
@@ -423,6 +438,25 @@
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.LambdaSimulator.html#bayesflow.simulators.LambdaSimulator.sample">[docs]</a>
     <span class="nd">@allow_batch_size</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample using the wrapped sampling function.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_shape : Shape</span>
+<span class="sd">            The shape of the batch to sample. Typically, a tuple indicating the number of samples,</span>
+<span class="sd">            but an int can also be passed.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to the sampling function. Only valid arguments</span>
+<span class="sd">            (as determined by the function&#39;s signature) are used.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data : dict of str to np.ndarray</span>
+<span class="sd">            A dictionary of sampled outputs. Keys are output names and values are numpy arrays.</span>
+<span class="sd">            If `is_batched` is False, individual outputs are stacked along the first axis.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="c1"># try to use only valid keyword-arguments</span>
         <span class="n">kwargs</span> <span class="o">=</span> <span class="n">filter_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">sample_fn</span><span class="p">)</span>
 

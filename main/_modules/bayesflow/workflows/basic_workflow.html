@@ -401,7 +401,8 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.workflows.basic_workflow</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Callable</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Callable</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
@@ -498,21 +499,17 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span> <span class="o">=</span> <span class="n">simulator</span>
 
-        <span class="k">if</span> <span class="n">adapter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span> <span class="o">=</span> <span class="n">BasicWorkflow</span><span class="o">.</span><span class="n">default_adapter</span><span class="p">(</span>
-                <span class="n">inference_variables</span><span class="p">,</span> <span class="n">inference_conditions</span><span class="p">,</span> <span class="n">summary_variables</span><span class="p">,</span> <span class="n">standardize</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span> <span class="o">=</span> <span class="n">adapter</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">inference_variables</span> <span class="o">=</span> <span class="n">inference_variables</span>
+        <span class="n">adapter</span> <span class="o">=</span> <span class="n">adapter</span> <span class="ow">or</span> <span class="n">BasicWorkflow</span><span class="o">.</span><span class="n">default_adapter</span><span class="p">(</span>
+            <span class="n">inference_variables</span><span class="p">,</span> <span class="n">inference_conditions</span><span class="p">,</span> <span class="n">summary_variables</span><span class="p">,</span> <span class="n">standardize</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_network</span><span class="p">,</span> <span class="n">PointInferenceNetwork</span><span class="p">):</span>
-            <span class="n">Approximator</span> <span class="o">=</span> <span class="n">PointApproximator</span>
+            <span class="n">constructor</span> <span class="o">=</span> <span class="n">PointApproximator</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">Approximator</span> <span class="o">=</span> <span class="n">ContinuousApproximator</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span> <span class="o">=</span> <span class="n">Approximator</span><span class="p">(</span>
-            <span class="n">inference_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_network</span><span class="p">,</span> <span class="n">summary_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">summary_network</span><span class="p">,</span> <span class="n">adapter</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">adapter</span>
+            <span class="n">constructor</span> <span class="o">=</span> <span class="n">ContinuousApproximator</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span> <span class="o">=</span> <span class="n">constructor</span><span class="p">(</span>
+            <span class="n">inference_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_network</span><span class="p">,</span> <span class="n">summary_network</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">summary_network</span><span class="p">,</span> <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span> <span class="o">=</span> <span class="n">initial_learning_rate</span>
@@ -546,16 +543,20 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span> <span class="o">=</span> <span class="kc">None</span>
 
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">adapter</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">adapter</span>
+
 <div class="viewcode-block" id="BasicWorkflow.samples_to_data_frame">
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.samples_to_data_frame">[docs]</a>
     <span class="nd">@staticmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">samples_to_data_frame</span><span class="p">(</span><span class="n">samples</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">samples_to_data_frame</span><span class="p">(</span><span class="n">samples</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert a dictionary of samples into a pandas DataFrame.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        samples : dict[str, np.ndarray]</span>
+<span class="sd">        samples : Mapping[str, np.ndarray]</span>
 <span class="sd">            A dictionary where keys represent variable names and values are</span>
 <span class="sd">            arrays containing sampled data.</span>
 
@@ -644,8 +645,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No simulator provided!&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No simulator provided!&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BasicWorkflow.simulate_adapted">
@@ -674,8 +674,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No simulator provided!&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No simulator provided!&quot;</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BasicWorkflow.sample">
@@ -684,7 +683,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">conditions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">conditions</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -710,15 +709,48 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
+<div class="viewcode-block" id="BasicWorkflow.estimate">
+<a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.estimate">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">conditions</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Estimates point summaries of inference variables based on specified conditions.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        conditions : Mapping[str, np.ndarray]</span>
+<span class="sd">            A dictionary mapping variable names to arrays representing the conditions for the estimation process.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to underlying processing functions.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        estimates : dict[str, dict[str, np.ndarray or dict[str, np.ndarray]]]</span>
+<span class="sd">            The estimates of inference variables in a nested dictionary.</span>
+
+<span class="sd">            1. Each first-level key is the name of an inference variable.</span>
+<span class="sd">            2. Each second-level key is the name of a scoring rule.</span>
+<span class="sd">            3. (If the scoring rule comprises multiple estimators, each third-level key is the name of an estimator.)</span>
+
+<span class="sd">            Each estimator output (i.e., dictionary value that is not itself a dictionary) is an array</span>
+<span class="sd">            of shape (num_datasets, point_estimate_size, variable_block_size).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">estimate</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="BasicWorkflow.log_prob">
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.log_prob">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_prob</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Compute the log probability of given variables under the approximator.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data : dict[str, np.ndarray]</span>
+<span class="sd">        data : Mapping[str, np.ndarray]</span>
 <span class="sd">            A dictionary where keys represent variable names and values are arrays corresponding to the variables&#39;</span>
 <span class="sd">            realizations.</span>
 <span class="sd">        **kwargs : dict, optional</span>
@@ -736,8 +768,9 @@
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.plot_default_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_default_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">test_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">test_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">variable_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">variable_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
@@ -751,7 +784,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_data : dict[str, np.ndarray] or int</span>
+<span class="sd">        test_data : Mapping[str, np.ndarray] or int</span>
 <span class="sd">            A dictionary containing test data where keys represent variable</span>
 <span class="sd">            names and values are corresponding data arrays. If an integer</span>
 <span class="sd">            is provided, that number of test data sets will be generated</span>
@@ -759,9 +792,11 @@
 <span class="sd">        num_samples : int, optional</span>
 <span class="sd">            The number of samples to draw from the approximator for diagnostics,</span>
 <span class="sd">            by default 1000.</span>
-<span class="sd">        variable_names : Sequence[str], optional</span>
-<span class="sd">            A list of variable names to include in the diagnostic plots. If</span>
-<span class="sd">            None, all available variables are used.</span>
+<span class="sd">        variable_keys : list or None, optional, default: None</span>
+<span class="sd">           Select keys from the dictionaries provided in estimates and targets.</span>
+<span class="sd">           By default, select all keys.</span>
+<span class="sd">        variable_names : list or None, optional, default: None</span>
+<span class="sd">            The variable names for nice table plot titles.</span>
 <span class="sd">        **kwargs : dict, optional</span>
 <span class="sd">            Additional keyword arguments:</span>
 
@@ -786,7 +821,7 @@
 <span class="sd">            types, and values are the respective matplotlib Figure objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">figures</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
@@ -802,7 +837,8 @@
         <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">plot_fn</span> <span class="ow">in</span> <span class="n">plot_fns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">figures</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_fn</span><span class="p">(</span>
                 <span class="n">estimates</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
-                <span class="n">targets</span><span class="o">=</span><span class="n">inference_variables</span><span class="p">,</span>
+                <span class="n">targets</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+                <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span>
                 <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">,</span>
                 <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">_kwargs&quot;</span><span class="p">,</span> <span class="p">{}),</span>
             <span class="p">)</span>
@@ -814,9 +850,10 @@
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.plot_custom_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">plot_custom_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">test_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">plot_fns</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+        <span class="n">test_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">plot_fns</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">variable_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">variable_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">]:</span>
@@ -829,21 +866,23 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_data : dict[str, np.ndarray] or int</span>
+<span class="sd">        test_data : Mapping[str, np.ndarray] or int</span>
 <span class="sd">            A dictionary containing test data where keys represent variable</span>
 <span class="sd">            names and values are corresponding data arrays. If an integer</span>
 <span class="sd">            is provided, that number of test data sets will be generated</span>
 <span class="sd">            using the simulator (if available).</span>
-<span class="sd">        plot_fns: dict[str, callable]</span>
+<span class="sd">        plot_fns: Mapping[str, Callable]</span>
 <span class="sd">            A dictionary containing custom plotting functions where keys represent</span>
 <span class="sd">            the function names and values correspond to the functions themselves.</span>
 <span class="sd">            The functions should have a signature of fn(samples, inference_variables, variable_names)</span>
 <span class="sd">        num_samples : int, optional</span>
 <span class="sd">            The number of samples to draw from the approximator for diagnostics,</span>
 <span class="sd">            by default 1000.</span>
-<span class="sd">        variable_names : Sequence[str], optional</span>
-<span class="sd">            A list of variable names to include in the diagnostic plots. If</span>
-<span class="sd">            None, all available variables are used.</span>
+<span class="sd">        variable_keys : list or None, optional, default: None</span>
+<span class="sd">           Select keys from the dictionaries provided in estimates and targets.</span>
+<span class="sd">           By default, select all keys.</span>
+<span class="sd">        variable_names : list or None, optional, default: None</span>
+<span class="sd">            The variable names for nice table plot titles.</span>
 <span class="sd">        **kwargs : dict, optional</span>
 <span class="sd">            Additional keyword arguments:</span>
 
@@ -868,11 +907,11 @@
 <span class="sd">            types, and values are the respective matplotlib Figure objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">figures</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">plot_fn</span> <span class="ow">in</span> <span class="n">plot_fns</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">figures</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_fn</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span><span class="p">,</span> <span class="n">variable_names</span><span class="p">)</span>
+            <span class="n">figures</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_fn</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">figures</span></div>
 
 
@@ -890,8 +929,9 @@
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.compute_default_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_default_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">test_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">test_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">variable_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">variable_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">as_data_frame</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
@@ -905,7 +945,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_data : dict[str, np.ndarray] or int</span>
+<span class="sd">        test_data : Mapping[str, np.ndarray] or int</span>
 <span class="sd">            A dictionary containing test data where keys represent variable</span>
 <span class="sd">            names and values are corresponding realizations. If an integer</span>
 <span class="sd">            is provided, that number of test data sets will be generated</span>
@@ -913,9 +953,11 @@
 <span class="sd">        num_samples : int, optional</span>
 <span class="sd">            The number of samples to draw from the approximator for diagnostics,</span>
 <span class="sd">            by default 1000.</span>
-<span class="sd">        variable_names : Sequence[str], optional</span>
-<span class="sd">            A list of variable names to include in the diagnostics. If None,</span>
-<span class="sd">            all available variables are used.</span>
+<span class="sd">        variable_keys : list or None, optional, default: None</span>
+<span class="sd">           Select keys from the dictionaries provided in estimates and targets.</span>
+<span class="sd">           By default, select all keys.</span>
+<span class="sd">        variable_names : list or None, optional, default: None</span>
+<span class="sd">            The parameter names for nice table plot titles.</span>
 <span class="sd">        as_data_frame : bool, optional</span>
 <span class="sd">            Whether to return the results as a pandas DataFrame (default: True).</span>
 <span class="sd">            If False, a sequence of dictionaries with metric values is returned.</span>
@@ -941,25 +983,28 @@
 <span class="sd">            returns a sequence of dictionaries with metric values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">root_mean_squared_error</span> <span class="o">=</span> <span class="n">bf_metrics</span><span class="o">.</span><span class="n">root_mean_squared_error</span><span class="p">(</span>
             <span class="n">estimates</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
-            <span class="n">targets</span><span class="o">=</span><span class="n">inference_variables</span><span class="p">,</span>
+            <span class="n">targets</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+            <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span>
             <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;root_mean_squared_error_kwargs&quot;</span><span class="p">,</span> <span class="p">{}),</span>
         <span class="p">)</span>
 
         <span class="n">contraction</span> <span class="o">=</span> <span class="n">bf_metrics</span><span class="o">.</span><span class="n">posterior_contraction</span><span class="p">(</span>
             <span class="n">estimates</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
-            <span class="n">targets</span><span class="o">=</span><span class="n">inference_variables</span><span class="p">,</span>
+            <span class="n">targets</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+            <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span>
             <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;posterior_contraction_kwargs&quot;</span><span class="p">,</span> <span class="p">{}),</span>
         <span class="p">)</span>
 
         <span class="n">calibration_errors</span> <span class="o">=</span> <span class="n">bf_metrics</span><span class="o">.</span><span class="n">calibration_error</span><span class="p">(</span>
             <span class="n">estimates</span><span class="o">=</span><span class="n">samples</span><span class="p">,</span>
-            <span class="n">targets</span><span class="o">=</span><span class="n">inference_variables</span><span class="p">,</span>
+            <span class="n">targets</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span>
+            <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span>
             <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">,</span>
             <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;calibration_error_kwargs&quot;</span><span class="p">,</span> <span class="p">{}),</span>
         <span class="p">)</span>
@@ -971,7 +1016,7 @@
                     <span class="n">contraction</span><span class="p">[</span><span class="s2">&quot;metric_name&quot;</span><span class="p">]:</span> <span class="n">contraction</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span>
                     <span class="n">calibration_errors</span><span class="p">[</span><span class="s2">&quot;metric_name&quot;</span><span class="p">]:</span> <span class="n">calibration_errors</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">],</span>
                 <span class="p">},</span>
-                <span class="n">index</span><span class="o">=</span><span class="n">root_mean_squared_error</span><span class="p">[</span><span class="s2">&quot;variable_names&quot;</span><span class="p">],</span>
+                <span class="n">index</span><span class="o">=</span><span class="n">variable_keys</span> <span class="ow">or</span> <span class="n">root_mean_squared_error</span><span class="p">[</span><span class="s2">&quot;variable_names&quot;</span><span class="p">],</span>
             <span class="p">)</span><span class="o">.</span><span class="n">T</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">metrics</span> <span class="o">=</span> <span class="p">(</span><span class="n">root_mean_squared_error</span><span class="p">,</span> <span class="n">contraction</span><span class="p">,</span> <span class="n">calibration_errors</span><span class="p">)</span>
@@ -983,38 +1028,42 @@
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.compute_custom_diagnostics">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_custom_diagnostics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">test_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
-        <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
+        <span class="n">test_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">],</span>
         <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">variable_keys</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">variable_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">as_data_frame</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Mapping</span><span class="p">]</span> <span class="o">|</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Computes custom diagnostic metrics to evaluate the quality of inference. The metric functions should</span>
 <span class="sd">        have a signature of:</span>
 
-<span class="sd">        - metric_fn(samples, inference_variables, variable_names)</span>
+<span class="sd">        - metric_fn(samples, inference_variables, variable_names, variable_keys) or</span>
+<span class="sd">        - metric_fn(samples, inference_variables, **kwargs)</span>
 
 <span class="sd">        And return a dictionary containing the metric name in &#39;name&#39; key and the metric values in a &#39;values&#39; key.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        test_data : dict[str, np.ndarray] or int</span>
+<span class="sd">        test_data : Mapping[str, np.ndarray] or int</span>
 <span class="sd">            A dictionary containing test data where keys represent variable</span>
 <span class="sd">            names and values are corresponding realizations. If an integer</span>
 <span class="sd">            is provided, that number of test data sets will be generated</span>
 <span class="sd">            using the simulator (if available).</span>
-<span class="sd">        metrics: dict[str, callable]</span>
+<span class="sd">        metrics: Mapping[str, Callable]</span>
 <span class="sd">            A dictionary containing custom metric functions where keys represent</span>
 <span class="sd">            the function names and values correspond to the functions themselves.</span>
 <span class="sd">            The functions should have a signature of fn(samples, inference_variables, variable_names)</span>
 <span class="sd">        num_samples : int, optional</span>
 <span class="sd">            The number of samples to draw from the approximator for diagnostics,</span>
 <span class="sd">            by default 1000.</span>
-<span class="sd">        variable_names : Sequence[str], optional</span>
-<span class="sd">            A list of variable names to include in the diagnostics. If None,</span>
-<span class="sd">            all available variables are used.</span>
+<span class="sd">        variable_keys : list or None, optional, default: None</span>
+<span class="sd">           Select keys from the dictionaries provided in estimates and targets.</span>
+<span class="sd">           By default, select all keys.</span>
+<span class="sd">        variable_names : list or None, optional, default: None</span>
+<span class="sd">            The variable names for nice plot titles.</span>
 <span class="sd">        as_data_frame : bool, optional</span>
 <span class="sd">            Whether to return the results as a pandas DataFrame (default: True).</span>
 <span class="sd">            If False, a sequence of dictionaries with metric values is returned.</span>
@@ -1040,11 +1089,11 @@
 <span class="sd">            returns a sequence of dictionaries with metric values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_prepare_for_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="n">metrics_dict</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">metric_fn</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">metric</span> <span class="o">=</span> <span class="n">metric_fn</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span><span class="p">,</span> <span class="n">variable_names</span><span class="p">)</span>
+            <span class="n">metric</span> <span class="o">=</span> <span class="n">metric_fn</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span><span class="p">,</span> <span class="n">variable_keys</span><span class="o">=</span><span class="n">variable_keys</span><span class="p">,</span> <span class="n">variable_names</span><span class="o">=</span><span class="n">variable_names</span><span class="p">)</span>
             <span class="n">metrics_dict</span><span class="p">[</span><span class="n">metric</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="n">metric</span><span class="p">[</span><span class="s2">&quot;values&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">as_data_frame</span><span class="p">:</span>
@@ -1066,13 +1115,13 @@
 <a class="viewcode-back" href="../../../api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.fit_offline">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">fit_offline</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
         <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
         <span class="n">keep_optimizer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">validation_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the approximator offline using a fixed dataset. This approach will be faster than online training,</span>
 <span class="sd">        since no computation time is spent in generating new data for each batch, but it assumes that simulations</span>
@@ -1080,7 +1129,7 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data : dict[str, np.ndarray]</span>
+<span class="sd">        data : Mapping[str, np.ndarray]</span>
 <span class="sd">            A dictionary containing training data where keys represent variable</span>
 <span class="sd">            names and values are corresponding realizations.</span>
 <span class="sd">        epochs : int, optional</span>
@@ -1091,7 +1140,7 @@
 <span class="sd">        keep_optimizer : bool, optional</span>
 <span class="sd">            Whether to retain the current state of the optimizer after training,</span>
 <span class="sd">            by default False.</span>
-<span class="sd">        validation_data : dict[str, np.ndarray] or int, optional</span>
+<span class="sd">        validation_data : Mapping[str, np.ndarray] or int, optional</span>
 <span class="sd">            A dictionary containing validation data. If an integer is provided,</span>
 <span class="sd">            that number of validation samples will be generated (if supported).</span>
 <span class="sd">            By default, no validation data is used.</span>
@@ -1100,8 +1149,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dict[str, np.ndarray]</span>
-<span class="sd">            A dictionary containing training history, where keys correspond to</span>
+<span class="sd">        history : keras.callbacks.History</span>
+<span class="sd">            A history object containing training history, where keys correspond to</span>
 <span class="sd">            logged metrics (e.g., loss values) and values are arrays tracking</span>
 <span class="sd">            metric evolution over epochs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1121,9 +1170,9 @@
         <span class="n">num_batches_per_epoch</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">batch_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">32</span><span class="p">,</span>
         <span class="n">keep_optimizer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">validation_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the approximator using an online data-generating process. The dataset is dynamically generated during</span>
 <span class="sd">        training, making this approach suitable for scenarios where generating new simulations is computationally cheap.</span>
@@ -1139,7 +1188,7 @@
 <span class="sd">        keep_optimizer : bool, optional</span>
 <span class="sd">            Whether to retain the current state of the optimizer after training,</span>
 <span class="sd">            by default False.</span>
-<span class="sd">        validation_data : dict[str, np.ndarray] or int, optional</span>
+<span class="sd">        validation_data : Mapping[str, np.ndarray] or int, optional</span>
 <span class="sd">            A dictionary containing validation data. If an integer is provided,</span>
 <span class="sd">            that number of validation samples will be generated (if supported).</span>
 <span class="sd">            By default, no validation data is used.</span>
@@ -1148,8 +1197,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dict[str, np.ndarray]</span>
-<span class="sd">            A dictionary containing training history, where keys correspond to</span>
+<span class="sd">        history : keras.callbacks.History</span>
+<span class="sd">            A history object containing training history, where keys correspond to</span>
 <span class="sd">            logged metrics (e.g., loss values) and values are arrays tracking</span>
 <span class="sd">            metric evolution over epochs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1173,9 +1222,9 @@
         <span class="n">load_fn</span><span class="p">:</span> <span class="nb">callable</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">100</span><span class="p">,</span>
         <span class="n">keep_optimizer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">validation_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Train the approximator using data stored on disk. This approach is suitable for large sets of simulations that</span>
 <span class="sd">        don&#39;t fit in memory.</span>
@@ -1197,7 +1246,7 @@
 <span class="sd">        keep_optimizer : bool, optional</span>
 <span class="sd">            Whether to retain the current state of the optimizer after training,</span>
 <span class="sd">            by default False.</span>
-<span class="sd">        validation_data : dict[str, np.ndarray] or int, optional</span>
+<span class="sd">        validation_data : Mapping[str, np.ndarray] or int, optional</span>
 <span class="sd">            A dictionary containing validation data. If an integer is provided,</span>
 <span class="sd">            that number of validation samples will be generated (if supported).</span>
 <span class="sd">            By default, no validation data is used.</span>
@@ -1206,8 +1255,8 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        dict[str, np.ndarray]</span>
-<span class="sd">            A dictionary containing training history, where keys correspond to</span>
+<span class="sd">        history : keras.callbacks.History</span>
+<span class="sd">            A history object containing training history, where keys correspond to</span>
 <span class="sd">            logged metrics (e.g., loss values) and values are arrays tracking</span>
 <span class="sd">            metric evolution over epochs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -1250,9 +1299,11 @@
 
         <span class="c1"># Default case</span>
         <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">CosineDecay</span><span class="p">(</span>
-            <span class="n">initial_learning_rate</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
+            <span class="n">initial_learning_rate</span><span class="o">=</span><span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
+            <span class="n">warmup_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
+            <span class="n">warmup_steps</span><span class="o">=</span><span class="n">num_batches</span><span class="p">,</span>
             <span class="n">decay_steps</span><span class="o">=</span><span class="n">epochs</span> <span class="o">*</span> <span class="n">num_batches</span><span class="p">,</span>
-            <span class="n">alpha</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="o">**</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="c1"># Use adam for online learning, apply weight decay otherwise</span>
@@ -1268,9 +1319,9 @@
         <span class="n">epochs</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
         <span class="n">strategy</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">keep_optimizer</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
-        <span class="n">validation_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">validation_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">validation_data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">validation_data</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="n">validation_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">validation_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;validation_data_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
@@ -1313,28 +1364,21 @@
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_on_training_finished</span><span class="p">()</span>
             <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span>
-        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">err</span>
         <span class="k">finally</span><span class="p">:</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">keep_optimizer</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_for_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_prepare_for_diagnostics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">test_data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="nb">int</span><span class="p">,</span> <span class="n">num_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1000</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">test_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;test_data_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">test_data</span><span class="p">,</span> <span class="nb">int</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No simulator found for generating </span><span class="si">{</span><span class="n">test_data</span><span class="si">}</span><span class="s2"> data sets.&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_variables</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">inference_variables</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_variables</span><span class="p">:</span> <span class="n">test_data</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">inference_variables</span><span class="p">]}</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">inference_variables</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">test_data</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">inference_variables</span><span class="p">}</span>
-
         <span class="n">samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span>
             <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">test_data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;approximator_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
         <span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">samples</span><span class="p">,</span> <span class="n">inference_variables</span>
+        <span class="k">return</span> <span class="n">samples</span><span class="p">,</span> <span class="n">test_data</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_training_finished</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">checkpoint_filepath</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>

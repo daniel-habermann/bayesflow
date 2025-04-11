@@ -415,12 +415,40 @@
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.HierarchicalSimulator.html#bayesflow.simulators.HierarchicalSimulator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">HierarchicalSimulator</span><span class="p">(</span><span class="n">Simulator</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">hierarchy</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Simulator</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the hierarchical simulator with a sequence of simulators.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        hierarchy : Sequence[Simulator]</span>
+<span class="sd">            A sequence of simulator instances representing each level of the hierarchy.</span>
+<span class="sd">            Each level&#39;s output is used as input for the next, with increasing batch dimensions.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hierarchy</span> <span class="o">=</span> <span class="n">hierarchy</span>
 
 <div class="viewcode-block" id="HierarchicalSimulator.sample">
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.HierarchicalSimulator.html#bayesflow.simulators.HierarchicalSimulator.sample">[docs]</a>
     <span class="nd">@allow_batch_size</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample from a hierarchy of simulators.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_shape : Shape</span>
+<span class="sd">            A tuple where each element specifies the number of samples at the corresponding level</span>
+<span class="sd">            of the hierarchy. The total batch size increases multiplicatively through the levels.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to each simulator. These are combined with outputs</span>
+<span class="sd">            from previous levels and repeated appropriately.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        output_data : dict of str to np.ndarray</span>
+<span class="sd">            A dictionary containing the outputs from the entire hierarchy. Outputs are reshaped to</span>
+<span class="sd">            match the hierarchical batch shape, i.e., with shape equal to `batch_shape + original_shape`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">input_data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">output_data</span> <span class="o">=</span> <span class="p">{}</span>
 

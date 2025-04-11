@@ -37,9 +37,11 @@ utils
     add_metric
     add_titles_and_labels
     batched_call
+    calibration_curve
     check_estimates_prior_shapes
     check_lengths_same
     concatenate_valid
+    confusion_matrix
     convert_args
     convert_kwargs
     deserialize_value_or_type
@@ -55,6 +57,7 @@ utils
     expand_right_to
     expand_tile
     expand_to
+    fill_triangular_matrix
     filter_kwargs
     find_batch_size
     find_distribution
@@ -90,6 +93,7 @@ utils
     tree_concatenate
     tree_stack
     vjp
+    weighted_sum
   
   
 

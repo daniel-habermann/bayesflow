@@ -425,10 +425,8 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">widths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">256</span><span class="p">,</span> <span class="mi">256</span><span class="p">),</span>
         <span class="o">*</span><span class="p">,</span>
-        <span class="n">depth</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">widths</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">activation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mish&quot;</span><span class="p">,</span>
         <span class="n">kernel_initializer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;he_normal&quot;</span><span class="p">,</span>
         <span class="n">residual</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
@@ -451,15 +449,8 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        depth : int, optional</span>
-<span class="sd">            Number of layers in the MLP when `widths` is not explicitly provided. Must be</span>
-<span class="sd">            used together with `width`. Default is 2.</span>
-<span class="sd">        width : int, optional</span>
-<span class="sd">            Number of units per layer when `widths` is not explicitly provided. Must be used</span>
-<span class="sd">            together with `depth`. Default is 256.</span>
 <span class="sd">        widths : Sequence[int], optional</span>
-<span class="sd">            Explicitly defines the number of hidden units per layer. If provided, `depth` and</span>
-<span class="sd">            `width` should not be specified. Default is None.</span>
+<span class="sd">            Defines the number of hidden units per layer, as well as the number of layers to be used.</span>
 <span class="sd">        activation : str, optional</span>
 <span class="sd">            Activation function applied in the hidden layers, such as &quot;mish&quot;. Default is &quot;mish&quot;.</span>
 <span class="sd">        kernel_initializer : str, optional</span>
@@ -480,17 +471,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">keras_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="n">widths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">width</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either specify &#39;widths&#39; or &#39;depth&#39; and &#39;width&#39;, not both.&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">width</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># use the default</span>
-                <span class="n">depth</span> <span class="o">=</span> <span class="mi">2</span>
-                <span class="n">width</span> <span class="o">=</span> <span class="mi">256</span>
-
-            <span class="n">widths</span> <span class="o">=</span> <span class="p">[</span><span class="n">width</span><span class="p">]</span> <span class="o">*</span> <span class="n">depth</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">res_blocks</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">width</span> <span class="ow">in</span> <span class="n">widths</span><span class="p">:</span>

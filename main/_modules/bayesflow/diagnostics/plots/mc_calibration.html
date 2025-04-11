@@ -401,11 +401,10 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.diagnostics.plots.mc_calibration</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span><span class="p">,</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">prepare_plot_data</span><span class="p">,</span>
@@ -420,10 +419,10 @@
 <div class="viewcode-block" id="mc_calibration">
 <a class="viewcode-back" href="../../../../api/bayesflow.diagnostics.mc_calibration.html#bayesflow.diagnostics.mc_calibration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">mc_calibration</span><span class="p">(</span>
-    <span class="n">pred_models</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
-    <span class="n">true_models</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">pred_models</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">true_models</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
     <span class="n">model_names</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="n">n_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">num_bins</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
     <span class="n">label_fontsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">16</span><span class="p">,</span>
     <span class="n">title_fontsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">18</span><span class="p">,</span>
     <span class="n">metric_fontsize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">14</span><span class="p">,</span>
@@ -446,12 +445,12 @@
 <span class="sd">        The one-hot-encoded true model indices per data set.</span>
 <span class="sd">    model_names       : list or None, optional, default: None</span>
 <span class="sd">        The model names for nice plot titles. Inferred if None.</span>
-<span class="sd">    n_bins          : int, optional, default: 10</span>
+<span class="sd">    num_bins          : int, optional, default: 10</span>
 <span class="sd">        The number of bins to use for the calibration curves (and marginal histograms).</span>
 <span class="sd">    label_fontsize    : int, optional, default: 16</span>
 <span class="sd">        The font size of the y-label and y-label texts</span>
-<span class="sd">    legend_fontsize   : int, optional, default: 14</span>
-<span class="sd">        The font size of the legend text (ECE value)</span>
+<span class="sd">    metric_fontsize   : int, optional, default: 14</span>
+<span class="sd">        The font size of the metric (e.g., ECE)</span>
 <span class="sd">    title_fontsize    : int, optional, default: 18</span>
 <span class="sd">        The font size of the title text. Only relevant if `stacked=False`</span>
 <span class="sd">    tick_fontsize     : int, optional, default: 12</span>
@@ -488,7 +487,7 @@
         <span class="n">estimates</span><span class="o">=</span><span class="n">pred_models</span><span class="p">,</span>
         <span class="n">targets</span><span class="o">=</span><span class="n">true_models</span><span class="p">,</span>
         <span class="n">model_names</span><span class="o">=</span><span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;variable_names&quot;</span><span class="p">],</span>
-        <span class="n">n_bins</span><span class="o">=</span><span class="n">n_bins</span><span class="p">,</span>
+        <span class="n">num_bins</span><span class="o">=</span><span class="n">num_bins</span><span class="p">,</span>
         <span class="n">return_probs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="p">)</span>
 
@@ -497,7 +496,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ece</span><span class="p">[</span><span class="s2">&quot;probs_pred&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="n">ece</span><span class="p">[</span><span class="s2">&quot;probs_true&quot;</span><span class="p">][</span><span class="n">j</span><span class="p">],</span> <span class="s2">&quot;o-&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">)</span>
 
         <span class="c1"># Plot PMP distribution over bins</span>
-        <span class="n">uniform_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">n_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">uniform_bins</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">num_bins</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
         <span class="n">norm_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;estimates&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;estimates&quot;</span><span class="p">])</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">plot_data</span><span class="p">[</span><span class="s2">&quot;estimates&quot;</span><span class="p">][:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="n">uniform_bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">norm_weights</span><span class="p">[:,</span> <span class="n">j</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;grey&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
 

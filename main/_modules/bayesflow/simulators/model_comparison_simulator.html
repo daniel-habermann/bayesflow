@@ -429,6 +429,26 @@
         <span class="n">use_mixed_batches</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">shared_simulator</span><span class="p">:</span> <span class="n">Simulator</span> <span class="o">|</span> <span class="n">FunctionType</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a multi-model simulator that can generate data for mixture / model comparison problems.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        simulators : Sequence[Simulator]</span>
+<span class="sd">            A sequence of simulator instances, each representing a different model.</span>
+<span class="sd">        p : Sequence[float], optional</span>
+<span class="sd">            A sequence of probabilities associated with each simulator. Must sum to 1.</span>
+<span class="sd">            Mutually exclusive with `logits`.</span>
+<span class="sd">        logits : Sequence[float], optional</span>
+<span class="sd">            A sequence of logits corresponding to model probabilities. Mutually exclusive with `p`.</span>
+<span class="sd">            If neither `p` nor `logits` is provided, defaults to uniform logits.</span>
+<span class="sd">        use_mixed_batches : bool, optional</span>
+<span class="sd">            If True, samples in a batch are drawn from different models. If False, the entire batch</span>
+<span class="sd">            is drawn from a single model chosen according to the model probabilities. Default is True.</span>
+<span class="sd">        shared_simulator : Simulator or FunctionType, optional</span>
+<span class="sd">            A shared simulator whose outputs are passed to all model simulators. If a function is</span>
+<span class="sd">            provided, it is wrapped in a `LambdaSimulator` with batching enabled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span> <span class="o">=</span> <span class="n">simulators</span>
 
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">shared_simulator</span><span class="p">,</span> <span class="n">FunctionType</span><span class="p">):</span>
@@ -458,35 +478,51 @@
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.ModelComparisonSimulator.html#bayesflow.simulators.ModelComparisonSimulator.sample">[docs]</a>
     <span class="nd">@allow_batch_size</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample from the model comparison simulator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_shape : Shape</span>
+<span class="sd">            The shape of the batch to sample. Typically, a tuple indicating the number of samples,</span>
+<span class="sd">            but the user can also supply an int.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to each simulator. These may include outputs from</span>
+<span class="sd">            the shared simulator.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data : dict of str to np.ndarray</span>
+<span class="sd">            A dictionary containing the sampled outputs. Includes:</span>
+<span class="sd">              - outputs from the selected simulator(s)</span>
+<span class="sd">              - optionally, outputs from the shared simulator</span>
+<span class="sd">              - &quot;model_indices&quot;: a one-hot encoded array indicating the model origin of each sample</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_simulator</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">|=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shared_simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mixed_batches</span><span class="p">:</span>
-            <span class="c1"># draw one model index for the whole batch (faster)</span>
-            <span class="n">model_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">),</span> <span class="n">p</span><span class="o">=</span><span class="n">npu</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">))</span>
+        <span class="n">softmax_logits</span> <span class="o">=</span> <span class="n">npu</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">)</span>
+        <span class="n">num_models</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">)</span>
 
-            <span class="n">simulator</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">[</span><span class="n">model_index</span><span class="p">]</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">data</span><span class="p">))</span>
+        <span class="c1"># generate data randomly from each model (slower)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_mixed_batches</span><span class="p">:</span>
+            <span class="n">model_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">batch_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pvals</span><span class="o">=</span><span class="n">softmax_logits</span><span class="p">)</span>
 
-            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="n">model_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
-            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">npu</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">model_indices</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># generate data randomly from each model (slower)</span>
-            <span class="n">model_counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">multinomial</span><span class="p">(</span><span class="n">n</span><span class="o">=</span><span class="n">batch_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">pvals</span><span class="o">=</span><span class="n">npu</span><span class="o">.</span><span class="n">softmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">logits</span><span class="p">))</span>
-
-            <span class="n">sims</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">simulator</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">model_counts</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-                    <span class="k">continue</span>
-                <span class="n">sim</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">data</span><span class="p">))</span>
-                <span class="n">sims</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sim</span><span class="p">)</span>
-
+            <span class="n">sims</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">n</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">data</span><span class="p">))</span> <span class="k">for</span> <span class="n">simulator</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">,</span> <span class="n">model_counts</span><span class="p">)</span> <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">]</span>
             <span class="n">sims</span> <span class="o">=</span> <span class="n">tree_concatenate</span><span class="p">(</span><span class="n">sims</span><span class="p">,</span> <span class="n">numpy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
             <span class="n">data</span> <span class="o">|=</span> <span class="n">sims</span>
 
-            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">)</span>
-            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">model_indices</span><span class="p">,</span> <span class="n">model_counts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">repeat</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">eye</span><span class="p">(</span><span class="n">num_models</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">),</span> <span class="n">model_counts</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># draw one model index for the whole batch (faster)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">model_index</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span><span class="n">num_models</span><span class="p">,</span> <span class="n">p</span><span class="o">=</span><span class="n">softmax_logits</span><span class="p">)</span>
+
+            <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">[</span><span class="n">model_index</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">data</span><span class="p">))</span>
+            <span class="n">model_indices</span> <span class="o">=</span> <span class="n">npu</span><span class="o">.</span><span class="n">one_hot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="n">model_index</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;int32&quot;</span><span class="p">),</span> <span class="n">num_models</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;model_indices&quot;</span><span class="p">:</span> <span class="n">model_indices</span><span class="p">}</span></div>
 </div>

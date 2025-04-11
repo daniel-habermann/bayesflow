@@ -412,7 +412,7 @@
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ParametricDistributionScore.html#bayesflow.scores.ParametricDistributionScore">[docs]</a>
 <span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParametricDistributionScore</span><span class="p">(</span><span class="n">ScoringRule</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_\phi, \theta; k) = \log(\hat p_\phi(\theta))`</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_\phi, \theta; k) = -\log(\hat p_\phi(\theta))`</span>
 
 <span class="sd">    Base class for scoring a predicted parametric probability distribution with the log-score</span>
 <span class="sd">    of the probability of the realized value.</span>
@@ -436,36 +436,14 @@
 <div class="viewcode-block" id="ParametricDistributionScore.score">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ParametricDistributionScore.html#bayesflow.scores.ParametricDistributionScore.score">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the quantile-based scoring function.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the log-score for a predicted parametric probability distribution given realized **targets**.</span>
 
-<span class="sd">        This function extracts the &quot;value&quot; tensor from the `estimates` dictionary and computes</span>
-<span class="sd">        the pointwise difference between the estimates and the targets, expanding the target</span>
-<span class="sd">        dimensions as necessary.</span>
-
-<span class="sd">        The scoring function applies a quantile-based transformation to the difference, computing the</span>
-<span class="sd">        mean score across a specified axis. The final score is then aggregated, optionally applying weights.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        estimates : dict[str, Tensor]</span>
-<span class="sd">            A dictionary containing tensors of estimated values. The &quot;value&quot; key must be present.</span>
-<span class="sd">        targets : Tensor</span>
-<span class="sd">            A tensor of true target values. The shape is adjusted to align with estimates.</span>
-<span class="sd">        weights : Tensor, optional</span>
-<span class="sd">            A tensor of weights corresponding to each estimate-target pair. If provided, it is used</span>
-<span class="sd">            to compute a weighted aggregate score.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Tensor</span>
-<span class="sd">            The aggregated quantile-based score, computed using the absolute pointwise difference</span>
-<span class="sd">            transformed by the quantile adjustment, optionally weighted.</span>
+<span class="sd">        :math:`S(\hat p_\phi, \theta; k) = -\log(\hat p_\phi(\theta))`</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">scores</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="n">targets</span><span class="p">,</span> <span class="o">**</span><span class="n">estimates</span><span class="p">)</span>
         <span class="n">score</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">weights</span><span class="p">)</span>
-        <span class="c1"># multipy to mitigate instability due to relatively high values of parametric score</span>
-        <span class="k">return</span> <span class="n">score</span> <span class="o">*</span> <span class="mf">0.01</span></div>
+        <span class="k">return</span> <span class="n">score</span></div>
 </div>
 
 </pre></div>

@@ -579,6 +579,29 @@
 
 
 
+<div class="viewcode-block" id="weighted_sum">
+<a class="viewcode-back" href="../../../api/bayesflow.utils.weighted_sum.html#bayesflow.utils.weighted_sum">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">weighted_sum</span><span class="p">(</span><span class="n">elements</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the (optionally) weighted mean of the input tensor.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    elements : Tensor</span>
+<span class="sd">        A tensor containing the elements to average.</span>
+<span class="sd">    weights : Tensor, optional</span>
+<span class="sd">        A tensor of the same shape as `elements` representing weights.</span>
+<span class="sd">        If None, the mean is computed without weights.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tensor</span>
+<span class="sd">        A scalar tensor representing the (weighted) mean.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">elements</span> <span class="o">*</span> <span class="n">weights</span> <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">elements</span><span class="p">)</span></div>
+
+
+
 <div class="viewcode-block" id="searchsorted">
 <a class="viewcode-back" href="../../../api/bayesflow.utils.searchsorted.html#bayesflow.utils.searchsorted">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">searchsorted</span><span class="p">(</span><span class="n">sorted_sequence</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">values</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">side</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;left&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
@@ -623,7 +646,9 @@
 
             <span class="n">out_int32</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">sorted_sequence</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">iinfo</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span><span class="o">.</span><span class="n">max</span>
 
-            <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="n">sorted_sequence</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">,</span> <span class="n">out_int32</span><span class="o">=</span><span class="n">out_int32</span><span class="p">)</span>
+            <span class="n">indices</span> <span class="o">=</span> <span class="n">torch</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span>
+                <span class="n">sorted_sequence</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(),</span> <span class="n">values</span><span class="o">.</span><span class="n">contiguous</span><span class="p">(),</span> <span class="n">side</span><span class="o">=</span><span class="n">side</span><span class="p">,</span> <span class="n">out_int32</span><span class="o">=</span><span class="n">out_int32</span>
+            <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">indices</span>
         <span class="k">case</span><span class="w"> </span><span class="k">_</span><span class="p">:</span>
@@ -733,6 +758,84 @@
             <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">items</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="n">axis</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">stack</span><span class="p">,</span> <span class="o">*</span><span class="n">structures</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="fill_triangular_matrix">
+<a class="viewcode-back" href="../../../api/bayesflow.utils.fill_triangular_matrix.html#bayesflow.utils.fill_triangular_matrix">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">fill_triangular_matrix</span><span class="p">(</span><span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">upper</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">positive_diag</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Reshapes a batch of matrix elements into a triangular matrix (either upper or lower).</span>
+
+<span class="sd">    Note: If final axis has length 1, this simply reshapes to (batch_size, 1, 1) and optionally applies softplus.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    x : Tensor of shape (batch_size, m)</span>
+<span class="sd">        Batch of flattened nonzero matrix elements for triangular matrix.</span>
+<span class="sd">    upper : bool</span>
+<span class="sd">        Return upper triangular matrix if True, else lower triangular matrix. Default is False.</span>
+<span class="sd">    positive_diag : bool</span>
+<span class="sd">        Whether to apply a softplus operation to diagonal elements. Default is False.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tensor of shape (batch_size, n, n)</span>
+<span class="sd">        Batch of triangular matrices with m = n * (n + 1) / 2 unique nonzero elements.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If provided nonzero elements do not correspond to possible triangular matrix shape</span>
+<span class="sd">        (n,n) with n = sqrt( 1/4 + 2 * m) - 1/2 due to m = n * (n + 1) / 2.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">batch_shape</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">positive_diag</span><span class="p">:</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">y</span>
+
+    <span class="c1"># Calculate matrix shape</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="p">(</span><span class="mf">0.25</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">m</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span> <span class="o">-</span> <span class="mf">0.5</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">n</span><span class="p">),</span> <span class="n">n</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Input right-most shape (</span><span class="si">{</span><span class="n">m</span><span class="si">}</span><span class="s2">) does not correspond to a triangular matrix.&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">n</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+
+    <span class="c1"># Trick: Create triangular matrix by concatenating with a flipped version of its tail, then reshape.</span>
+    <span class="n">x_tail</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">indices</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">((</span><span class="n">m</span> <span class="o">-</span> <span class="p">(</span><span class="n">n</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="n">m</span><span class="p">)),</span> <span class="n">x</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])),</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">upper</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x_tail</span><span class="p">,</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">positive_diag</span><span class="p">:</span>
+            <span class="n">y_offdiag</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># carve out diagonal, by setting upper and lower offdiagonals to zero</span>
+            <span class="n">y_diag</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span>  <span class="c1"># apply softplus to enforce positivity</span>
+            <span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y_diag</span> <span class="o">+</span> <span class="n">y_offdiag</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">,</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">x_tail</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)],</span> <span class="n">axis</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">n</span><span class="p">))</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span>
+            <span class="n">y</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">positive_diag</span><span class="p">:</span>
+            <span class="n">y_offdiag</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="c1"># carve out diagonal, by setting upper and lower offdiagonals to zero</span>
+            <span class="n">y_diag</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">tril</span><span class="p">(</span>
+                <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">activations</span><span class="o">.</span><span class="n">softplus</span><span class="p">(</span><span class="n">y</span><span class="p">)),</span>  <span class="c1"># apply softplus to enforce positivity</span>
+            <span class="p">)</span>
+            <span class="n">y</span> <span class="o">=</span> <span class="n">y_diag</span> <span class="o">+</span> <span class="n">y_offdiag</span>
+
+    <span class="k">return</span> <span class="n">y</span></div>
 
 </pre></div>
 

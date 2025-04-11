@@ -407,8 +407,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">Tensor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.links</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositiveSemiDefinite</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.links</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositiveDefinite</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.parametric_distribution_score</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParametricDistributionScore</span>
 
@@ -417,19 +416,28 @@
 <a class="viewcode-back" href="../../../api/bayesflow.scores.MultivariateNormalScore.html#bayesflow.scores.MultivariateNormalScore">[docs]</a>
 <span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultivariateNormalScore</span><span class="p">(</span><span class="n">ParametricDistributionScore</span><span class="p">):</span>
-<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_{\mu, \Sigma}, \theta; k) = \log( \mathcal N (\theta; \mu, \Sigma))`</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_{\mu, \Sigma}, \theta; k) = -\log( \mathcal N (\theta; \mu, \Sigma))`</span>
 
 <span class="sd">    Scores a predicted mean and covariance matrix with the log-score of the probability of the materialized value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">NOT_TRANSFORMING_LIKE_VECTOR_WARNING</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;covariance&quot;</span><span class="p">,)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Marks head for covariance matrix as an exception for adapter transformations.</span>
+
+<span class="sd">    This variable contains names of prediction heads that should lead to a warning when the adapter is applied</span>
+<span class="sd">    in inverse direction to them.</span>
+
+<span class="sd">    For more information see :py:class:`ScoringRule`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">links</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">links</span><span class="o">=</span><span class="n">links</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">=</span> <span class="n">dim</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">links</span> <span class="o">=</span> <span class="n">links</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;covariance&quot;</span><span class="p">:</span> <span class="n">PositiveSemiDefinite</span><span class="p">()}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">dim</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">links</span> <span class="o">=</span> <span class="n">links</span> <span class="ow">or</span> <span class="p">{</span><span class="s2">&quot;covariance&quot;</span><span class="p">:</span> <span class="n">PositiveDefinite</span><span class="p">()}</span>
 
-        <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;MultivariateNormalScore is unstable.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dim&quot;</span><span class="p">:</span> <span class="n">dim</span><span class="p">}</span>
 
 <div class="viewcode-block" id="MultivariateNormalScore.get_config">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.MultivariateNormalScore.html#bayesflow.scores.MultivariateNormalScore.get_config">[docs]</a>
@@ -473,12 +481,12 @@
 <span class="sd">            A tensor containing the log probability densities for each sample in `x` under the</span>
 <span class="sd">            given Gaussian distribution.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">diff</span> <span class="o">=</span> <span class="n">x</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">mean</span>
-        <span class="n">inv_covariance</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">covariance</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">mean</span>
+        <span class="n">precision</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">covariance</span><span class="p">)</span>
         <span class="n">log_det_covariance</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">slogdet</span><span class="p">(</span><span class="n">covariance</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># Only take the log of the determinant part</span>
 
         <span class="c1"># Compute the quadratic term in the exponential of the multivariate Gaussian</span>
-        <span class="n">quadratic_term</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;...i,...ij,...j-&gt;...&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">inv_covariance</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
+        <span class="n">quadratic_term</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s2">&quot;...i,...ij,...j-&gt;...&quot;</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">precision</span><span class="p">,</span> <span class="n">diff</span><span class="p">)</span>
 
         <span class="c1"># Compute the log probability density</span>
         <span class="n">log_prob</span> <span class="o">=</span> <span class="o">-</span><span class="mf">0.5</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dim</span> <span class="o">*</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="p">)</span> <span class="o">+</span> <span class="n">log_det_covariance</span> <span class="o">+</span> <span class="n">quadratic_term</span><span class="p">)</span>
@@ -513,6 +521,8 @@
 <span class="sd">        Tensor</span>
 <span class="sd">            A tensor of shape (batch_size, num_samples, D) containing the generated samples.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">batch_shape</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span><span class="p">,)</span> <span class="o">+</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">)</span>
         <span class="n">batch_size</span><span class="p">,</span> <span class="n">num_samples</span> <span class="o">=</span> <span class="n">batch_shape</span>
         <span class="n">dim</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mean</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">mean</span><span class="p">)</span> <span class="o">!=</span> <span class="p">(</span><span class="n">batch_size</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>

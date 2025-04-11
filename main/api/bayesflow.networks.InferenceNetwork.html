@@ -374,6 +374,8 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.NumpyTransform.html">NumpyTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.OneHot.html">OneHot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Rename.html">Rename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
@@ -430,7 +432,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.links.html">links</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.Ordered.html">Ordered</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.OrderedQuantiles.html">OrderedQuantiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveSemiDefinite.html">PositiveSemiDefinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveDefinite.html">PositiveDefinite</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.metrics.html">metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -511,9 +513,11 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_titles_and_labels.html">add_titles_and_labels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.batched_call.html">batched_call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.calibration_curve.html">calibration_curve</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_estimates_prior_shapes.html">check_estimates_prior_shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_lengths_same.html">check_lengths_same</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.concatenate_valid.html">concatenate_valid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_args.html">convert_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_kwargs.html">convert_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.deserialize_value_or_type.html">deserialize_value_or_type</a></li>
@@ -529,6 +533,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_right_to.html">expand_right_to</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_tile.html">expand_tile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_to.html">expand_to</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
@@ -564,10 +569,25 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_concatenate.html">tree_concatenate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_stack.html">tree_stack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.vjp.html">vjp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_sum.html">weighted_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.workflows.BasicWorkflow.html">BasicWorkflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.wrappers.html">wrappers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.Mamba.html">Mamba</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.html">mamba_block</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.MambaBlock.html">MambaBlock</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -667,11 +687,6 @@
 <dl class="py method">
 <dt class="sig sig-object py" id="bayesflow.networks.InferenceNetwork.compute_metrics">
 <span class="sig-name descname"><span class="pre">compute_metrics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conditions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'training'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/bayesflow/networks/inference_network.html#InferenceNetwork.compute_metrics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.networks.InferenceNetwork.compute_metrics" title="Link to this definition">#</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.networks.InferenceNetwork.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">losses</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/networks/inference_network.html#InferenceNetwork.aggregate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.networks.InferenceNetwork.aggregate" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -1155,7 +1170,6 @@ including <a href="#id7"><span class="problematic" id="id8">`</span></a>SeedGene
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.sample"><code class="docutils literal notranslate"><span class="pre">sample()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.log_prob"><code class="docutils literal notranslate"><span class="pre">log_prob()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.compute_metrics"><code class="docutils literal notranslate"><span class="pre">compute_metrics()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.aggregate"><code class="docutils literal notranslate"><span class="pre">aggregate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.__call__"><code class="docutils literal notranslate"><span class="pre">__call__()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.add_loss"><code class="docutils literal notranslate"><span class="pre">add_loss()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.networks.InferenceNetwork.add_metric"><code class="docutils literal notranslate"><span class="pre">add_metric()</span></code></a></li>

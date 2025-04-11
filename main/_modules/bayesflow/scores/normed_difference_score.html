@@ -420,7 +420,10 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">k</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1">#: Exponent to absolute difference</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">k</span> <span class="o">=</span> <span class="n">k</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;k&quot;</span><span class="p">:</span> <span class="n">k</span><span class="p">}</span>
 
 <div class="viewcode-block" id="NormedDifferenceScore.get_head_shapes_from_target_shape">
@@ -434,13 +437,15 @@
 <div class="viewcode-block" id="NormedDifferenceScore.score">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.NormedDifferenceScore.html#bayesflow.scores.NormedDifferenceScore.score">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">estimates</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">],</span> <span class="n">targets</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the scoring function based on the absolute difference between estimates and targets.</span>
+<span class="w">        </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the scoring function based on the absolute difference between **estimates** and **targets**.</span>
 
-<span class="sd">        This function extracts the &quot;value&quot; tensor from the `estimates` dictionary and computes</span>
+<span class="sd">        :math:`S(\hat \theta, \theta; k) = | \hat \theta - \theta |^k`</span>
+
+<span class="sd">        This function extracts the Tensor named ``&quot;value&quot;`` from the **estimates** dictionary and computes</span>
 <span class="sd">        the element-wise absolute difference between the estimates and the true targets. The</span>
-<span class="sd">        difference is then exponentiated by `self.k`. The final score is computed using the</span>
-<span class="sd">        `aggregate` method, which optionally applies weighting.</span>
+<span class="sd">        difference is then exponentiated by :py:attr:`k`. The final score is computed using the</span>
+<span class="sd">        :py:func:`aggregate()` method, which optionally applies weighting.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>

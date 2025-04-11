@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>PositiveSemiDefinite &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>PositiveDefinite &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.links.PositiveSemiDefinite';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.links.PositiveDefinite';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '/versions.json';
@@ -53,7 +53,7 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.links.PositiveSemiDefinite.html" />
+    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.links.PositiveDefinite.html" />
     <link rel="icon" href="../_static/bayesflow_hex.ico"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
@@ -374,6 +374,8 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.NumpyTransform.html">NumpyTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.OneHot.html">OneHot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Rename.html">Rename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
@@ -430,7 +432,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="bayesflow.links.html">links</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.Ordered.html">Ordered</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.OrderedQuantiles.html">OrderedQuantiles</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">PositiveSemiDefinite</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">PositiveDefinite</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.metrics.html">metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -511,9 +513,11 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_titles_and_labels.html">add_titles_and_labels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.batched_call.html">batched_call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.calibration_curve.html">calibration_curve</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_estimates_prior_shapes.html">check_estimates_prior_shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_lengths_same.html">check_lengths_same</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.concatenate_valid.html">concatenate_valid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_args.html">convert_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_kwargs.html">convert_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.deserialize_value_or_type.html">deserialize_value_or_type</a></li>
@@ -529,6 +533,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_right_to.html">expand_right_to</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_tile.html">expand_tile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_to.html">expand_to</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
@@ -564,10 +569,25 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_concatenate.html">tree_concatenate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_stack.html">tree_stack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.vjp.html">vjp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_sum.html">weighted_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.workflows.BasicWorkflow.html">BasicWorkflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.wrappers.html">wrappers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.Mamba.html">Mamba</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.html">mamba_block</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.MambaBlock.html">MambaBlock</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -616,7 +636,7 @@
     
     <li class="breadcrumb-item"><a href="bayesflow.links.html" class="nav-link">links</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PositiveSemiDefinite</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">PositiveDefinite</span></li>
   </ul>
 </nav>
 </div>
@@ -633,32 +653,39 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="positivesemidefinite">
-<h1>PositiveSemiDefinite<a class="headerlink" href="#positivesemidefinite" title="Link to this heading">#</a></h1>
+  <section id="positivedefinite">
+<h1>PositiveDefinite<a class="headerlink" href="#positivedefinite" title="Link to this heading">#</a></h1>
 <dl class="py class">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bayesflow.links.</span></span><span class="sig-name descname"><span class="pre">PositiveSemiDefinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/links/positive_semi_definite.html#PositiveSemiDefinite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">bayesflow.links.</span></span><span class="sig-name descname"><span class="pre">PositiveDefinite</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/links/positive_definite.html#PositiveDefinite"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveDefinite" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Layer</span></code></p>
-<p>Activation function to link from any square matrix to a positive semidefinite matrix.</p>
+<p>Activation function to link from flat elements of a lower triangular matrix to a positive definite matrix.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.call">
-<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/bayesflow/links/positive_semi_definite.html#PositiveSemiDefinite.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.call" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.call">
+<span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="reference internal" href="../_modules/bayesflow/links/positive_definite.html#PositiveDefinite.call"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveDefinite.call" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.compute_output_shape">
-<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/links/positive_semi_definite.html#PositiveSemiDefinite.compute_output_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.compute_output_shape" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.compute_output_shape">
+<span class="sig-name descname"><span class="pre">compute_output_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/links/positive_definite.html#PositiveDefinite.compute_output_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveDefinite.compute_output_shape" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.__call__">
-<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.__call__" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.compute_input_shape">
+<span class="sig-name descname"><span class="pre">compute_input_shape</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_shape</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/links/positive_definite.html#PositiveDefinite.compute_input_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.links.PositiveDefinite.compute_input_shape" title="Link to this definition">#</a></dt>
+<dd><p>Returns the shape of parameterization of a cholesky factor triangular matrix.</p>
+<p>There are m nonzero elements of a lower triangular nxn matrix with m = n * (n + 1) / 2.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.__call__">
+<span class="sig-name descname"><span class="pre">__call__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.__call__" title="Link to this definition">#</a></dt>
 <dd><p>Call self as a function.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.add_loss">
-<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.add_loss" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.add_loss">
+<span class="sig-name descname"><span class="pre">add_loss</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loss</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.add_loss" title="Link to this definition">#</a></dt>
 <dd><p>Can be called inside of the <cite>call()</cite> method to add a scalar loss.</p>
 <p>Example:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyLayer</span><span class="p">(</span><span class="n">Layer</span><span class="p">):</span>
@@ -671,20 +698,20 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.add_metric">
-<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.add_metric" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.add_metric">
+<span class="sig-name descname"><span class="pre">add_metric</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.add_metric" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.add_variable">
-<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.add_variable" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.add_variable">
+<span class="sig-name descname"><span class="pre">add_variable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.add_variable" title="Link to this definition">#</a></dt>
 <dd><p>Add a weight variable to the layer.</p>
 <p>Alias of <cite>add_weight()</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.add_weight">
-<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.add_weight" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.add_weight">
+<span class="sig-name descname"><span class="pre">add_weight</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">shape</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initializer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trainable</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">autocast</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">regularizer</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">constraint</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'none'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.add_weight" title="Link to this definition">#</a></dt>
 <dd><p>Add a weight variable to the layer.</p>
 <dl>
 <dt>Args:</dt><dd><dl class="simple">
@@ -721,13 +748,13 @@ Defaults to <cite>“none”</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.build">
-<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.build" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.build">
+<span class="sig-name descname"><span class="pre">build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.build" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.build_from_config">
-<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.build_from_config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.build_from_config">
+<span class="sig-name descname"><span class="pre">build_from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.build_from_config" title="Link to this definition">#</a></dt>
 <dd><p>Builds the layer’s states with the supplied config dict.</p>
 <p>By default, this method calls the <cite>build(config[“input_shape”])</cite> method,
 which creates weights based on the layer’s input shape in the supplied
@@ -740,24 +767,24 @@ layer’s state, you should override this method.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.compute_dtype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.compute_dtype" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.compute_dtype">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compute_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.compute_dtype" title="Link to this definition">#</a></dt>
 <dd><p>The dtype of the computations performed by the layer.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.compute_mask">
-<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.compute_mask" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.compute_mask">
+<span class="sig-name descname"><span class="pre">compute_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">previous_mask</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.compute_mask" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.compute_output_spec">
-<span class="sig-name descname"><span class="pre">compute_output_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.compute_output_spec" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.compute_output_spec">
+<span class="sig-name descname"><span class="pre">compute_output_spec</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.compute_output_spec" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.count_params">
-<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.count_params" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.count_params">
+<span class="sig-name descname"><span class="pre">count_params</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.count_params" title="Link to this definition">#</a></dt>
 <dd><p>Count the total number of scalars composing the weights.</p>
 <dl class="simple">
 <dt>Returns:</dt><dd><p>An integer count.</p>
@@ -766,19 +793,19 @@ layer’s state, you should override this method.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.dtype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.dtype" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.dtype">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.dtype" title="Link to this definition">#</a></dt>
 <dd><p>Alias of <cite>layer.variable_dtype</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.dtype_policy">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.dtype_policy" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.dtype_policy">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">dtype_policy</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.dtype_policy" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.from_config">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.from_config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.from_config">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.from_config" title="Link to this definition">#</a></dt>
 <dd><p>Creates an operation from its config.</p>
 <p>This method is the reverse of <cite>get_config</cite>, capable of instantiating the
 same operation from the config dictionary.</p>
@@ -797,8 +824,8 @@ config, which is a <cite>dict</cite>. You can deserialize it as follows:</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.get_build_config">
-<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.get_build_config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.get_build_config">
+<span class="sig-name descname"><span class="pre">get_build_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.get_build_config" title="Link to this definition">#</a></dt>
 <dd><p>Returns a dictionary with the layer’s input shape.</p>
 <p>This method returns a config dict that can be used by
 <cite>build_from_config(config)</cite> to create all states (e.g. Variables and
@@ -815,22 +842,22 @@ loading.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.get_config">
-<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.get_config" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.get_config">
+<span class="sig-name descname"><span class="pre">get_config</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.get_config" title="Link to this definition">#</a></dt>
 <dd><p>Returns the config of the object.</p>
 <p>An object config is a Python dictionary (serializable)
 containing the information needed to re-instantiate it.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.get_weights">
-<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.get_weights" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.get_weights">
+<span class="sig-name descname"><span class="pre">get_weights</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.get_weights" title="Link to this definition">#</a></dt>
 <dd><p>Return the values of <cite>layer.weights</cite> as a list of NumPy arrays.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.input">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.input" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.input">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.input" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the input tensor(s) of a symbolic operation.</p>
 <p>Only returns the tensor(s) corresponding to the <em>first time</em>
 the operation was called.</p>
@@ -841,19 +868,19 @@ the operation was called.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.input_dtype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.input_dtype" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.input_dtype">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.input_dtype" title="Link to this definition">#</a></dt>
 <dd><p>The dtype layer inputs should be converted to.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.input_spec">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.input_spec" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.input_spec">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">input_spec</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.input_spec" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.load_own_variables">
-<span class="sig-name descname"><span class="pre">load_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.load_own_variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.load_own_variables">
+<span class="sig-name descname"><span class="pre">load_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.load_own_variables" title="Link to this definition">#</a></dt>
 <dd><p>Loads the state of the layer.</p>
 <p>You can override this method to take full control of how the state of
 the layer is loaded upon calling <cite>keras.models.load_model()</cite>.</p>
@@ -864,34 +891,34 @@ the layer is loaded upon calling <cite>keras.models.load_model()</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.losses">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.losses" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.losses">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">losses</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.losses" title="Link to this definition">#</a></dt>
 <dd><p>List of scalar losses from <cite>add_loss</cite>, regularizers and sublayers.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.metrics">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.metrics" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.metrics">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.metrics" title="Link to this definition">#</a></dt>
 <dd><p>List of all metrics.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.metrics_variables">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.metrics_variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.metrics_variables">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">metrics_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.metrics_variables" title="Link to this definition">#</a></dt>
 <dd><p>List of all metric variables.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.non_trainable_variables">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.non_trainable_variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.non_trainable_variables">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.non_trainable_variables" title="Link to this definition">#</a></dt>
 <dd><p>List of all non-trainable layer state.</p>
 <p>This extends <cite>layer.non_trainable_weights</cite> to include all state used by
 the layer including state for metrics and <a href="#id1"><span class="problematic" id="id2">`</span></a>SeedGenerator`s.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.non_trainable_weights">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.non_trainable_weights" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.non_trainable_weights">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">non_trainable_weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.non_trainable_weights" title="Link to this definition">#</a></dt>
 <dd><p>List of all non-trainable weight variables of the layer.</p>
 <p>These are the weights that should not be updated by the optimizer during
 training. Unlike, <cite>layer.non_trainable_variables</cite> this excludes metric
@@ -899,8 +926,8 @@ state and random seeds.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.output">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.output" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.output">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.output" title="Link to this definition">#</a></dt>
 <dd><p>Retrieves the output tensor(s) of a layer.</p>
 <p>Only returns the tensor(s) corresponding to the <em>first time</em>
 the operation was called.</p>
@@ -911,36 +938,36 @@ the operation was called.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.path">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.path" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.path">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">path</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.path" title="Link to this definition">#</a></dt>
 <dd><p>The path of the layer.</p>
 <p>If the layer has not been built yet, it will be <cite>None</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.quantization_mode">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quantization_mode</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.quantization_mode" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.quantization_mode">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">quantization_mode</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.quantization_mode" title="Link to this definition">#</a></dt>
 <dd><p>The quantization mode of this layer, <cite>None</cite> if not quantized.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.quantize">
-<span class="sig-name descname"><span class="pre">quantize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.quantize" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.quantize">
+<span class="sig-name descname"><span class="pre">quantize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type_check</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.quantize" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.quantized_build">
-<span class="sig-name descname"><span class="pre">quantized_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.quantized_build" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.quantized_build">
+<span class="sig-name descname"><span class="pre">quantized_build</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_shape</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.quantized_build" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.quantized_call">
-<span class="sig-name descname"><span class="pre">quantized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.quantized_call" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.quantized_call">
+<span class="sig-name descname"><span class="pre">quantized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.quantized_call" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.rematerialized_call">
-<span class="sig-name descname"><span class="pre">rematerialized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_call</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.rematerialized_call" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.rematerialized_call">
+<span class="sig-name descname"><span class="pre">rematerialized_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">layer_call</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.rematerialized_call" title="Link to this definition">#</a></dt>
 <dd><p>Enable rematerialization dynamically for layer’s call method.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>layer_call: The original <cite>call</cite> method of a layer.</p>
@@ -951,8 +978,8 @@ the operation was called.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.save_own_variables">
-<span class="sig-name descname"><span class="pre">save_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.save_own_variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.save_own_variables">
+<span class="sig-name descname"><span class="pre">save_own_variables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">store</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.save_own_variables" title="Link to this definition">#</a></dt>
 <dd><p>Saves the state of the layer.</p>
 <p>You can override this method to take full control of how the state of
 the layer is saved upon calling <cite>model.save()</cite>.</p>
@@ -963,14 +990,14 @@ the layer is saved upon calling <cite>model.save()</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.set_weights">
-<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.set_weights" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.set_weights">
+<span class="sig-name descname"><span class="pre">set_weights</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.set_weights" title="Link to this definition">#</a></dt>
 <dd><p>Sets the values of <cite>layer.weights</cite> from a list of NumPy arrays.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.stateless_call">
-<span class="sig-name descname"><span class="pre">stateless_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainable_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_trainable_variables</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.stateless_call" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.stateless_call">
+<span class="sig-name descname"><span class="pre">stateless_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trainable_variables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">non_trainable_variables</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_losses</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.stateless_call" title="Link to this definition">#</a></dt>
 <dd><p>Call the layer without any side effects.</p>
 <dl>
 <dt>Args:</dt><dd><p>trainable_variables: List of trainable variables of the model.
@@ -1019,45 +1046,45 @@ These are all elements of state of the layer.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.supports_masking">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.supports_masking" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.supports_masking">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">supports_masking</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.supports_masking" title="Link to this definition">#</a></dt>
 <dd><p>Whether this layer supports computing a mask using <cite>compute_mask</cite>.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.symbolic_call">
-<span class="sig-name descname"><span class="pre">symbolic_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.symbolic_call" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.symbolic_call">
+<span class="sig-name descname"><span class="pre">symbolic_call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.symbolic_call" title="Link to this definition">#</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.trainable">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.trainable" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.trainable">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.trainable" title="Link to this definition">#</a></dt>
 <dd><p>Settable boolean, whether this layer should be trainable or not.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.trainable_variables">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.trainable_variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.trainable_variables">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.trainable_variables" title="Link to this definition">#</a></dt>
 <dd><p>List of all trainable layer state.</p>
 <p>This is equivalent to <cite>layer.trainable_weights</cite>.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.trainable_weights">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.trainable_weights" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.trainable_weights">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trainable_weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.trainable_weights" title="Link to this definition">#</a></dt>
 <dd><p>List of all trainable weight variables of the layer.</p>
 <p>These are the weights that get updated by the optimizer during training.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.variable_dtype">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.variable_dtype" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.variable_dtype">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variable_dtype</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.variable_dtype" title="Link to this definition">#</a></dt>
 <dd><p>The dtype of the state (weights) of the layer.</p>
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.variables">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.variables" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.variables">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">variables</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.variables" title="Link to this definition">#</a></dt>
 <dd><p>List of all layer state, including random seeds.</p>
 <p>This extends <cite>layer.weights</cite> to include all state used by the layer
 including <a href="#id7"><span class="problematic" id="id8">`</span></a>SeedGenerator`s.</p>
@@ -1066,8 +1093,8 @@ including <a href="#id7"><span class="problematic" id="id8">`</span></a>SeedGene
 </dd></dl>
 
 <dl class="py property">
-<dt class="sig sig-object py" id="bayesflow.links.PositiveSemiDefinite.weights">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveSemiDefinite.weights" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.links.PositiveDefinite.weights">
+<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">weights</span></span><a class="headerlink" href="#bayesflow.links.PositiveDefinite.weights" title="Link to this definition">#</a></dt>
 <dd><p>List of all weight variables of the layer.</p>
 <p>Unlike, <cite>layer.variables</cite> this excludes metric state and random seeds.</p>
 </dd></dl>
@@ -1124,53 +1151,54 @@ including <a href="#id7"><span class="problematic" id="id8">`</span></a>SeedGene
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite"><code class="docutils literal notranslate"><span class="pre">PositiveSemiDefinite</span></code></a><ul class="nav section-nav flex-column visible">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.compute_output_shape"><code class="docutils literal notranslate"><span class="pre">compute_output_shape()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.__call__"><code class="docutils literal notranslate"><span class="pre">__call__()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.add_loss"><code class="docutils literal notranslate"><span class="pre">add_loss()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.add_metric"><code class="docutils literal notranslate"><span class="pre">add_metric()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.add_variable"><code class="docutils literal notranslate"><span class="pre">add_variable()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.add_weight"><code class="docutils literal notranslate"><span class="pre">add_weight()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.build_from_config"><code class="docutils literal notranslate"><span class="pre">build_from_config()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.compute_dtype"><code class="docutils literal notranslate"><span class="pre">compute_dtype</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.compute_mask"><code class="docutils literal notranslate"><span class="pre">compute_mask()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.compute_output_spec"><code class="docutils literal notranslate"><span class="pre">compute_output_spec()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.count_params"><code class="docutils literal notranslate"><span class="pre">count_params()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.dtype"><code class="docutils literal notranslate"><span class="pre">dtype</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.dtype_policy"><code class="docutils literal notranslate"><span class="pre">dtype_policy</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.from_config"><code class="docutils literal notranslate"><span class="pre">from_config()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.get_build_config"><code class="docutils literal notranslate"><span class="pre">get_build_config()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.get_weights"><code class="docutils literal notranslate"><span class="pre">get_weights()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.input"><code class="docutils literal notranslate"><span class="pre">input</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.input_dtype"><code class="docutils literal notranslate"><span class="pre">input_dtype</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.input_spec"><code class="docutils literal notranslate"><span class="pre">input_spec</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.load_own_variables"><code class="docutils literal notranslate"><span class="pre">load_own_variables()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.losses"><code class="docutils literal notranslate"><span class="pre">losses</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.metrics"><code class="docutils literal notranslate"><span class="pre">metrics</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.metrics_variables"><code class="docutils literal notranslate"><span class="pre">metrics_variables</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.non_trainable_variables"><code class="docutils literal notranslate"><span class="pre">non_trainable_variables</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.non_trainable_weights"><code class="docutils literal notranslate"><span class="pre">non_trainable_weights</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.output"><code class="docutils literal notranslate"><span class="pre">output</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.path"><code class="docutils literal notranslate"><span class="pre">path</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.quantization_mode"><code class="docutils literal notranslate"><span class="pre">quantization_mode</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.quantize"><code class="docutils literal notranslate"><span class="pre">quantize()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.quantized_build"><code class="docutils literal notranslate"><span class="pre">quantized_build()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.quantized_call"><code class="docutils literal notranslate"><span class="pre">quantized_call()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.rematerialized_call"><code class="docutils literal notranslate"><span class="pre">rematerialized_call()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.save_own_variables"><code class="docutils literal notranslate"><span class="pre">save_own_variables()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.set_weights"><code class="docutils literal notranslate"><span class="pre">set_weights()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.stateless_call"><code class="docutils literal notranslate"><span class="pre">stateless_call()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.supports_masking"><code class="docutils literal notranslate"><span class="pre">supports_masking</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.symbolic_call"><code class="docutils literal notranslate"><span class="pre">symbolic_call()</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.trainable"><code class="docutils literal notranslate"><span class="pre">trainable</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.trainable_variables"><code class="docutils literal notranslate"><span class="pre">trainable_variables</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.trainable_weights"><code class="docutils literal notranslate"><span class="pre">trainable_weights</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.variable_dtype"><code class="docutils literal notranslate"><span class="pre">variable_dtype</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.variables"><code class="docutils literal notranslate"><span class="pre">variables</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveSemiDefinite.weights"><code class="docutils literal notranslate"><span class="pre">weights</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite"><code class="docutils literal notranslate"><span class="pre">PositiveDefinite</span></code></a><ul class="nav section-nav flex-column visible">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.compute_output_shape"><code class="docutils literal notranslate"><span class="pre">compute_output_shape()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.compute_input_shape"><code class="docutils literal notranslate"><span class="pre">compute_input_shape()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.__call__"><code class="docutils literal notranslate"><span class="pre">__call__()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.add_loss"><code class="docutils literal notranslate"><span class="pre">add_loss()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.add_metric"><code class="docutils literal notranslate"><span class="pre">add_metric()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.add_variable"><code class="docutils literal notranslate"><span class="pre">add_variable()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.add_weight"><code class="docutils literal notranslate"><span class="pre">add_weight()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.build"><code class="docutils literal notranslate"><span class="pre">build()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.build_from_config"><code class="docutils literal notranslate"><span class="pre">build_from_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.compute_dtype"><code class="docutils literal notranslate"><span class="pre">compute_dtype</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.compute_mask"><code class="docutils literal notranslate"><span class="pre">compute_mask()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.compute_output_spec"><code class="docutils literal notranslate"><span class="pre">compute_output_spec()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.count_params"><code class="docutils literal notranslate"><span class="pre">count_params()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.dtype"><code class="docutils literal notranslate"><span class="pre">dtype</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.dtype_policy"><code class="docutils literal notranslate"><span class="pre">dtype_policy</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.from_config"><code class="docutils literal notranslate"><span class="pre">from_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.get_build_config"><code class="docutils literal notranslate"><span class="pre">get_build_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.get_weights"><code class="docutils literal notranslate"><span class="pre">get_weights()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.input"><code class="docutils literal notranslate"><span class="pre">input</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.input_dtype"><code class="docutils literal notranslate"><span class="pre">input_dtype</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.input_spec"><code class="docutils literal notranslate"><span class="pre">input_spec</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.load_own_variables"><code class="docutils literal notranslate"><span class="pre">load_own_variables()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.losses"><code class="docutils literal notranslate"><span class="pre">losses</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.metrics"><code class="docutils literal notranslate"><span class="pre">metrics</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.metrics_variables"><code class="docutils literal notranslate"><span class="pre">metrics_variables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.non_trainable_variables"><code class="docutils literal notranslate"><span class="pre">non_trainable_variables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.non_trainable_weights"><code class="docutils literal notranslate"><span class="pre">non_trainable_weights</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.output"><code class="docutils literal notranslate"><span class="pre">output</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.path"><code class="docutils literal notranslate"><span class="pre">path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.quantization_mode"><code class="docutils literal notranslate"><span class="pre">quantization_mode</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.quantize"><code class="docutils literal notranslate"><span class="pre">quantize()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.quantized_build"><code class="docutils literal notranslate"><span class="pre">quantized_build()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.quantized_call"><code class="docutils literal notranslate"><span class="pre">quantized_call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.rematerialized_call"><code class="docutils literal notranslate"><span class="pre">rematerialized_call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.save_own_variables"><code class="docutils literal notranslate"><span class="pre">save_own_variables()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.set_weights"><code class="docutils literal notranslate"><span class="pre">set_weights()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.stateless_call"><code class="docutils literal notranslate"><span class="pre">stateless_call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.supports_masking"><code class="docutils literal notranslate"><span class="pre">supports_masking</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.symbolic_call"><code class="docutils literal notranslate"><span class="pre">symbolic_call()</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.trainable"><code class="docutils literal notranslate"><span class="pre">trainable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.trainable_variables"><code class="docutils literal notranslate"><span class="pre">trainable_variables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.trainable_weights"><code class="docutils literal notranslate"><span class="pre">trainable_weights</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.variable_dtype"><code class="docutils literal notranslate"><span class="pre">variable_dtype</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.variables"><code class="docutils literal notranslate"><span class="pre">variables</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.links.PositiveDefinite.weights"><code class="docutils literal notranslate"><span class="pre">weights</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -1183,7 +1211,7 @@ including <a href="#id7"><span class="problematic" id="id8">`</span></a>SeedGene
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.links.PositiveSemiDefinite.rst">
+    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.links.PositiveDefinite.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

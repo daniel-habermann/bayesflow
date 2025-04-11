@@ -28,7 +28,7 @@ links
   
     Ordered
     OrderedQuantiles
-    PositiveSemiDefinite
+    PositiveDefinite
   
   
 

@@ -401,8 +401,11 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.approximators.approximator</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Mapping</span>
+
 <span class="kn">import</span><span class="w"> </span><span class="nn">multiprocessing</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mp</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.adapters</span><span class="w"> </span><span class="kn">import</span> <span class="n">Adapter</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.datasets</span><span class="w"> </span><span class="kn">import</span> <span class="n">OnlineDataset</span>
@@ -432,7 +435,7 @@
 
 <div class="viewcode-block" id="Approximator.build_from_data">
 <a class="viewcode-back" href="../../../api/bayesflow.approximators.Approximator.html#bayesflow.approximators.Approximator.build_from_data">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">build_from_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">build_from_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="o">**</span><span class="n">data</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;training&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">built</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -491,7 +494,7 @@
 <span class="sd">            A dataset containing simulations for training. If provided, `simulator` must be None.</span>
 <span class="sd">        simulator : Simulator, optional</span>
 <span class="sd">            A simulator used to generate a dataset. If provided, `dataset` must be None.</span>
-<span class="sd">        **kwargs : dict</span>
+<span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments passed to `keras.Model.fit()`, including (see also `build_dataset`):</span>
 
 <span class="sd">            batch_size : int or None, default=&#39;auto&#39;</span>

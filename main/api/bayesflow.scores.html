@@ -376,6 +376,8 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.NumpyTransform.html">NumpyTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.OneHot.html">OneHot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Rename.html">Rename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
@@ -432,7 +434,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.links.html">links</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.Ordered.html">Ordered</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.OrderedQuantiles.html">OrderedQuantiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveSemiDefinite.html">PositiveSemiDefinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveDefinite.html">PositiveDefinite</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.metrics.html">metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -513,9 +515,11 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_titles_and_labels.html">add_titles_and_labels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.batched_call.html">batched_call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.calibration_curve.html">calibration_curve</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_estimates_prior_shapes.html">check_estimates_prior_shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_lengths_same.html">check_lengths_same</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.concatenate_valid.html">concatenate_valid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_args.html">convert_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_kwargs.html">convert_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.deserialize_value_or_type.html">deserialize_value_or_type</a></li>
@@ -531,6 +535,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_right_to.html">expand_right_to</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_tile.html">expand_tile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_to.html">expand_to</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
@@ -566,10 +571,25 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_concatenate.html">tree_concatenate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_stack.html">tree_stack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.vjp.html">vjp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_sum.html">weighted_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.workflows.BasicWorkflow.html">BasicWorkflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.wrappers.html">wrappers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.Mamba.html">Mamba</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.html">mamba_block</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.MambaBlock.html">MambaBlock</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -645,13 +665,13 @@
 <td><p><span class="math notranslate nohighlight">\(S(\hat \theta, \theta) = | \hat \theta - \theta |\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.scores.MultivariateNormalScore.html#bayesflow.scores.MultivariateNormalScore" title="bayesflow.scores.MultivariateNormalScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MultivariateNormalScore</span></code></a>([dim, links])</p></td>
-<td><p><span class="math notranslate nohighlight">\(S(\hat p_{\mu, \Sigma}, \theta; k) = \log( \mathcal N (\theta; \mu, \Sigma))\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(S(\hat p_{\mu, \Sigma}, \theta; k) = -\log( \mathcal N (\theta; \mu, \Sigma))\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="bayesflow.scores.NormedDifferenceScore.html#bayesflow.scores.NormedDifferenceScore" title="bayesflow.scores.NormedDifferenceScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NormedDifferenceScore</span></code></a>(k, **kwargs)</p></td>
 <td><p><span class="math notranslate nohighlight">\(S(\hat \theta, \theta; k) = | \hat \theta - \theta |^k\)</span></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.scores.ParametricDistributionScore.html#bayesflow.scores.ParametricDistributionScore" title="bayesflow.scores.ParametricDistributionScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ParametricDistributionScore</span></code></a>(**kwargs)</p></td>
-<td><p><span class="math notranslate nohighlight">\(S(\hat p_\phi, \theta; k) = \log(\hat p_\phi(\theta))\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(S(\hat p_\phi, \theta; k) = -\log(\hat p_\phi(\theta))\)</span></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="bayesflow.scores.QuantileScore.html#bayesflow.scores.QuantileScore" title="bayesflow.scores.QuantileScore"><code class="xref py py-obj docutils literal notranslate"><span class="pre">QuantileScore</span></code></a>([q, links])</p></td>
 <td><p><span class="math notranslate nohighlight">\(S(\hat \theta_i, \theta; \tau_i) = (\hat \theta_i - \theta)(\mathbf{1}_{\hat \theta - \theta &gt; 0} - \tau_i)\)</span></p></td>

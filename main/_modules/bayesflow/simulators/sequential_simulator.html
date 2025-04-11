@@ -416,6 +416,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Combines multiple simulators into one, sequentially.&quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simulators</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">Simulator</span><span class="p">],</span> <span class="n">expand_outputs</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a SequentialSimulator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        simulators : Sequence[Simulator]</span>
+<span class="sd">            A sequence of simulator instances to be executed sequentially. Each simulator should</span>
+<span class="sd">            return dictionary outputs and may depend on outputs from previous simulators.</span>
+<span class="sd">        expand_outputs : bool, optional</span>
+<span class="sd">            If True, 1D output arrays are expanded with an additional dimension at the end.</span>
+<span class="sd">            Default is True.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span> <span class="o">=</span> <span class="n">simulators</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">expand_outputs</span> <span class="o">=</span> <span class="n">expand_outputs</span>
 
@@ -423,6 +436,26 @@
 <a class="viewcode-back" href="../../../api/bayesflow.simulators.SequentialSimulator.html#bayesflow.simulators.SequentialSimulator.sample">[docs]</a>
     <span class="nd">@allow_batch_size</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">sample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Sample sequentially from the internal simulator.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        batch_shape : Shape</span>
+<span class="sd">            The shape of the batch to sample. Typically, a tuple indicating the number of samples,</span>
+<span class="sd">            but it also accepts an int.</span>
+<span class="sd">        **kwargs</span>
+<span class="sd">            Additional keyword arguments passed to each simulator. These may include previously</span>
+<span class="sd">            sampled outputs used as inputs for subsequent simulators.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        data : dict of str to np.ndarray</span>
+<span class="sd">            A dictionary containing the combined outputs from all simulators. Keys are output names</span>
+<span class="sd">            and values are sampled arrays. If `expand_outputs` is True, 1D arrays are expanded to</span>
+<span class="sd">            have shape (..., 1).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
         <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">simulator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">simulators</span><span class="p">:</span>
             <span class="n">data</span> <span class="o">|=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_shape</span><span class="p">,</span> <span class="o">**</span><span class="p">(</span><span class="n">kwargs</span> <span class="o">|</span> <span class="n">data</span><span class="p">))</span>

@@ -58,7 +58,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Sqrt" href="bayesflow.adapters.transforms.Sqrt.html" />
+    <link rel="next" title="Scale" href="bayesflow.adapters.transforms.Scale.html" />
     <link rel="prev" title="OneHot" href="bayesflow.adapters.transforms.OneHot.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -374,6 +374,8 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.NumpyTransform.html">NumpyTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.OneHot.html">OneHot</a></li>
 <li class="toctree-l3 current active"><a class="current reference internal" href="#">Rename</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
@@ -430,7 +432,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.links.html">links</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.Ordered.html">Ordered</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.links.OrderedQuantiles.html">OrderedQuantiles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveSemiDefinite.html">PositiveSemiDefinite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.links.PositiveDefinite.html">PositiveDefinite</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.metrics.html">metrics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -511,9 +513,11 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_titles_and_labels.html">add_titles_and_labels</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.batched_call.html">batched_call</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.calibration_curve.html">calibration_curve</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_estimates_prior_shapes.html">check_estimates_prior_shapes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.check_lengths_same.html">check_lengths_same</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.concatenate_valid.html">concatenate_valid</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.confusion_matrix.html">confusion_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_args.html">convert_args</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.convert_kwargs.html">convert_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.deserialize_value_or_type.html">deserialize_value_or_type</a></li>
@@ -529,6 +533,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_right_to.html">expand_right_to</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_tile.html">expand_tile</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.expand_to.html">expand_to</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
@@ -564,10 +569,25 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_concatenate.html">tree_concatenate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_stack.html">tree_stack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.vjp.html">vjp</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_sum.html">weighted_sum</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.workflows.BasicWorkflow.html">BasicWorkflow</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.wrappers.html">wrappers</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.html">mamba</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba.Mamba.html">Mamba</a></li>
+</ul>
+</details></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.html">mamba_block</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="bayesflow.wrappers.mamba.mamba_block.MambaBlock.html">MambaBlock</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
 </ul>
 </details></li>
 </ul>
@@ -718,11 +738,11 @@ approximator. This transform can only rename one variable at a time.</p>
       </div>
     </a>
     <a class="right-next"
-       href="bayesflow.adapters.transforms.Sqrt.html"
+       href="bayesflow.adapters.transforms.Scale.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Sqrt</p>
+        <p class="prev-next-title">Scale</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

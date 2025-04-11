@@ -1,9 +1,9 @@
-PositiveSemiDefinite
-====================
+MambaBlock
+==========
 
-.. currentmodule:: bayesflow.links
+.. currentmodule:: bayesflow.wrappers.mamba.mamba_block
 
-.. autoclass:: PositiveSemiDefinite
+.. autoclass:: MambaBlock
    :members:
    :inherited-members:
    :show-inheritance:

@@ -33,6 +33,7 @@ please refer to the :doc:`Examples <../examples>` section.
     types
     utils
     workflows
+    wrappers
 
   
   

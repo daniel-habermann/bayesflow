@@ -401,13 +401,14 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.diagnostics.plots.loss</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">keras.src.callbacks</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras.src.callbacks</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">...utils.plot_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_figure</span><span class="p">,</span> <span class="n">add_titles_and_labels</span>
 
@@ -415,7 +416,7 @@
 <div class="viewcode-block" id="loss">
 <a class="viewcode-back" href="../../../../api/bayesflow.diagnostics.loss.html#bayesflow.diagnostics.loss">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">loss</span><span class="p">(</span>
-    <span class="n">history</span><span class="p">:</span> <span class="n">keras</span><span class="o">.</span><span class="n">src</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">,</span>
+    <span class="n">history</span><span class="p">:</span> <span class="n">keras</span><span class="o">.</span><span class="n">callbacks</span><span class="o">.</span><span class="n">History</span><span class="p">,</span>
     <span class="n">train_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;loss&quot;</span><span class="p">,</span>
     <span class="n">val_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;val_loss&quot;</span><span class="p">,</span>
     <span class="n">moving_average</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>

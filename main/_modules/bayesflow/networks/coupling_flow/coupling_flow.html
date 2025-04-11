@@ -405,7 +405,13 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_permutation</span><span class="p">,</span> <span class="n">keras_kwargs</span><span class="p">,</span> <span class="n">serialize_value_or_type</span><span class="p">,</span> <span class="n">deserialize_value_or_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">find_permutation</span><span class="p">,</span>
+    <span class="n">keras_kwargs</span><span class="p">,</span>
+    <span class="n">serialize_value_or_type</span><span class="p">,</span>
+    <span class="n">deserialize_value_or_type</span><span class="p">,</span>
+    <span class="n">weighted_sum</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.actnorm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActNorm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.couplings</span><span class="w"> </span><span class="kn">import</span> <span class="n">DualCoupling</span>
@@ -574,12 +580,10 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">compute_metrics</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">conditions</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">stage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;training&quot;</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">]:</span>
-        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">sample_weight</span><span class="p">)</span>
-        <span class="n">base_metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="n">sample_weight</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="n">stage</span><span class="p">)</span>
+        <span class="n">base_metrics</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">compute_metrics</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="n">stage</span><span class="p">)</span>
 
         <span class="n">z</span><span class="p">,</span> <span class="n">log_density</span> <span class="o">=</span> <span class="bp">self</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="n">inverse</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">density</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="n">loss</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="o">-</span><span class="n">log_density</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
+        <span class="n">loss</span> <span class="o">=</span> <span class="n">weighted_sum</span><span class="p">(</span><span class="o">-</span><span class="n">log_density</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">base_metrics</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">}</span></div>
 </div>

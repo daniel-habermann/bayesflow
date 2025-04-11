@@ -401,9 +401,10 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.adapters.adapter</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">MutableSequence</span><span class="p">,</span> <span class="n">Sequence</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">MutableSequence</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">deserialize_keras_object</span> <span class="k">as</span> <span class="n">deserialize</span><span class="p">,</span>
     <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span><span class="p">,</span>
@@ -543,16 +544,16 @@
 
 <div class="viewcode-block" id="Adapter.__call__">
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.__call__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="o">*</span><span class="p">,</span> <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply the transforms in the given direction.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        data : dict</span>
+<span class="sd">        data : Mapping[str, any]</span>
 <span class="sd">            The data to be transformed.</span>
 <span class="sd">        inverse : bool, optional</span>
 <span class="sd">            If False, apply the forward transform, else apply the inverse transform (default False).</span>
-<span class="sd">        **kwargs : dict</span>
+<span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments passed to each transform.</span>
 
 <span class="sd">        Returns</span>
@@ -667,11 +668,11 @@
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.apply">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">forward</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ufunc</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">inverse</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ufunc</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">predicate</span><span class="p">:</span> <span class="n">Predicate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -679,16 +680,13 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        forward: callable, no lambda</span>
-<span class="sd">            Function to transform the data in the forward pass.</span>
-<span class="sd">            For the adapter to be serializable, this function has to be serializable</span>
-<span class="sd">            as well (see Notes). Therefore, only proper functions and no lambda</span>
-<span class="sd">            functions should be used here.</span>
-<span class="sd">        inverse: callable, no lambda</span>
-<span class="sd">            Function to transform the data in the inverse pass.</span>
-<span class="sd">            For the adapter to be serializable, this function has to be serializable</span>
-<span class="sd">            as well (see Notes). Therefore, only proper functions and no lambda</span>
-<span class="sd">            functions should be used here.</span>
+<span class="sd">        forward : str or np.ufunc</span>
+<span class="sd">            The name of the NumPy function to use for the forward transformation.</span>
+<span class="sd">        inverse : str or np.ufunc, optional</span>
+<span class="sd">            The name of the NumPy function to use for the inverse transformation.</span>
+<span class="sd">            By default, the inverse is inferred from the forward argument for supported methods.</span>
+<span class="sd">            You can find the supported methods in</span>
+<span class="sd">            :py:const:`~bayesflow.adapters.transforms.NumpyTransform.INVERSE_METHODS`.</span>
 <span class="sd">        predicate : Predicate, optional</span>
 <span class="sd">            Function that indicates which variables should be transformed.</span>
 <span class="sd">        include : str or Sequence of str, optional</span>
@@ -697,12 +695,6 @@
 <span class="sd">            Names of variables to exclude from the transform.</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments passed to the transform.</span>
-
-<span class="sd">        Notes</span>
-<span class="sd">        -----</span>
-<span class="sd">        Important: This is only serializable if the forward and inverse functions are serializable.</span>
-<span class="sd">        This most likely means you will have to pass the scope that the forward and inverse functions are contained in</span>
-<span class="sd">        to the `custom_objects` argument of the `deserialize` function when deserializing this class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">FilterTransform</span><span class="p">(</span>
             <span class="n">transform_constructor</span><span class="o">=</span><span class="n">NumpyTransform</span><span class="p">,</span>
@@ -840,6 +832,7 @@
         <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a :py:class:`~transforms.ConvertDType` transform to the adapter.</span>
+<span class="sd">        See also :py:meth:`~bayesflow.adapters.Adapter.map_dtype`.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -993,6 +986,27 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
+<div class="viewcode-block" id="Adapter.map_dtype">
+<a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.map_dtype">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">map_dtype</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">to_dtype</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a :py:class:`~transforms.ConvertDType` transform to the adapter.</span>
+<span class="sd">        See also :py:meth:`~bayesflow.adapters.Adapter.convert_dtype`.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        keys : str or Sequence of str</span>
+<span class="sd">            The names of the variables to transform.</span>
+<span class="sd">        to_dtype : str</span>
+<span class="sd">            Target dtype</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">keys</span><span class="p">]</span>
+
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">MapTransform</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">ConvertDType</span><span class="p">(</span><span class="n">to_dtype</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
 <div class="viewcode-block" id="Adapter.one_hot">
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.one_hot">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">one_hot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">num_classes</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
@@ -1029,6 +1043,30 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
+<div class="viewcode-block" id="Adapter.scale">
+<a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.scale">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">scale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">by</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Scale</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">keys</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MapTransform</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">Scale</span><span class="p">(</span><span class="n">scale</span><span class="o">=</span><span class="n">by</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Adapter.shift">
+<a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.shift">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">shift</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">by</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">.transforms</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shift</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">keys</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">keys</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">MapTransform</span><span class="p">({</span><span class="n">key</span><span class="p">:</span> <span class="n">Shift</span><span class="p">(</span><span class="n">shift</span><span class="o">=</span><span class="n">by</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}))</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
 <div class="viewcode-block" id="Adapter.sqrt">
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.sqrt">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">sqrt</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]):</span>
@@ -1051,9 +1089,9 @@
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.standardize">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">standardize</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">predicate</span><span class="p">:</span> <span class="n">Predicate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
@@ -1085,9 +1123,9 @@
 <a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.to_array">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_array</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">*</span><span class="p">,</span>
         <span class="n">predicate</span><span class="p">:</span> <span class="n">Predicate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>

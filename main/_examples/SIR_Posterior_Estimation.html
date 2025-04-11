@@ -364,7 +364,6 @@
 <li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
 <li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">5. From ABC to BayesFlow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">6. Simple Model Comparison - One Sample T-Test</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Lotka_Volterra_point_estimation_and_expert_stats.html">7. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -430,13 +429,13 @@
 <p><em>Author: Stefan T. Radev</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">datetime</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
-<span class="c1"># ensure the backend is set</span>
+<span class="c1"># ensure the backend is set to your favorite DL library</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="k">if</span> <span class="s2">&quot;KERAS_BACKEND&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
     <span class="c1"># set this to &quot;torch&quot;, &quot;tensorflow&quot;, or &quot;jax&quot;</span>
@@ -453,18 +452,18 @@
 <h2><span class="section-number">3.1. </span>Introduction <a class="anchor" id="introduction"></a><a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
 <p>In this tutorial, we will illustrate how to perform posterior inference on simple, stationary SIR-like models (complex models will be tackled in a further notebook). SIR-like models comprise suitable illustrative examples, since they generate time-series and their outputs represent the results of solving a system of ordinary differential equations (ODEs).</p>
 <p>The details for tackling stochastic epidemiological models with neural networks are described in our corresponding paper, which you can consult for a more formal exposition and a more comprehensive treatment of neural architectures:</p>
-<p><em>OutbreakFlow: Model-based Bayesian inference of disease outbreak dynamics with invertible neural networks and its application to the COVID-19 pandemics in Germany</em> https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009472</p>
+<p><strong>OutbreakFlow: Model-based Bayesian inference of disease outbreak dynamics with invertible neural networks and its application to the COVID-19 pandemics in Germany</strong> https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009472</p>
 </section>
 <section id="defining-the-simulator">
 <h2><span class="section-number">3.2. </span>Defining the Simulator <a class="anchor" id="defining_the_generative"></a><a class="headerlink" href="#defining-the-simulator" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">RNG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2025</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">RNG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2025</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>As described in our <a class="reference internal" href="#Quickstart_Amortized_Posterior_Estimation.ipynb"><span class="xref myst">very first notebook</span></a>, a generative model consists of a prior (encoding suitable parameter ranges) and a simulator (generating data given simulations). Our underlying model distinguishes between susceptible, <span class="math notranslate nohighlight">\(S\)</span>, infected, <span class="math notranslate nohighlight">\(I\)</span>, and recovered, <span class="math notranslate nohighlight">\(R\)</span>, individuals with infection and recovery occurring at a constant transmission rate <span class="math notranslate nohighlight">\(\lambda\)</span> and constant recovery rate <span class="math notranslate nohighlight">\(\mu\)</span>, respectively. The model dynamics are governed by the following system of ODEs:</p>
+<p>As described in our <a class="reference internal" href="#linear_Regression_Starter.ipynb"><span class="xref myst">very first notebook</span></a>, a generative model consists of a prior (encoding suitable parameter ranges) and a simulator (generating data given simulations). Our underlying model distinguishes between susceptible, <span class="math notranslate nohighlight">\(S\)</span>, infected, <span class="math notranslate nohighlight">\(I\)</span>, and recovered, <span class="math notranslate nohighlight">\(R\)</span>, individuals with infection and recovery occurring at a constant transmission rate <span class="math notranslate nohighlight">\(\lambda\)</span> and constant recovery rate <span class="math notranslate nohighlight">\(\mu\)</span>, respectively. The model dynamics are governed by the following system of ODEs:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
 \begin{align}
@@ -503,7 +502,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 <p>How did we come up with these priors? In this case, we rely on the domain expertise and previous research  (https://www.science.org/doi/10.1126/science.abb9789). In addition, the new parameter <span class="math notranslate nohighlight">\(\psi\)</span> follows an exponential distribution, which restricts it to positive numbers. Below is the implementation of these priors:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">prior</span><span class="p">():</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">prior</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates a random draw from the joint prior.&quot;&quot;&quot;</span>
 
     <span class="n">lambd</span> <span class="o">=</span> <span class="n">RNG</span><span class="o">.</span><span class="n">lognormal</span><span class="p">(</span><span class="n">mean</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mf">0.4</span><span class="p">),</span> <span class="n">sigma</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -521,7 +520,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 <h3><span class="section-number">3.2.2. </span>Observation Model (Implicit Likelihood Function) <a class="anchor" id="simulator__implicit_likelihood"></a><a class="headerlink" href="#observation-model-implicit-likelihood-function" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">nbinom</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">nbinom</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">convert_params</span><span class="p">(</span><span class="n">mu</span><span class="p">,</span> <span class="n">phi</span><span class="p">):</span>
@@ -580,7 +579,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 <p>We will define a simple helper function to load the actually reported cases in 2020 for the first two weeks of the Covid-19 pandemic in Germany.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">():</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">load_data</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper function to load cumulative cases and transform them to new cases.&quot;&quot;&quot;</span>
 
     <span class="n">confirmed_cases_url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv&quot;</span>
@@ -608,18 +607,27 @@ Finally, we will also treat the number of initially infected individuals, <span 
 The resulting object can now generate <em>batches</em> of simulations.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">make_simulator</span><span class="p">([</span><span class="n">prior</span><span class="p">,</span> <span class="n">stationary_SIR</span><span class="p">])</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">make_simulator</span><span class="p">([</span><span class="n">prior</span><span class="p">,</span> <span class="n">stationary_SIR</span><span class="p">])</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">time</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
 <span class="n">test_sims</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">batch_size</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">test_sims</span><span class="p">[</span><span class="s2">&quot;lambd&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">test_sims</span><span class="p">[</span><span class="s2">&quot;D&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">test_sims</span><span class="p">[</span><span class="s2">&quot;cases&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(2, 1)
+(2, 1)
+(2, 14)
+CPU times: total: 0 ns
+Wall time: 4.02 ms
 </pre></div>
 </div>
 </div>
@@ -631,13 +639,16 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Any principled Bayesian workflow requires some prior predictive or prior pushforward checks to ensure that the prior specification is consistent with domain expertise (see https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html). The BayesFlow library provides some rudimentary visual tools for performing prior checking. For instance, we can visually inspect the joint prior in the form of bivariate plots. We can focus on particular parameter combinations, such as <span class="math notranslate nohighlight">\(\lambda\)</span>, <span class="math notranslate nohighlight">\(\mu\)</span>, and <span class="math notranslate nohighlight">\(D\)</span>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prior_samples</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">simulators</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prior_samples</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">simulators</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
 
 <span class="n">grid</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pairs_samples</span><span class="p">(</span>
     <span class="n">prior_samples</span><span class="p">,</span> <span class="n">variable_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lambd&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">]</span>
 <span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/cab726928bbcce54579166a797ffdacca009202e5283cdde3b9ec8e96672ba1e.png" src="../_images/cab726928bbcce54579166a797ffdacca009202e5283cdde3b9ec8e96672ba1e.png" />
 </div>
 </div>
 </section>
@@ -652,16 +663,15 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Thus, what our approximators are learning is <span class="math notranslate nohighlight">\(p(\text{inference variables} \mid t(\text{summary variables}))\)</span>, where <span class="math notranslate nohighlight">\(t\)</span> is the summary network.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">bf</span><span class="o">.</span><span class="n">adapters</span><span class="o">.</span><span class="n">Adapter</span><span class="p">()</span>
     <span class="o">.</span><span class="n">convert_dtype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">as_time_series</span><span class="p">(</span><span class="s2">&quot;cases&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="s2">&quot;lambd&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;I0&quot;</span><span class="p">,</span> <span class="s2">&quot;psi&quot;</span><span class="p">],</span> <span class="n">into</span><span class="o">=</span><span class="s2">&quot;inference_variables&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;cases&quot;</span><span class="p">,</span> <span class="s2">&quot;summary_variables&quot;</span><span class="p">)</span>
-    <span class="c1"># since all our variables are non-negative (zero or larger)</span>
-    <span class="c1"># this .apply call ensures that the variables are transformed</span>
+    <span class="c1"># since all our variables are non-negative (zero or larger), the next call transforms them</span>
     <span class="c1"># to the unconstrained real space and can be back-transformed under the hood</span>
-    <span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">forward</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">log</span><span class="p">([</span><span class="s2">&quot;inference_variables&quot;</span><span class="p">,</span> <span class="s2">&quot;summary_variables&quot;</span><span class="p">],</span> <span class="n">p1</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -669,10 +679,28 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s check out the new shapes</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Adapter([0: ConvertDType -&gt; 1: AsTimeSeries -&gt; 2: Concatenate([&#39;lambd&#39;, &#39;mu&#39;, &#39;D&#39;, &#39;I0&#39;, &#39;psi&#39;] -&gt; &#39;inference_variables&#39;) -&gt; 3: Rename(&#39;cases&#39; -&gt; &#39;summary_variables&#39;) -&gt; 4: Log])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s check out the new shapes</span>
 <span class="n">adapted_sims</span> <span class="o">=</span> <span class="n">adapter</span><span class="p">(</span><span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">adapted_sims</span><span class="p">[</span><span class="s2">&quot;summary_variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">adapted_sims</span><span class="p">[</span><span class="s2">&quot;inference_variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(2, 14, 1)
+(2, 5)
 </pre></div>
 </div>
 </div>
@@ -687,7 +715,7 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>However, we demonstrate the use of a simple Gated Recurrent Unit (GRU) summary network. Any <code class="docutils literal notranslate"><span class="pre">keras</span></code> model can interact with <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> by inherting from <code class="docutils literal notranslate"><span class="pre">SummaryNetwork</span></code> which accepts an addition <code class="docutils literal notranslate"><span class="pre">stage</span></code> argument indicating the mode the network is currently operating in (i.e., <code class="docutils literal notranslate"><span class="pre">training</span></code> vs. <code class="docutils literal notranslate"><span class="pre">inference</span></code>).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GRU</span><span class="p">(</span><span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">SummaryNetwork</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">GRU</span><span class="p">(</span><span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">SummaryNetwork</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
@@ -706,7 +734,7 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">summary_net</span> <span class="o">=</span> <span class="n">GRU</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">summary_net</span> <span class="o">=</span> <span class="n">GRU</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -717,21 +745,18 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>As inference network we choose a flow matching architecture with some dropout to robustify the inference. Dropout is primarily important when learning from a (small) offline dataset. See below for details.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inference_net</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">(</span>
-    <span class="n">subnet_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;residual&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span> <span class="s2">&quot;widths&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">,</span> <span class="mi">128</span><span class="p">)}</span>
-<span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inference_net</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
     <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
     <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
     <span class="n">inference_network</span><span class="o">=</span><span class="n">inference_net</span><span class="p">,</span>
-    <span class="n">summary_network</span><span class="o">=</span><span class="n">summary_net</span><span class="p">,</span>
-    <span class="n">inference_variables</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;lambd&quot;</span><span class="p">,</span> <span class="s2">&quot;mu&quot;</span><span class="p">,</span> <span class="s2">&quot;D&quot;</span><span class="p">,</span> <span class="s2">&quot;I0&quot;</span><span class="p">,</span> <span class="s2">&quot;psi&quot;</span><span class="p">]</span>
+    <span class="n">summary_network</span><span class="o">=</span><span class="n">summary_net</span>
 <span class="p">)</span>
 </pre></div>
 </div>
@@ -744,8 +769,14 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Ready to train! Since our simulator is pretty fast, we can safely go with online training. Let’s glean the time taken for a batch of <span class="math notranslate nohighlight">\(32\)</span> simulations.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">%%</span><span class="n">time</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%%time</span>
 <span class="n">_</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mi">32</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>CPU times: total: 0 ns
+Wall time: 12.4 ms
 </pre></div>
 </div>
 </div>
@@ -755,16 +786,224 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <h3><span class="section-number">3.6.1. </span>Generating Offline Data <a class="anchor" id="generating_offline_data"></a><a class="headerlink" href="#generating-offline-data" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">training_data</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">training_data</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
 <span class="n">validation_data</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mi">300</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
-<p>We are now ready to train. If not provided, the default settings use <span class="math notranslate nohighlight">\(100\)</span> epochs with a batch size of <span class="math notranslate nohighlight">\(32\)</span>.</p>
+<p>We are now ready to train. If not provided, the default settings use <span class="math notranslate nohighlight">\(100\)</span> epochs with a batch size of <span class="math notranslate nohighlight">\(32\)</span>. The training time for this network is below 1 minute.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span><span class="n">training_data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_data</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span><span class="n">training_data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
+INFO:bayesflow:Building on a test batch.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">17s</span> 26ms/step - loss: 4.2486 - loss/inference_loss: 4.2486 - val_loss: -1.1140 - val_loss/inference_loss: -1.1140
+Epoch 2/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -1.5472 - loss/inference_loss: -1.5472 - val_loss: -2.1378 - val_loss/inference_loss: -2.1378
+Epoch 3/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -2.3162 - loss/inference_loss: -2.3162 - val_loss: -2.6860 - val_loss/inference_loss: -2.6860
+Epoch 4/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -2.6424 - loss/inference_loss: -2.6424 - val_loss: -2.9058 - val_loss/inference_loss: -2.9058
+Epoch 5/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -2.7015 - loss/inference_loss: -2.7015 - val_loss: -2.8206 - val_loss/inference_loss: -2.8206
+Epoch 6/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -2.6890 - loss/inference_loss: -2.6890 - val_loss: -2.5804 - val_loss/inference_loss: -2.5804
+Epoch 7/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -2.8290 - loss/inference_loss: -2.8290 - val_loss: -1.9873 - val_loss/inference_loss: -1.9873
+Epoch 8/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -2.9095 - loss/inference_loss: -2.9095 - val_loss: -1.7844 - val_loss/inference_loss: -1.7844
+Epoch 9/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -2.7301 - loss/inference_loss: -2.7301 - val_loss: -2.8988 - val_loss/inference_loss: -2.8988
+Epoch 10/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -2.8795 - loss/inference_loss: -2.8795 - val_loss: -3.0039 - val_loss/inference_loss: -3.0039
+Epoch 11/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -2.9452 - loss/inference_loss: -2.9452 - val_loss: -3.1090 - val_loss/inference_loss: -3.1090
+Epoch 12/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -2.9852 - loss/inference_loss: -2.9852 - val_loss: -2.9623 - val_loss/inference_loss: -2.9623
+Epoch 13/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.0376 - loss/inference_loss: -3.0376 - val_loss: -3.1049 - val_loss/inference_loss: -3.1049
+Epoch 14/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.1045 - loss/inference_loss: -3.1045 - val_loss: -3.3010 - val_loss/inference_loss: -3.3010
+Epoch 15/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -3.1402 - loss/inference_loss: -3.1402 - val_loss: -2.7699 - val_loss/inference_loss: -2.7699
+Epoch 16/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -2.8995 - loss/inference_loss: -2.8995 - val_loss: -2.5582 - val_loss/inference_loss: -2.5582
+Epoch 17/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -2.9831 - loss/inference_loss: -2.9831 - val_loss: -3.1610 - val_loss/inference_loss: -3.1610
+Epoch 18/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -3.2578 - loss/inference_loss: -3.2578 - val_loss: -3.0708 - val_loss/inference_loss: -3.0708
+Epoch 19/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.3054 - loss/inference_loss: -3.3054 - val_loss: -3.0608 - val_loss/inference_loss: -3.0608
+Epoch 20/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.3301 - loss/inference_loss: -3.3301 - val_loss: -3.6749 - val_loss/inference_loss: -3.6749
+Epoch 21/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.4153 - loss/inference_loss: -3.4153 - val_loss: -3.4097 - val_loss/inference_loss: -3.4097
+Epoch 22/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.4365 - loss/inference_loss: -3.4365 - val_loss: -3.7035 - val_loss/inference_loss: -3.7035
+Epoch 23/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.3716 - loss/inference_loss: -3.3716 - val_loss: -2.7805 - val_loss/inference_loss: -2.7805
+Epoch 24/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.4376 - loss/inference_loss: -3.4376 - val_loss: -3.4556 - val_loss/inference_loss: -3.4556
+Epoch 25/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.5659 - loss/inference_loss: -3.5659 - val_loss: -3.5075 - val_loss/inference_loss: -3.5075
+Epoch 26/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.6968 - loss/inference_loss: -3.6968 - val_loss: -4.1239 - val_loss/inference_loss: -4.1239
+Epoch 27/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.8440 - loss/inference_loss: -3.8440 - val_loss: -3.7740 - val_loss/inference_loss: -3.7740
+Epoch 28/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.7138 - loss/inference_loss: -3.7138 - val_loss: -3.6315 - val_loss/inference_loss: -3.6315
+Epoch 29/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.7019 - loss/inference_loss: -3.7019 - val_loss: -4.0753 - val_loss/inference_loss: -4.0753
+Epoch 30/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -3.7847 - loss/inference_loss: -3.7847 - val_loss: -3.8222 - val_loss/inference_loss: -3.8222
+Epoch 31/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.8517 - loss/inference_loss: -3.8517 - val_loss: -3.1023 - val_loss/inference_loss: -3.1023
+Epoch 32/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.8638 - loss/inference_loss: -3.8638 - val_loss: -4.1754 - val_loss/inference_loss: -4.1754
+Epoch 33/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -3.9542 - loss/inference_loss: -3.9542 - val_loss: -3.4782 - val_loss/inference_loss: -3.4782
+Epoch 34/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.0806 - loss/inference_loss: -4.0806 - val_loss: -3.9271 - val_loss/inference_loss: -3.9271
+Epoch 35/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.0153 - loss/inference_loss: -4.0153 - val_loss: -4.0164 - val_loss/inference_loss: -4.0164
+Epoch 36/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.0379 - loss/inference_loss: -4.0379 - val_loss: -4.0903 - val_loss/inference_loss: -4.0903
+Epoch 37/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.1377 - loss/inference_loss: -4.1377 - val_loss: -4.0010 - val_loss/inference_loss: -4.0010
+Epoch 38/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.1976 - loss/inference_loss: -4.1976 - val_loss: -4.4287 - val_loss/inference_loss: -4.4287
+Epoch 39/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.1920 - loss/inference_loss: -4.1920 - val_loss: -4.0961 - val_loss/inference_loss: -4.0961
+Epoch 40/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.2082 - loss/inference_loss: -4.2082 - val_loss: -4.0450 - val_loss/inference_loss: -4.0450
+Epoch 41/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 16ms/step - loss: -4.2479 - loss/inference_loss: -4.2479 - val_loss: -3.7379 - val_loss/inference_loss: -3.7379
+Epoch 42/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 15ms/step - loss: -4.2149 - loss/inference_loss: -4.2149 - val_loss: -3.7874 - val_loss/inference_loss: -3.7874
+Epoch 43/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.3505 - loss/inference_loss: -4.3505 - val_loss: -4.4472 - val_loss/inference_loss: -4.4472
+Epoch 44/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 15ms/step - loss: -4.3772 - loss/inference_loss: -4.3772 - val_loss: -4.9066 - val_loss/inference_loss: -4.9066
+Epoch 45/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 21ms/step - loss: -4.4788 - loss/inference_loss: -4.4788 - val_loss: -4.9416 - val_loss/inference_loss: -4.9416
+Epoch 46/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 26ms/step - loss: -4.4839 - loss/inference_loss: -4.4839 - val_loss: -4.2203 - val_loss/inference_loss: -4.2203
+Epoch 47/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 27ms/step - loss: -4.4993 - loss/inference_loss: -4.4993 - val_loss: -4.3858 - val_loss/inference_loss: -4.3858
+Epoch 48/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 28ms/step - loss: -4.3970 - loss/inference_loss: -4.3970 - val_loss: -4.7515 - val_loss/inference_loss: -4.7515
+Epoch 49/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 18ms/step - loss: -4.4935 - loss/inference_loss: -4.4935 - val_loss: -5.1859 - val_loss/inference_loss: -5.1859
+Epoch 50/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.5638 - loss/inference_loss: -4.5638 - val_loss: -4.4607 - val_loss/inference_loss: -4.4607
+Epoch 51/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.5472 - loss/inference_loss: -4.5472 - val_loss: -3.9957 - val_loss/inference_loss: -3.9957
+Epoch 52/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.5421 - loss/inference_loss: -4.5421 - val_loss: -3.7926 - val_loss/inference_loss: -3.7926
+Epoch 53/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.5612 - loss/inference_loss: -4.5612 - val_loss: -4.3698 - val_loss/inference_loss: -4.3698
+Epoch 54/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.6060 - loss/inference_loss: -4.6060 - val_loss: -3.8891 - val_loss/inference_loss: -3.8891
+Epoch 55/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.5613 - loss/inference_loss: -4.5613 - val_loss: -5.1337 - val_loss/inference_loss: -5.1337
+Epoch 56/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.6624 - loss/inference_loss: -4.6624 - val_loss: -5.1637 - val_loss/inference_loss: -5.1637
+Epoch 57/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.6479 - loss/inference_loss: -4.6479 - val_loss: -4.6204 - val_loss/inference_loss: -4.6204
+Epoch 58/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.7094 - loss/inference_loss: -4.7094 - val_loss: -5.3738 - val_loss/inference_loss: -5.3738
+Epoch 59/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.7244 - loss/inference_loss: -4.7244 - val_loss: -4.5603 - val_loss/inference_loss: -4.5603
+Epoch 60/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.6785 - loss/inference_loss: -4.6785 - val_loss: -5.3472 - val_loss/inference_loss: -5.3472
+Epoch 61/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 16ms/step - loss: -4.7432 - loss/inference_loss: -4.7432 - val_loss: -4.0101 - val_loss/inference_loss: -4.0101
+Epoch 62/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.7472 - loss/inference_loss: -4.7472 - val_loss: -4.8375 - val_loss/inference_loss: -4.8375
+Epoch 63/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.7788 - loss/inference_loss: -4.7788 - val_loss: -4.6287 - val_loss/inference_loss: -4.6287
+Epoch 64/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8063 - loss/inference_loss: -4.8063 - val_loss: -4.3301 - val_loss/inference_loss: -4.3301
+Epoch 65/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8122 - loss/inference_loss: -4.8122 - val_loss: -4.6918 - val_loss/inference_loss: -4.6918
+Epoch 66/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.7404 - loss/inference_loss: -4.7404 - val_loss: -5.0060 - val_loss/inference_loss: -5.0060
+Epoch 67/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.7054 - loss/inference_loss: -4.7054 - val_loss: -4.6745 - val_loss/inference_loss: -4.6745
+Epoch 68/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8023 - loss/inference_loss: -4.8023 - val_loss: -4.9597 - val_loss/inference_loss: -4.9597
+Epoch 69/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8139 - loss/inference_loss: -4.8139 - val_loss: -4.8293 - val_loss/inference_loss: -4.8293
+Epoch 70/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8479 - loss/inference_loss: -4.8479 - val_loss: -4.6023 - val_loss/inference_loss: -4.6023
+Epoch 71/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8280 - loss/inference_loss: -4.8280 - val_loss: -4.6748 - val_loss/inference_loss: -4.6748
+Epoch 72/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8303 - loss/inference_loss: -4.8303 - val_loss: -4.4810 - val_loss/inference_loss: -4.4810
+Epoch 73/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8471 - loss/inference_loss: -4.8471 - val_loss: -4.8937 - val_loss/inference_loss: -4.8937
+Epoch 74/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8822 - loss/inference_loss: -4.8822 - val_loss: -5.0253 - val_loss/inference_loss: -5.0253
+Epoch 75/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8694 - loss/inference_loss: -4.8694 - val_loss: -4.4922 - val_loss/inference_loss: -4.4922
+Epoch 76/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8597 - loss/inference_loss: -4.8597 - val_loss: -5.1583 - val_loss/inference_loss: -5.1583
+Epoch 77/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8901 - loss/inference_loss: -4.8901 - val_loss: -4.8595 - val_loss/inference_loss: -4.8595
+Epoch 78/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.8785 - loss/inference_loss: -4.8785 - val_loss: -5.3015 - val_loss/inference_loss: -5.3015
+Epoch 79/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 15ms/step - loss: -4.9087 - loss/inference_loss: -4.9087 - val_loss: -4.3250 - val_loss/inference_loss: -4.3250
+Epoch 80/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9253 - loss/inference_loss: -4.9253 - val_loss: -4.6514 - val_loss/inference_loss: -4.6514
+Epoch 81/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9249 - loss/inference_loss: -4.9249 - val_loss: -5.1590 - val_loss/inference_loss: -5.1590
+Epoch 82/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9324 - loss/inference_loss: -4.9324 - val_loss: -4.9951 - val_loss/inference_loss: -4.9951
+Epoch 83/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9383 - loss/inference_loss: -4.9383 - val_loss: -5.1792 - val_loss/inference_loss: -5.1792
+Epoch 84/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9518 - loss/inference_loss: -4.9518 - val_loss: -4.6203 - val_loss/inference_loss: -4.6203
+Epoch 85/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9461 - loss/inference_loss: -4.9461 - val_loss: -4.7563 - val_loss/inference_loss: -4.7563
+Epoch 86/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9542 - loss/inference_loss: -4.9542 - val_loss: -4.6749 - val_loss/inference_loss: -4.6749
+Epoch 87/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9710 - loss/inference_loss: -4.9710 - val_loss: -5.0239 - val_loss/inference_loss: -5.0239
+Epoch 88/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9643 - loss/inference_loss: -4.9643 - val_loss: -5.0126 - val_loss/inference_loss: -5.0126
+Epoch 89/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9693 - loss/inference_loss: -4.9693 - val_loss: -4.7675 - val_loss/inference_loss: -4.7675
+Epoch 90/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9680 - loss/inference_loss: -4.9680 - val_loss: -4.8543 - val_loss/inference_loss: -4.8543
+Epoch 91/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9872 - loss/inference_loss: -4.9872 - val_loss: -4.9866 - val_loss/inference_loss: -4.9866
+Epoch 92/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9697 - loss/inference_loss: -4.9697 - val_loss: -5.2381 - val_loss/inference_loss: -5.2381
+Epoch 93/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9745 - loss/inference_loss: -4.9745 - val_loss: -4.6988 - val_loss/inference_loss: -4.6988
+Epoch 94/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 14ms/step - loss: -4.9838 - loss/inference_loss: -4.9838 - val_loss: -4.7099 - val_loss/inference_loss: -4.7099
+Epoch 95/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9986 - loss/inference_loss: -4.9986 - val_loss: -4.6077 - val_loss/inference_loss: -4.6077
+Epoch 96/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 13ms/step - loss: -4.9982 - loss/inference_loss: -4.9982 - val_loss: -4.9367 - val_loss/inference_loss: -4.9367
+Epoch 97/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9957 - loss/inference_loss: -4.9957 - val_loss: -4.6383 - val_loss/inference_loss: -4.6383
+Epoch 98/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9745 - loss/inference_loss: -4.9745 - val_loss: -5.1300 - val_loss/inference_loss: -5.1300
+Epoch 99/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9999 - loss/inference_loss: -4.9999 - val_loss: -4.6360 - val_loss/inference_loss: -4.6360
+Epoch 100/100
+<span class=" -Color -Color-Bold">79/79</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 12ms/step - loss: -4.9809 - loss/inference_loss: -4.9809 - val_loss: -4.6692 - val_loss/inference_loss: -4.6692
 </pre></div>
 </div>
 </div>
@@ -775,9 +1014,12 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Following our online simulation-based training, we can quickly visualize the loss trajectory using the <code class="docutils literal notranslate"><span class="pre">plots.loss</span></code> function from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/56201d4d151789c69d398be22a7a9994a43c805c13717250d0078ac9a220b3a5.png" src="../_images/56201d4d151789c69d398be22a7a9994a43c805c13717250d0078ac9a220b3a5.png" />
 </div>
 </div>
 <p>Great, it seems that our approximator has converged! Before we get too excited and throw our networks at real data, we need to make sure that they meet our expectations <em>in silico</em>, that is, given the small world of simulations the networks have seen during training.</p>
@@ -788,16 +1030,15 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>When it comes to validating posterior inference, we can either deploy manual diagnostics from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module, or use the automated functions from the <code class="docutils literal notranslate"><span class="pre">BasicWorkflow</span></code> object. First, we demonstrate manual validation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the number of posterior draws you want to get</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the number of posterior draws you want to get</span>
 <span class="n">num_datasets</span> <span class="o">=</span> <span class="mi">300</span>
 <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span>
 
-<span class="c1"># Simulate 300 scenarios and extract time series from dict</span>
+<span class="c1"># Simulate 300 scenarios</span>
 <span class="n">test_sims</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="n">num_datasets</span><span class="p">)</span>
-<span class="n">time_series</span> <span class="o">=</span> <span class="n">test_sims</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;cases&quot;</span><span class="p">)</span>
 
 <span class="c1"># Obtain num_samples posterior samples per scenario</span>
-<span class="n">samples</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;cases&quot;</span><span class="p">:</span> <span class="n">time_series</span><span class="p">},</span> <span class="n">num_datasets</span><span class="o">=</span><span class="n">num_datasets</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">samples</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">test_sims</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -807,9 +1048,15 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>As a further <strong>small world</strong> (i.e., before real data) sanity check, we can also test the calibration of the amortizer through simulation-based calibration (SBC). See the corresponding paper for more details (https://arxiv.org/pdf/1804.06788.pdf). Accordingly, we expect to observe approximately uniform rank statistic histograms. In the present case, this is indeed what we get:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_histogram</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_histogram</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:bayesflow:The ratio of simulations / posterior draws should be &gt; 20 for reliable variance reduction, but your ratio is 0. Confidence intervals might be unreliable!
+</pre></div>
+</div>
+<img alt="../_images/4871f2c4f21e012b5afe85292d0eda4efc74da86d1262f8aefee5f5de3ca1990.png" src="../_images/4871f2c4f21e012b5afe85292d0eda4efc74da86d1262f8aefee5f5de3ca1990.png" />
 </div>
 </div>
 </section>
@@ -819,9 +1066,12 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>In order to inspect the ECDFs of marginal distributions, we will simulate <span class="math notranslate nohighlight">\(300\)</span> new pairs of simulated data and generating parameters <span class="math notranslate nohighlight">\((\boldsymbol{x}, \boldsymbol{\theta})\)</span> and use the function <code class="docutils literal notranslate"><span class="pre">plots.calibration_ecdf</span></code> from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_ecdf</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">,</span> <span class="n">difference</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_ecdf</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">,</span> <span class="n">difference</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/28337a6a07e8c619f18e9cf2fc2501c2cd0c9516504789184c5722668b21b30f.png" src="../_images/28337a6a07e8c619f18e9cf2fc2501c2cd0c9516504789184c5722668b21b30f.png" />
 </div>
 </div>
 </section>
@@ -830,9 +1080,12 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Depending on the application, it might be interesting to see how well summaries of the full posterior (e.g., means, medians) recover the assumed true parameter values. We can test this <em>in silico</em> via the <code class="docutils literal notranslate"><span class="pre">plots.recovery</span></code> function in the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module. For instance, we can compare how well posterior means recover the true parameter (i.e., posterior z-score, https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html):</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">test_sims</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/c1aaf783728609a78842df28932f2c7e37444d080f60167fab8363cf15469887.png" src="../_images/c1aaf783728609a78842df28932f2c7e37444d080f60167fab8363cf15469887.png" />
 </div>
 </div>
 <p>Interestingly, it seems that the parameters <span class="math notranslate nohighlight">\(\theta_1 = \mu\)</span> and <span class="math notranslate nohighlight">\(\theta_2 = D\)</span> have not been learned properly as they are estimated roughly the same for every simulated datset used during testing. For some models, this might indicate that the the network training had partially failed; and we would have to train longer or adjust the network architecture. For this specific model, however, the reason is different: From the provided observables, these parameters are actually not identified so cannot be learned consistently, no matter the kind of approximator we would use.</p>
@@ -842,16 +1095,73 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>The basic workflow object wraps together a bunch of useful functions that can be called automatically. For instance, we can easily obtain numerical error estimates for the big three: normalized roor mean square error (NRMSE), posterior contraction, and calibration, for <span class="math notranslate nohighlight">\(300\)</span> new data sets:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">metrics</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">compute_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">metrics</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">compute_diagnostics</span><span class="p">(</span><span class="n">test_data</span><span class="o">=</span><span class="mi">300</span><span class="p">)</span>
 <span class="n">metrics</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:bayesflow:This function will be deprecated in future versions. Please, use plot_default_diagnosticsor compute_custom_diagnositcs if you want to use your own metrics.
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lambd</th>
+      <th>mu</th>
+      <th>D</th>
+      <th>I0</th>
+      <th>psi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>NRMSE</th>
+      <td>0.056851</td>
+      <td>0.245320</td>
+      <td>0.258866</td>
+      <td>0.224820</td>
+      <td>0.176979</td>
+    </tr>
+    <tr>
+      <th>Posterior Contraction</th>
+      <td>0.969863</td>
+      <td>0.070145</td>
+      <td>0.096755</td>
+      <td>0.491985</td>
+      <td>0.691454</td>
+    </tr>
+    <tr>
+      <th>Calibration Error</th>
+      <td>0.006404</td>
+      <td>0.016930</td>
+      <td>0.018509</td>
+      <td>0.022018</td>
+      <td>0.030614</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
 </div>
 <p>We can also obtain the full set of graphical diagnostics:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">figures</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">plot_diagnostics</span><span class="p">(</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">figures</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">plot_default_diagnostics</span><span class="p">(</span>
     <span class="n">test_data</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span>
     <span class="n">loss_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;label_fontsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
     <span class="n">recovery_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="s2">&quot;label_fontsize&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">},</span>
@@ -861,6 +1171,12 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<img alt="../_images/de00d290d928fde010df476ccc5bd0a94a61f597f583db2a5a26ae4c273e8965.png" src="../_images/de00d290d928fde010df476ccc5bd0a94a61f597f583db2a5a26ae4c273e8965.png" />
+<img alt="../_images/6b8cbdf394df186929ff39ab62e8ade7ea179131ef4d4d7fb6dd2e8d6b4c3e4c.png" src="../_images/6b8cbdf394df186929ff39ab62e8ade7ea179131ef4d4d7fb6dd2e8d6b4c3e4c.png" />
+<img alt="../_images/1a140f3c7271ffc857878e0acda4a92d88c12090170e0aa0591609549e5b86de.png" src="../_images/1a140f3c7271ffc857878e0acda4a92d88c12090170e0aa0591609549e5b86de.png" />
+<img alt="../_images/5c455dbb0f8c72ae6482d7e45a4301c579d4b06292bce89b74ded3ef372c468d.png" src="../_images/5c455dbb0f8c72ae6482d7e45a4301c579d4b06292bce89b74ded3ef372c468d.png" />
+</div>
 </div>
 </section>
 </section>
@@ -869,7 +1185,7 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>We can now move on to using real data. This is easy, and since we are using an adapter, the same transformations applied during training will be applied during the inference phase.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Our real-data loader returns the time series as a 1D array</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Our real-data loader returns the time series as a 1D array</span>
 <span class="n">obs_cases</span> <span class="o">=</span> <span class="n">load_data</span><span class="p">()</span>
 
 <span class="c1"># Note that we transform the 1D array into shape (1, T), indicating one time series</span>
@@ -882,6 +1198,125 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>lambd</th>
+      <th>mu</th>
+      <th>D</th>
+      <th>I0</th>
+      <th>psi</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.402551</td>
+      <td>0.120996</td>
+      <td>8.096017</td>
+      <td>17.544056</td>
+      <td>5.166767</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.371697</td>
+      <td>0.100427</td>
+      <td>8.914768</td>
+      <td>22.147945</td>
+      <td>5.296036</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.427818</td>
+      <td>0.119764</td>
+      <td>5.945046</td>
+      <td>23.155437</td>
+      <td>5.229863</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.369200</td>
+      <td>0.108139</td>
+      <td>7.931376</td>
+      <td>25.643795</td>
+      <td>11.763212</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.449592</td>
+      <td>0.131121</td>
+      <td>8.774573</td>
+      <td>10.906879</td>
+      <td>6.091106</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>995</th>
+      <td>0.431244</td>
+      <td>0.132479</td>
+      <td>6.395967</td>
+      <td>20.684784</td>
+      <td>11.610991</td>
+    </tr>
+    <tr>
+      <th>996</th>
+      <td>0.443327</td>
+      <td>0.200023</td>
+      <td>8.253294</td>
+      <td>23.009169</td>
+      <td>8.434035</td>
+    </tr>
+    <tr>
+      <th>997</th>
+      <td>0.413618</td>
+      <td>0.126926</td>
+      <td>5.464198</td>
+      <td>33.508591</td>
+      <td>12.334532</td>
+    </tr>
+    <tr>
+      <th>998</th>
+      <td>0.394164</td>
+      <td>0.095791</td>
+      <td>6.145814</td>
+      <td>26.221582</td>
+      <td>8.710411</td>
+    </tr>
+    <tr>
+      <th>999</th>
+      <td>0.369462</td>
+      <td>0.096307</td>
+      <td>5.910951</td>
+      <td>37.620033</td>
+      <td>9.514233</td>
+    </tr>
+  </tbody>
+</table>
+<p>1000 rows × 5 columns</p>
+</div></div></div>
 </div>
 <section id="posterior-retrodictive-checks">
 <h3><span class="section-number">3.8.1. </span>Posterior Retrodictive Checks <a class="anchor" id="posterior_retrodictive_checks"></a><a class="headerlink" href="#posterior-retrodictive-checks" title="Link to this heading">#</a></h3>
@@ -889,7 +1324,7 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 <p>Here, we will create a custom function which plots the observed data and then overlays draws from the posterior predictive.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_ppc</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">obs_cases</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#132a70&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">18</span><span class="p">):</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_ppc</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">obs_cases</span><span class="p">,</span> <span class="n">logscale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#132a70&quot;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">font_size</span><span class="o">=</span><span class="mi">18</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Helper function to perform some plotting of the posterior predictive.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -935,12 +1370,15 @@ The resulting object can now generate <em>batches</em> of simulations.</p>
 </div>
 </div>
 </div>
-<p>We can now go on and plot the re-simulations:</p>
+<p>We can now go on and plot the re-simulations (i.e., perform a posterior “predictive” check on the fitted data):</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">plot_ppc</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">obs_cases</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">plot_ppc</span><span class="p">(</span><span class="n">samples</span><span class="p">,</span> <span class="n">obs_cases</span><span class="p">)</span>
 </pre></div>
 </div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/8d30d0b9ac1493dbcaaf4ffcd6db4288624d9acc0a11e21097bbed8be8123171.png" src="../_images/8d30d0b9ac1493dbcaaf4ffcd6db4288624d9acc0a11e21097bbed8be8123171.png" />
 </div>
 </div>
 <p>That’s it for this tutorial! You now know how to use the basic building blocks of <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> to create amortized neural approximators. :)</p>
