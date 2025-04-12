@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>5. From ABC to BayesFlow &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>6. From ABC to BayesFlow &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -60,8 +60,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="6. Simple Model Comparison - One Sample T-Test" href="One_Sample_TTest.html" />
-    <link rel="prev" title="4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch" href="Bayesian_Experimental_Design.html" />
+    <link rel="next" title="7. Simple Model Comparison - One Sample T-Test" href="One_Sample_TTest.html" />
+    <link rel="prev" title="5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch" href="Bayesian_Experimental_Design.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -359,11 +359,13 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="Linear_Regression_Starter.html">1. Bayesian Linear Regression Starter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">2. Two Moons: Tackling Bimodal Posteriors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">3. Posterior Estimation for SIR-like Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">5. From ABC to BayesFlow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">6. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_BayesFlow_1.1_to_2.0.html">2. Moving from BayesFlow v1.1 to v2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">3. Two Moons: Tackling Bimodal Posteriors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">4. Posterior Estimation for SIR-like Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">6. From ABC to BayesFlow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">7. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html">8. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -407,7 +409,7 @@
     
     <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">5. </span>From ABC to BayesFlow</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">6. </span>From ABC to BayesFlow</span></li>
   </ul>
 </nav>
 </div>
@@ -425,7 +427,7 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="from-abc-to-bayesflow">
-<h1><span class="section-number">5. </span>From ABC to BayesFlow<a class="headerlink" href="#from-abc-to-bayesflow" title="Link to this heading">#</a></h1>
+<h1><span class="section-number">6. </span>From ABC to BayesFlow<a class="headerlink" href="#from-abc-to-bayesflow" title="Link to this heading">#</a></h1>
 <p><em>Author: Jonas Arruda</em></p>
 <p>In the following, we fit stochastic chemical reaction kinetics with Approximate Bayesian Computation (ABC) and show how to transfer the workflow to <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code>. Any model written in an ABC framework can be easily transferred to <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code>. The main difference is that <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> enables <em>amortized inference</em>, allowing us to instantly infer parameters from new data sets without further training.</p>
 <p>In ABC (and non-amortized inference in general), estimation is tailored for a single dataset. For both we need to specify a simulator and priors over the parameters. While in ABC we also need to specify a distance function between observation and simulation (and for higher dimensional problems also summary statistics), in <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> we only need to specify an adapter that maps the simulator output to the output of a neural <code class="docutils literal notranslate"><span class="pre">Approximator</span></code>. After training, we can validate the computational faithfulness of the trained approximator using various Bayesian metrics, such as simulation-based calibration (SBC). This is typically not feasible with ABC, as we would have to repeat the same expensive approximation loop for every new data set.</p>
@@ -459,7 +461,7 @@
 </div>
 </div>
 <section id="simulator">
-<h2><span class="section-number">5.1. </span>Simulator<a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">6.1. </span>Simulator<a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
 <p>We consider a Markov jump process model <span class="math notranslate nohighlight">\(m_1\)</span> for conversion of (chemical) species <span class="math notranslate nohighlight">\(X\)</span> to species <span class="math notranslate nohighlight">\(Y\)</span>:</p>
 <div class="math notranslate nohighlight">
 \[
@@ -717,7 +719,7 @@ ABC.History INFO: Done &lt;ABCSMC id=26, duration=0:01:35.747941, end_time=2025-
 <p>We can see that the posterior distribution is centered around the true rate parameter value. So the ABC run was successful for this single dataset.</p>
 </section>
 <section id="transitioning-to-bayesflow">
-<h2><span class="section-number">5.2. </span>Transitioning to BayesFlow<a class="headerlink" href="#transitioning-to-bayesflow" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">6.2. </span>Transitioning to BayesFlow<a class="headerlink" href="#transitioning-to-bayesflow" title="Link to this heading">#</a></h2>
 <p>We choose a backend for the neural network, in this case we use <code class="docutils literal notranslate"><span class="pre">torch</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -871,7 +873,7 @@ Epoch 10/10
 </div>
 </section>
 <section id="validation-phase">
-<h2><span class="section-number">5.3. </span>Validation Phase<a class="headerlink" href="#validation-phase" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">6.3. </span>Validation Phase<a class="headerlink" href="#validation-phase" title="Link to this heading">#</a></h2>
 <p>At this point you should validate the computational faithfulness of your trained approximator and check its performance <em>in silico</em>. As a reminder, this is not feasible with ABC, as we would have to re-run the fitting for every new data set. With <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code>, we can simply simulate new data sets and check parameter recoverability and calibration over the entire prior predictive space the network was trained on.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -911,7 +913,7 @@ Epoch 10/10
 </div>
 </section>
 <section id="inference-phase">
-<h2><span class="section-number">5.4. </span>Inference Phase<a class="headerlink" href="#inference-phase" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">6.4. </span>Inference Phase<a class="headerlink" href="#inference-phase" title="Link to this heading">#</a></h2>
 <p>Once the approximator has passed all consistency checks, we can now go ahead and apply it to the data of interest! For this single dataset, we can compare the posterior samples obtained from <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> to the ones obtained from <code class="docutils literal notranslate"><span class="pre">pyABC</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -990,7 +992,7 @@ Number of simulations in ABC: 610620
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">4. </span>Bayesian Experimental Design (BED) with BayesFlow and PyTorch</p>
+        <p class="prev-next-title"><span class="section-number">5. </span>Bayesian Experimental Design (BED) with BayesFlow and PyTorch</p>
       </div>
     </a>
     <a class="right-next"
@@ -998,7 +1000,7 @@ Number of simulations in ABC: 610620
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">6. </span>Simple Model Comparison - One Sample T-Test</p>
+        <p class="prev-next-title"><span class="section-number">7. </span>Simple Model Comparison - One Sample T-Test</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1021,10 +1023,10 @@ Number of simulations in ABC: 610620
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">5.1. Simulator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transitioning-to-bayesflow">5.2. Transitioning to BayesFlow</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-phase">5.3. Validation Phase</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-phase">5.4. Inference Phase</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">6.1. Simulator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transitioning-to-bayesflow">6.2. Transitioning to BayesFlow</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-phase">6.3. Validation Phase</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-phase">6.4. Inference Phase</a></li>
 </ul>
   </nav></div>
 

@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>3. Posterior Estimation for SIR-like Models &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>4. Posterior Estimation for SIR-like Models &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -60,8 +60,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch" href="Bayesian_Experimental_Design.html" />
-    <link rel="prev" title="2. Two Moons: Tackling Bimodal Posteriors" href="Two_Moons_Starter.html" />
+    <link rel="next" title="5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch" href="Bayesian_Experimental_Design.html" />
+    <link rel="prev" title="3. Two Moons: Tackling Bimodal Posteriors" href="Two_Moons_Starter.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -359,11 +359,13 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="Linear_Regression_Starter.html">1. Bayesian Linear Regression Starter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">2. Two Moons: Tackling Bimodal Posteriors</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Posterior Estimation for SIR-like Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">5. From ABC to BayesFlow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">6. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_BayesFlow_1.1_to_2.0.html">2. Moving from BayesFlow v1.1 to v2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">3. Two Moons: Tackling Bimodal Posteriors</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">4. Posterior Estimation for SIR-like Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">6. From ABC to BayesFlow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">7. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html">8. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -407,7 +409,7 @@
     
     <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3. </span>Posterior Estimation for SIR-like Models</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">4. </span>Posterior Estimation for SIR-like Models</span></li>
   </ul>
 </nav>
 </div>
@@ -425,7 +427,7 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="posterior-estimation-for-sir-like-models">
-<h1><span class="section-number">3. </span>Posterior Estimation for SIR-like Models<a class="headerlink" href="#posterior-estimation-for-sir-like-models" title="Link to this heading">#</a></h1>
+<h1><span class="section-number">4. </span>Posterior Estimation for SIR-like Models<a class="headerlink" href="#posterior-estimation-for-sir-like-models" title="Link to this heading">#</a></h1>
 <p><em>Author: Stefan T. Radev</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -449,13 +451,13 @@
 </div>
 </div>
 <section id="introduction">
-<h2><span class="section-number">3.1. </span>Introduction <a class="anchor" id="introduction"></a><a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.1. </span>Introduction <a class="anchor" id="introduction"></a><a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
 <p>In this tutorial, we will illustrate how to perform posterior inference on simple, stationary SIR-like models (complex models will be tackled in a further notebook). SIR-like models comprise suitable illustrative examples, since they generate time-series and their outputs represent the results of solving a system of ordinary differential equations (ODEs).</p>
 <p>The details for tackling stochastic epidemiological models with neural networks are described in our corresponding paper, which you can consult for a more formal exposition and a more comprehensive treatment of neural architectures:</p>
 <p><strong>OutbreakFlow: Model-based Bayesian inference of disease outbreak dynamics with invertible neural networks and its application to the COVID-19 pandemics in Germany</strong> https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1009472</p>
 </section>
 <section id="defining-the-simulator">
-<h2><span class="section-number">3.2. </span>Defining the Simulator <a class="anchor" id="defining_the_generative"></a><a class="headerlink" href="#defining-the-simulator" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.2. </span>Defining the Simulator <a class="anchor" id="defining_the_generative"></a><a class="headerlink" href="#defining-the-simulator" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">RNG</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">default_rng</span><span class="p">(</span><span class="mi">2025</span><span class="p">)</span>
@@ -482,7 +484,7 @@
 <p>In this way, we connect the latent disease model to an observation model, which renders the relationship between parameters and data a stochastic one. Note, that the observation model induces a further parameter <span class="math notranslate nohighlight">\(\psi\)</span>, responsible for the dispersion of the noise.
 Finally, we will also treat the number of initially infected individuals, <span class="math notranslate nohighlight">\(I_0\)</span> as an unknown parameter (having its own prior distribution).</p>
 <section id="prior">
-<h3><span class="section-number">3.2.1. </span>Prior <a class="anchor" id="prior"></a><a class="headerlink" href="#prior" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.1. </span>Prior <a class="anchor" id="prior"></a><a class="headerlink" href="#prior" title="Link to this heading">#</a></h3>
 <p>We will place the following prior distributions over the five model parameters, summarized in the table below:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -517,7 +519,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 </div>
 </section>
 <section id="observation-model-implicit-likelihood-function">
-<h3><span class="section-number">3.2.2. </span>Observation Model (Implicit Likelihood Function) <a class="anchor" id="simulator__implicit_likelihood"></a><a class="headerlink" href="#observation-model-implicit-likelihood-function" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.2. </span>Observation Model (Implicit Likelihood Function) <a class="anchor" id="simulator__implicit_likelihood"></a><a class="headerlink" href="#observation-model-implicit-likelihood-function" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">nbinom</span>
@@ -575,7 +577,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 <p>As you can see, in addition to the parameters, our simulator requires two further arguments: the total population size <span class="math notranslate nohighlight">\(N\)</span> and the time horizon <span class="math notranslate nohighlight">\(T\)</span>. These are quantities over which we can amortize (i.e., context variables), but for this example, we will just use the population of Germany and the first two weeks of the pandemics (i.e., <span class="math notranslate nohighlight">\(T=14\)</span>), in the same vein as https://www.science.org/doi/10.1126/science.abb9789.</p>
 </section>
 <section id="loading-real-data">
-<h3><span class="section-number">3.2.3. </span>Loading Real Data <a class="anchor" id="loading_real_data"></a><a class="headerlink" href="#loading-real-data" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.3. </span>Loading Real Data <a class="anchor" id="loading_real_data"></a><a class="headerlink" href="#loading-real-data" title="Link to this heading">#</a></h3>
 <p>We will define a simple helper function to load the actually reported cases in 2020 for the first two weeks of the Covid-19 pandemic in Germany.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -602,7 +604,7 @@ Finally, we will also treat the number of initially infected individuals, <span 
 </div>
 </section>
 <section id="stitiching-things-together">
-<h3><span class="section-number">3.2.4. </span>Stitiching Things Together <a class="anchor" id="generative_model"></a><a class="headerlink" href="#stitiching-things-together" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.2.4. </span>Stitiching Things Together <a class="anchor" id="generative_model"></a><a class="headerlink" href="#stitiching-things-together" title="Link to this heading">#</a></h3>
 <p>We can combine the prior <span class="math notranslate nohighlight">\(p(\theta)\)</span> and the observation model <span class="math notranslate nohighlight">\(p(x_{1:T}\mid\theta)\)</span> into a joint model <span class="math notranslate nohighlight">\(p(\theta, x_{1:T}) = p(\theta) \; p(x_{1:T}\mid\theta)\)</span> using the <code class="docutils literal notranslate"><span class="pre">make_simulator</span></code> builder.
 The resulting object can now generate <em>batches</em> of simulations.</p>
 <div class="cell docutils container">
@@ -635,7 +637,7 @@ Wall time: 4.02 ms
 </section>
 </section>
 <section id="prior-checking">
-<h2><span class="section-number">3.3. </span>Prior Checking <a class="anchor" id="prior_checking"></a><a class="headerlink" href="#prior-checking" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.3. </span>Prior Checking <a class="anchor" id="prior_checking"></a><a class="headerlink" href="#prior-checking" title="Link to this heading">#</a></h2>
 <p>Any principled Bayesian workflow requires some prior predictive or prior pushforward checks to ensure that the prior specification is consistent with domain expertise (see https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html). The BayesFlow library provides some rudimentary visual tools for performing prior checking. For instance, we can visually inspect the joint prior in the form of bivariate plots. We can focus on particular parameter combinations, such as <span class="math notranslate nohighlight">\(\lambda\)</span>, <span class="math notranslate nohighlight">\(\mu\)</span>, and <span class="math notranslate nohighlight">\(D\)</span>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -653,7 +655,7 @@ Wall time: 4.02 ms
 </div>
 </section>
 <section id="defining-the-adapter">
-<h2><span class="section-number">3.4. </span>Defining the Adapter<a class="headerlink" href="#defining-the-adapter" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.4. </span>Defining the Adapter<a class="headerlink" href="#defining-the-adapter" title="Link to this heading">#</a></h2>
 <p>We need to ensure that the outputs of the forward model are suitable for processing with neural networks. Currently, they are not, since our data <span class="math notranslate nohighlight">\(x_{1:T}\)</span> consists of large integer (count) values. However, neural networks like scaled data. Furthermore, our parameters <span class="math notranslate nohighlight">\(\theta\)</span> exhibit widely different scales due to their prior specification and role in the simulator. Finally, BayesFlow needs to know which variables are to be inferred and which ones are to be processed by the summary network before being passed to the inference network. We handle all of these steps using an <code class="docutils literal notranslate"><span class="pre">Adapter</span></code>.</p>
 <p>Since all of our parameters and observables can only take on positive values, we will apply a log plus one transform to all quantities. Note, that <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> expects the following keys to be present in the final outputs of your configured simulations:</p>
 <ul class="simple">
@@ -707,10 +709,10 @@ Wall time: 4.02 ms
 </div>
 </section>
 <section id="defining-the-neural-approximator">
-<h2><span class="section-number">3.5. </span>Defining the Neural Approximator <a class="anchor" id="defining_the_neural"></a><a class="headerlink" href="#defining-the-neural-approximator" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.5. </span>Defining the Neural Approximator <a class="anchor" id="defining_the_neural"></a><a class="headerlink" href="#defining-the-neural-approximator" title="Link to this heading">#</a></h2>
 <p>We can now proceed to define our <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> neural architecture, that is, combine a summary network with an inference network.</p>
 <section id="summary-network">
-<h3><span class="section-number">3.5.1. </span>Summary Network <a class="anchor" id="summary_network"></a><a class="headerlink" href="#summary-network" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.5.1. </span>Summary Network <a class="anchor" id="summary_network"></a><a class="headerlink" href="#summary-network" title="Link to this heading">#</a></h3>
 <p>Since our simulator outputs 3D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">T</span> <span class="pre">=</span> <span class="pre">14,</span> <span class="pre">1)</span></code>, we need to reduce this three-dimensional tensor into a two-dimensional tensor of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">summary_dim)</span></code>. Our model outputs are actually so simple that we could have just removed the trailing dimension of the raw outputs and simply fed the data directly to the inference network.</p>
 <p>However, we demonstrate the use of a simple Gated Recurrent Unit (GRU) summary network. Any <code class="docutils literal notranslate"><span class="pre">keras</span></code> model can interact with <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> by inherting from <code class="docutils literal notranslate"><span class="pre">SummaryNetwork</span></code> which accepts an addition <code class="docutils literal notranslate"><span class="pre">stage</span></code> argument indicating the mode the network is currently operating in (i.e., <code class="docutils literal notranslate"><span class="pre">training</span></code> vs. <code class="docutils literal notranslate"><span class="pre">inference</span></code>).</p>
 <div class="cell docutils container">
@@ -741,7 +743,7 @@ Wall time: 4.02 ms
 </div>
 </section>
 <section id="inference-network">
-<h3><span class="section-number">3.5.2. </span>Inference Network<a class="headerlink" href="#inference-network" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.5.2. </span>Inference Network<a class="headerlink" href="#inference-network" title="Link to this heading">#</a></h3>
 <p>As inference network we choose a flow matching architecture with some dropout to robustify the inference. Dropout is primarily important when learning from a (small) offline dataset. See below for details.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -765,7 +767,7 @@ Wall time: 4.02 ms
 </section>
 </section>
 <section id="training">
-<h2><span class="section-number">3.6. </span>Training <a class="anchor" id="training"></a><a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.6. </span>Training <a class="anchor" id="training"></a><a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
 <p>Ready to train! Since our simulator is pretty fast, we can safely go with online training. Let’s glean the time taken for a batch of <span class="math notranslate nohighlight">\(32\)</span> simulations.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -783,7 +785,7 @@ Wall time: 12.4 ms
 </div>
 <p>Not too bad! However, for the purpose of illustration, we will go with offline training using a fixed data set of simulations.</p>
 <section id="generating-offline-data">
-<h3><span class="section-number">3.6.1. </span>Generating Offline Data <a class="anchor" id="generating_offline_data"></a><a class="headerlink" href="#generating-offline-data" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.6.1. </span>Generating Offline Data <a class="anchor" id="generating_offline_data"></a><a class="headerlink" href="#generating-offline-data" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">training_data</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">simulate</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
@@ -1010,7 +1012,7 @@ Epoch 100/100
 </div>
 </section>
 <section id="inspecting-the-loss">
-<h3><span class="section-number">3.6.2. </span>Inspecting the Loss <a class="anchor" id="inspecting_the_loss"></a><a class="headerlink" href="#inspecting-the-loss" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.6.2. </span>Inspecting the Loss <a class="anchor" id="inspecting_the_loss"></a><a class="headerlink" href="#inspecting-the-loss" title="Link to this heading">#</a></h3>
 <p>Following our online simulation-based training, we can quickly visualize the loss trajectory using the <code class="docutils literal notranslate"><span class="pre">plots.loss</span></code> function from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1026,7 +1028,7 @@ Epoch 100/100
 </section>
 </section>
 <section id="validation-phase">
-<h2><span class="section-number">3.7. </span>Validation Phase<a class="headerlink" href="#validation-phase" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.7. </span>Validation Phase<a class="headerlink" href="#validation-phase" title="Link to this heading">#</a></h2>
 <p>When it comes to validating posterior inference, we can either deploy manual diagnostics from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module, or use the automated functions from the <code class="docutils literal notranslate"><span class="pre">BasicWorkflow</span></code> object. First, we demonstrate manual validation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1044,7 +1046,7 @@ Epoch 100/100
 </div>
 </div>
 <section id="simulation-based-calibration-rank-histograms">
-<h3><span class="section-number">3.7.1. </span>Simulation-Based Calibration - Rank Histograms<a class="headerlink" href="#simulation-based-calibration-rank-histograms" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.7.1. </span>Simulation-Based Calibration - Rank Histograms<a class="headerlink" href="#simulation-based-calibration-rank-histograms" title="Link to this heading">#</a></h3>
 <p>As a further <strong>small world</strong> (i.e., before real data) sanity check, we can also test the calibration of the amortizer through simulation-based calibration (SBC). See the corresponding paper for more details (https://arxiv.org/pdf/1804.06788.pdf). Accordingly, we expect to observe approximately uniform rank statistic histograms. In the present case, this is indeed what we get:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1061,7 +1063,7 @@ Epoch 100/100
 </div>
 </section>
 <section id="simulation-based-calibration-rank-ecdf">
-<h3><span class="section-number">3.7.2. </span>Simulation-Based Calibration - Rank ECDF<a class="headerlink" href="#simulation-based-calibration-rank-ecdf" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.7.2. </span>Simulation-Based Calibration - Rank ECDF<a class="headerlink" href="#simulation-based-calibration-rank-ecdf" title="Link to this heading">#</a></h3>
 <p>For models with many parameters, inspecting many histograms can become unwieldly. Moreover, the <code class="docutils literal notranslate"><span class="pre">num_bins</span></code> hyperparameter for the construction of SBC rank histograms can be hard to choose. An alternative diagnostic approach for calibration is through empirical cumulative distribution functions (ECDF) of rank statistics. You can read more about this approach in the corresponding paper (https://arxiv.org/abs/2103.10522).</p>
 <p>In order to inspect the ECDFs of marginal distributions, we will simulate <span class="math notranslate nohighlight">\(300\)</span> new pairs of simulated data and generating parameters <span class="math notranslate nohighlight">\((\boldsymbol{x}, \boldsymbol{\theta})\)</span> and use the function <code class="docutils literal notranslate"><span class="pre">plots.calibration_ecdf</span></code> from the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module:</p>
 <div class="cell docutils container">
@@ -1076,7 +1078,7 @@ Epoch 100/100
 </div>
 </section>
 <section id="inferential-adequacy-global">
-<h3><span class="section-number">3.7.3. </span>Inferential Adequacy (Global)<a class="headerlink" href="#inferential-adequacy-global" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.7.3. </span>Inferential Adequacy (Global)<a class="headerlink" href="#inferential-adequacy-global" title="Link to this heading">#</a></h3>
 <p>Depending on the application, it might be interesting to see how well summaries of the full posterior (e.g., means, medians) recover the assumed true parameter values. We can test this <em>in silico</em> via the <code class="docutils literal notranslate"><span class="pre">plots.recovery</span></code> function in the <code class="docutils literal notranslate"><span class="pre">diagnostics</span></code> module. For instance, we can compare how well posterior means recover the true parameter (i.e., posterior z-score, https://betanalpha.github.io/assets/case_studies/principled_bayesian_workflow.html):</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1091,7 +1093,7 @@ Epoch 100/100
 <p>Interestingly, it seems that the parameters <span class="math notranslate nohighlight">\(\theta_1 = \mu\)</span> and <span class="math notranslate nohighlight">\(\theta_2 = D\)</span> have not been learned properly as they are estimated roughly the same for every simulated datset used during testing. For some models, this might indicate that the the network training had partially failed; and we would have to train longer or adjust the network architecture. For this specific model, however, the reason is different: From the provided observables, these parameters are actually not identified so cannot be learned consistently, no matter the kind of approximator we would use.</p>
 </section>
 <section id="automatic-diagnostics">
-<h3><span class="section-number">3.7.4. </span>Automatic Diagnostics<a class="headerlink" href="#automatic-diagnostics" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.7.4. </span>Automatic Diagnostics<a class="headerlink" href="#automatic-diagnostics" title="Link to this heading">#</a></h3>
 <p>The basic workflow object wraps together a bunch of useful functions that can be called automatically. For instance, we can easily obtain numerical error estimates for the big three: normalized roor mean square error (NRMSE), posterior contraction, and calibration, for <span class="math notranslate nohighlight">\(300\)</span> new data sets:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1181,7 +1183,7 @@ Epoch 100/100
 </section>
 </section>
 <section id="inference-phase">
-<h2><span class="section-number">3.8. </span>Inference Phase <a class="anchor" id="inference_phase"></a><a class="headerlink" href="#inference-phase" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">4.8. </span>Inference Phase <a class="anchor" id="inference_phase"></a><a class="headerlink" href="#inference-phase" title="Link to this heading">#</a></h2>
 <p>We can now move on to using real data. This is easy, and since we are using an adapter, the same transformations applied during training will be applied during the inference phase.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -1319,7 +1321,7 @@ Epoch 100/100
 </div></div></div>
 </div>
 <section id="posterior-retrodictive-checks">
-<h3><span class="section-number">3.8.1. </span>Posterior Retrodictive Checks <a class="anchor" id="posterior_retrodictive_checks"></a><a class="headerlink" href="#posterior-retrodictive-checks" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">4.8.1. </span>Posterior Retrodictive Checks <a class="anchor" id="posterior_retrodictive_checks"></a><a class="headerlink" href="#posterior-retrodictive-checks" title="Link to this heading">#</a></h3>
 <p>These are also called <em>posterior predictive checks</em>, but here we want to explicitly highlight the fact that we are not predicting future data but testing the <strong>generative performance</strong> or <strong>re-simulation performance</strong> of the model. In other words, we want to test how well the simulator can reproduce the actually observed data given the parameter posterior <span class="math notranslate nohighlight">\(p(\theta \mid x_{1:T})\)</span>.</p>
 <p>Here, we will create a custom function which plots the observed data and then overlays draws from the posterior predictive.</p>
 <div class="cell docutils container">
@@ -1402,7 +1404,7 @@ Epoch 100/100
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">2. </span>Two Moons: Tackling Bimodal Posteriors</p>
+        <p class="prev-next-title"><span class="section-number">3. </span>Two Moons: Tackling Bimodal Posteriors</p>
       </div>
     </a>
     <a class="right-next"
@@ -1410,7 +1412,7 @@ Epoch 100/100
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">4. </span>Bayesian Experimental Design (BED) with BayesFlow and PyTorch</p>
+        <p class="prev-next-title"><span class="section-number">5. </span>Bayesian Experimental Design (BED) with BayesFlow and PyTorch</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1433,35 +1435,35 @@ Epoch 100/100
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">3.1. Introduction <a class="anchor" id="introduction"></a></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-simulator">3.2. Defining the Simulator <a class="anchor" id="defining_the_generative"></a></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prior">3.2.1. Prior <a class="anchor" id="prior"></a></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#observation-model-implicit-likelihood-function">3.2.2. Observation Model (Implicit Likelihood Function) <a class="anchor" id="simulator__implicit_likelihood"></a></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-real-data">3.2.3. Loading Real Data <a class="anchor" id="loading_real_data"></a></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stitiching-things-together">3.2.4. Stitiching Things Together <a class="anchor" id="generative_model"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">4.1. Introduction <a class="anchor" id="introduction"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-simulator">4.2. Defining the Simulator <a class="anchor" id="defining_the_generative"></a></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#prior">4.2.1. Prior <a class="anchor" id="prior"></a></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#observation-model-implicit-likelihood-function">4.2.2. Observation Model (Implicit Likelihood Function) <a class="anchor" id="simulator__implicit_likelihood"></a></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-real-data">4.2.3. Loading Real Data <a class="anchor" id="loading_real_data"></a></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stitiching-things-together">4.2.4. Stitiching Things Together <a class="anchor" id="generative_model"></a></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prior-checking">3.3. Prior Checking <a class="anchor" id="prior_checking"></a></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-adapter">3.4. Defining the Adapter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-neural-approximator">3.5. Defining the Neural Approximator <a class="anchor" id="defining_the_neural"></a></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-network">3.5.1. Summary Network <a class="anchor" id="summary_network"></a></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-network">3.5.2. Inference Network</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prior-checking">4.3. Prior Checking <a class="anchor" id="prior_checking"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-adapter">4.4. Defining the Adapter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-neural-approximator">4.5. Defining the Neural Approximator <a class="anchor" id="defining_the_neural"></a></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-network">4.5.1. Summary Network <a class="anchor" id="summary_network"></a></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-network">4.5.2. Inference Network</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">3.6. Training <a class="anchor" id="training"></a></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-offline-data">3.6.1. Generating Offline Data <a class="anchor" id="generating_offline_data"></a></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-loss">3.6.2. Inspecting the Loss <a class="anchor" id="inspecting_the_loss"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">4.6. Training <a class="anchor" id="training"></a></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#generating-offline-data">4.6.1. Generating Offline Data <a class="anchor" id="generating_offline_data"></a></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inspecting-the-loss">4.6.2. Inspecting the Loss <a class="anchor" id="inspecting_the_loss"></a></a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-phase">3.7. Validation Phase</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-based-calibration-rank-histograms">3.7.1. Simulation-Based Calibration - Rank Histograms</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-based-calibration-rank-ecdf">3.7.2. Simulation-Based Calibration - Rank ECDF</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inferential-adequacy-global">3.7.3. Inferential Adequacy (Global)</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-diagnostics">3.7.4. Automatic Diagnostics</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation-phase">4.7. Validation Phase</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-based-calibration-rank-histograms">4.7.1. Simulation-Based Calibration - Rank Histograms</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#simulation-based-calibration-rank-ecdf">4.7.2. Simulation-Based Calibration - Rank ECDF</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inferential-adequacy-global">4.7.3. Inferential Adequacy (Global)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#automatic-diagnostics">4.7.4. Automatic Diagnostics</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-phase">3.8. Inference Phase <a class="anchor" id="inference_phase"></a></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#posterior-retrodictive-checks">3.8.1. Posterior Retrodictive Checks <a class="anchor" id="posterior_retrodictive_checks"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-phase">4.8. Inference Phase <a class="anchor" id="inference_phase"></a></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#posterior-retrodictive-checks">4.8.1. Posterior Retrodictive Checks <a class="anchor" id="posterior_retrodictive_checks"></a></a></li>
 </ul>
 </li>
 </ul>

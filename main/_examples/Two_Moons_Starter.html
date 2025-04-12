@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>2. Two Moons: Tackling Bimodal Posteriors &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>3. Two Moons: Tackling Bimodal Posteriors &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -60,8 +60,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="3. Posterior Estimation for SIR-like Models" href="SIR_Posterior_Estimation.html" />
-    <link rel="prev" title="1. Bayesian Linear Regression Starter" href="Linear_Regression_Starter.html" />
+    <link rel="next" title="4. Posterior Estimation for SIR-like Models" href="SIR_Posterior_Estimation.html" />
+    <link rel="prev" title="2. Moving from BayesFlow v1.1 to v2.0" href="From_BayesFlow_1.1_to_2.0.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -359,11 +359,13 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="Linear_Regression_Starter.html">1. Bayesian Linear Regression Starter</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">2. Two Moons: Tackling Bimodal Posteriors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">3. Posterior Estimation for SIR-like Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">5. From ABC to BayesFlow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">6. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_BayesFlow_1.1_to_2.0.html">2. Moving from BayesFlow v1.1 to v2.0</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">3. Two Moons: Tackling Bimodal Posteriors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">4. Posterior Estimation for SIR-like Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">6. From ABC to BayesFlow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="One_Sample_TTest.html">7. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html">8. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -407,7 +409,7 @@
     
     <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">2. </span>Two Moons: Tackling Bimodal Posteriors</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">3. </span>Two Moons: Tackling Bimodal Posteriors</span></li>
   </ul>
 </nav>
 </div>
@@ -425,7 +427,7 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="two-moons-tackling-bimodal-posteriors">
-<h1><span class="section-number">2. </span>Two Moons: Tackling Bimodal Posteriors<a class="headerlink" href="#two-moons-tackling-bimodal-posteriors" title="Link to this heading">#</a></h1>
+<h1><span class="section-number">3. </span>Two Moons: Tackling Bimodal Posteriors<a class="headerlink" href="#two-moons-tackling-bimodal-posteriors" title="Link to this heading">#</a></h1>
 <p><em>Authors: Lars Kühmichel, Marvin Schmitt, Valentin Pratz, Stefan T. Radev</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -439,7 +441,7 @@
 </div>
 </div>
 <section id="simulator">
-<h2><span class="section-number">2.1. </span>Simulator<a class="anchor" id="simulator"></a><a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.1. </span>Simulator<a class="anchor" id="simulator"></a><a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
 <p>This example will demonstrate amortized estimation of a somewhat strange Bayesian model, whose posterior evaluated at the origin <span class="math notranslate nohighlight">\(x = (0, 0)\)</span> of the “data” will resemble two crescent moons. The forward process is a noisy non-linear transformation on a 2D plane:</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -515,7 +517,7 @@ Shapes of sample_data values:
 <p>BayesFlow also provides this simulator and a collection of others in the <code class="docutils literal notranslate"><span class="pre">bayesflow.benchmarks</span></code> module.</p>
 </section>
 <section id="adapter">
-<h2><span class="section-number">2.2. </span>Adapter<a class="headerlink" href="#adapter" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.2. </span>Adapter<a class="headerlink" href="#adapter" title="Link to this heading">#</a></h2>
 <p>The next step is to tell BayesFlow how to deal with all the simulated variables. You may also think of this as informing BayesFlow about the data flow, i.e., which variables go into which network and what transformations needs to be performed prior to passing the simulator outputs into the networks. This is done via an adapter layer, which is implemented as a sequence of fixed, pseudo-invertible data transforms.</p>
 <p>Below, we define the data adapter by specifying the input and output keys and the transformations to be applied. This allows us full control over the data flow.</p>
 <div class="cell docutils container">
@@ -548,7 +550,7 @@ Shapes of sample_data values:
 </div>
 </section>
 <section id="dataset">
-<h2><span class="section-number">2.3. </span>Dataset<a class="headerlink" href="#dataset" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.3. </span>Dataset<a class="headerlink" href="#dataset" title="Link to this heading">#</a></h2>
 <p>For this example, we will sample our training data ahead of time and use offline training with a very small number of epochs. In actual applications, you usually want to train much longer in order to max our performance.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -570,7 +572,7 @@ Shapes of sample_data values:
 </div>
 </section>
 <section id="training-a-neural-network-to-approximate-all-posteriors">
-<h2><span class="section-number">2.4. </span>Training a neural network to approximate all posteriors<a class="headerlink" href="#training-a-neural-network-to-approximate-all-posteriors" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.4. </span>Training a neural network to approximate all posteriors<a class="headerlink" href="#training-a-neural-network-to-approximate-all-posteriors" title="Link to this heading">#</a></h2>
 <p>The next step is to set up the neural network that will approximate the posterior <span class="math notranslate nohighlight">\(p(\theta\,|\,x)\)</span>.</p>
 <p>We choose <strong>Flow Matching</strong> [1, 2] as the backbone architecture for this example, as it can deal well with the multimodal nature of the posteriors that some observables imply.</p>
 <ul class="simple">
@@ -589,7 +591,7 @@ Shapes of sample_data values:
 </div>
 <p>This inference network is just a general Flow Matching backbone, not yet adapted to the specific inference task at hand (i.e., posterior appproximation). To achieve this adaptation, we combine the network with our data adapter, which together form an <code class="docutils literal notranslate"><span class="pre">approximator</span></code>. In this case, we need a <code class="docutils literal notranslate"><span class="pre">ContinuousApproximator</span></code> since the target we want to approximate is the posterior of the <em>continuous</em> parameter vector <span class="math notranslate nohighlight">\(\theta\)</span>.</p>
 <section id="basic-workflow">
-<h3><span class="section-number">2.4.1. </span>Basic Workflow<a class="headerlink" href="#basic-workflow" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.4.1. </span>Basic Workflow<a class="headerlink" href="#basic-workflow" title="Link to this heading">#</a></h3>
 <p>We can hide many of the traditional deep learning steps (e.g., specifying a learning rate and an optimizer) within a <code class="docutils literal notranslate"><span class="pre">Workflow</span></code> object. This object just wraps everything together and includes some nice utility functions for training and <em>in silico</em> validation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -604,7 +606,7 @@ Shapes of sample_data values:
 </div>
 </section>
 <section id="training">
-<h3><span class="section-number">2.4.2. </span>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.4.2. </span>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h3>
 <p>We are ready to train our deep posterior approximator on the two moons example. We use the utility function <code class="docutils literal notranslate"><span class="pre">fit_offline</span></code>, which wraps the approximator’s super flexible <code class="docutils literal notranslate"><span class="pre">fit</span></code> method.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -729,10 +731,10 @@ Epoch 50/50
 </section>
 </section>
 <section id="swapping-inference-networks">
-<h2><span class="section-number">2.5. </span>Swapping Inference Networks <a class="anchor" id="swapping"></a><a class="headerlink" href="#swapping-inference-networks" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.5. </span>Swapping Inference Networks <a class="anchor" id="swapping"></a><a class="headerlink" href="#swapping-inference-networks" title="Link to this heading">#</a></h2>
 <p>Using BayesFlow, it is easy to switch to a different backbone architecture for the inference network. For instance, the code below demonstrates the use of a <strong>Consistency Model</strong>, which can allow for faster sampling during inference.</p>
 <section id="consistency-models-background">
-<h3><span class="section-number">2.5.1. </span>Consistency Models: Background<a class="headerlink" href="#consistency-models-background" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.5.1. </span>Consistency Models: Background<a class="headerlink" href="#consistency-models-background" title="Link to this heading">#</a></h3>
 <p>Consistency Models (CM; [1]) leverage the nice properties of score-based diffusion to enable few-step sampling. Score-based diffusion initially relied on a stochastic differential equation (SDE) for sampling, but there is also a ordinary (non-stochastic) differential equation (ODE)that has the same <em>marginal</em> distribution at each time step <span class="math notranslate nohighlight">\(t\)</span> [2]. This means that even though SDE and ODE produce different paths from the noise distribution to the target distribution, the resulting distributions when looking at many paths at time <span class="math notranslate nohighlight">\(t\)</span> is the same. The ODE is also called Probability Flow ODE.</p>
 <p>CMs leverage the fact that there is no randomness in the ODE formulation. That means, if you start at a certain point in the latent space, you will always take the same path and end up at the same point in the target <span class="math notranslate nohighlight">\(\theta\)</span>-space. The same is true for every point on the path: if you integrate to get to time <span class="math notranslate nohighlight">\(t=0\)</span>, you will end up at the same point as well. In short: for each path, there is exactly one corresponding point in latent space (at <span class="math notranslate nohighlight">\(t=T\)</span>) and one corresponding point in data space (at <span class="math notranslate nohighlight">\(t=0\)</span>).</p>
 <p>The goal of CMs is the following: each point at a time point <span class="math notranslate nohighlight">\(t\)</span> belongs to exactly one path, and we want to predict where this path will end up at <span class="math notranslate nohighlight">\(t=0\)</span>. The function that does this is called the <em>consistency function</em> <span class="math notranslate nohighlight">\(f\)</span>. If we have the correct function for all <span class="math notranslate nohighlight">\(t\in(0,T]\)</span>, we can just sample from the latent distribution (<span class="math notranslate nohighlight">\(t=T\)</span>) and use <span class="math notranslate nohighlight">\(f\)</span> to directly map to the corresponding point at <span class="math notranslate nohighlight">\(t=0\)</span>, which is in the target distribution. So for sampling from the target distribution, we avoid any integration and only need one evaluation of the consistency function. In practice, the one-step sampling does not work very well. Instead, we leverage a multi-step sampling method where we call <span class="math notranslate nohighlight">\(f\)</span> multiple times. Please check out the [1] for more background on this sampling procedure.</p>
@@ -746,7 +748,7 @@ Epoch 50/50
 <p>[4] Schmitt, M., Pratz, V., Köthe, U., Bürkner, P.-C., &amp; Radev, S. T. (2024). Consistency Models for Scalable and Fast Simulation-Based Inference. <em>arXiv preprint</em>. <a class="reference external" href="https://doi.org/10.48550/arXiv.2312.05440">https://doi.org/10.48550/arXiv.2312.05440</a></p>
 </section>
 <section id="consistency-models-specification">
-<h3><span class="section-number">2.5.2. </span>Consistency Models: Specification<a class="headerlink" href="#consistency-models-specification" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.5.2. </span>Consistency Models: Specification<a class="headerlink" href="#consistency-models-specification" title="Link to this heading">#</a></h3>
 <p>We can now go ahead and define our new inference network backbone. Apart from the usual parameters like learning rate and batch size, CMs come with a number of different hyperparameters. Unfortunately, they can heavily interact, so they can be hard to tune. The main hyperparameters are:</p>
 <ul class="simple">
 <li><p>Maximum time <code class="docutils literal notranslate"><span class="pre">max_time</span></code>: This also serves as the standard deviation of the latent distribution. You can experiment with this, values from 10-200 seem to work well. In any case, it should be larger than the standard deviation of the target distribution.</p></li>
@@ -779,7 +781,7 @@ Epoch 50/50
 </div>
 </section>
 <section id="consistency-training">
-<h3><span class="section-number">2.5.3. </span>Consistency Training<a class="headerlink" href="#consistency-training" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.5.3. </span>Consistency Training<a class="headerlink" href="#consistency-training" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">consistency_model_workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span>
@@ -903,7 +905,7 @@ Epoch 50/50
 </section>
 </section>
 <section id="good-ol-coupling-flows">
-<h2><span class="section-number">2.6. </span>Good ‘ol Coupling Flows<a class="headerlink" href="#good-ol-coupling-flows" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.6. </span>Good ‘ol Coupling Flows<a class="headerlink" href="#good-ol-coupling-flows" title="Link to this heading">#</a></h2>
 <p>Of course, BayesFlow also supports established coupling flow models with a variety of parameters, including the timeless <em>affine</em> and <em>spline</em> flows.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -940,7 +942,7 @@ Epoch 50/50
 </div>
 </div>
 <section id="coupling-flow-training">
-<h3><span class="section-number">2.6.1. </span>Coupling Flow Training<a class="headerlink" href="#coupling-flow-training" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.6.1. </span>Coupling Flow Training<a class="headerlink" href="#coupling-flow-training" title="Link to this heading">#</a></h3>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">affine_flow_workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span>
@@ -1104,9 +1106,9 @@ Epoch 30/30
 </section>
 </section>
 <section id="validation">
-<h2><span class="section-number">2.7. </span>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">3.7. </span>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
 <section id="two-moons-posterior">
-<h3><span class="section-number">2.7.1. </span>Two Moons Posterior<a class="headerlink" href="#two-moons-posterior" title="Link to this heading">#</a></h3>
+<h3><span class="section-number">3.7.1. </span>Two Moons Posterior<a class="headerlink" href="#two-moons-posterior" title="Link to this heading">#</a></h3>
 <p>The two moons posterior at point <span class="math notranslate nohighlight">\(x = (0, 0)\)</span> should resemble two crescent shapes. Below, we plot the corresponding posterior samples and posterior density.</p>
 <p>These results suggest that these generative networks can approximate the true posterior well. You can achieve an even better fit if you use online training, more epochs, or better optimizer hyperparameters.</p>
 <div class="cell docutils container">
@@ -1176,12 +1178,12 @@ Epoch 30/30
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="Linear_Regression_Starter.html"
+       href="From_BayesFlow_1.1_to_2.0.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">1. </span>Bayesian Linear Regression Starter</p>
+        <p class="prev-next-title"><span class="section-number">2. </span>Moving from BayesFlow v1.1 to v2.0</p>
       </div>
     </a>
     <a class="right-next"
@@ -1189,7 +1191,7 @@ Epoch 30/30
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><span class="section-number">3. </span>Posterior Estimation for SIR-like Models</p>
+        <p class="prev-next-title"><span class="section-number">4. </span>Posterior Estimation for SIR-like Models</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1212,26 +1214,26 @@ Epoch 30/30
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">2.1. Simulator<a class="anchor" id="simulator"></a></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adapter">2.2. Adapter</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset">2.3. Dataset</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-a-neural-network-to-approximate-all-posteriors">2.4. Training a neural network to approximate all posteriors</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-workflow">2.4.1. Basic Workflow</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training">2.4.2. Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">3.1. Simulator<a class="anchor" id="simulator"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adapter">3.2. Adapter</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dataset">3.3. Dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-a-neural-network-to-approximate-all-posteriors">3.4. Training a neural network to approximate all posteriors</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-workflow">3.4.1. Basic Workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#training">3.4.2. Training</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#swapping-inference-networks">2.5. Swapping Inference Networks <a class="anchor" id="swapping"></a></a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-models-background">2.5.1. Consistency Models: Background</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-models-specification">2.5.2. Consistency Models: Specification</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-training">2.5.3. Consistency Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#swapping-inference-networks">3.5. Swapping Inference Networks <a class="anchor" id="swapping"></a></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-models-background">3.5.1. Consistency Models: Background</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-models-specification">3.5.2. Consistency Models: Specification</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#consistency-training">3.5.3. Consistency Training</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-ol-coupling-flows">2.6. Good ‘ol Coupling Flows</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coupling-flow-training">2.6.1. Coupling Flow Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#good-ol-coupling-flows">3.6. Good ‘ol Coupling Flows</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coupling-flow-training">3.6.1. Coupling Flow Training</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">2.7. Validation</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-moons-posterior">2.7.1. Two Moons Posterior</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">3.7. Validation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#two-moons-posterior">3.7.1. Two Moons Posterior</a></li>
 </ul>
 </li>
 </ul>

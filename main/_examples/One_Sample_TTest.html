@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>6. Simple Model Comparison - One Sample T-Test &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>7. Simple Model Comparison - One Sample T-Test &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -60,8 +60,8 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="API Reference" href="../api/bayesflow.html" />
-    <link rel="prev" title="5. From ABC to BayesFlow" href="From_ABC_to_BayesFlow.html" />
+    <link rel="next" title="8. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics" href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html" />
+    <link rel="prev" title="6. From ABC to BayesFlow" href="From_ABC_to_BayesFlow.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -359,11 +359,13 @@
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
   <div class="bd-toc-item navbar-nav"><ul class="current nav bd-sidenav">
 <li class="toctree-l1"><a class="reference internal" href="Linear_Regression_Starter.html">1. Bayesian Linear Regression Starter</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">2. Two Moons: Tackling Bimodal Posteriors</a></li>
-<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">3. Posterior Estimation for SIR-like Models</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">4. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
-<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">5. From ABC to BayesFlow</a></li>
-<li class="toctree-l1 current active"><a class="current reference internal" href="#">6. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_BayesFlow_1.1_to_2.0.html">2. Moving from BayesFlow v1.1 to v2.0</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Two_Moons_Starter.html">3. Two Moons: Tackling Bimodal Posteriors</a></li>
+<li class="toctree-l1"><a class="reference internal" href="SIR_Posterior_Estimation.html">4. Posterior Estimation for SIR-like Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Bayesian_Experimental_Design.html">5. Bayesian Experimental Design (BED) with BayesFlow and PyTorch</a></li>
+<li class="toctree-l1"><a class="reference internal" href="From_ABC_to_BayesFlow.html">6. From ABC to BayesFlow</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">7. Simple Model Comparison - One Sample T-Test</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html">8. Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</a></li>
 </ul>
 </div>
 </nav></div>
@@ -407,7 +409,7 @@
     
     <li class="breadcrumb-item"><a href="../examples.html" class="nav-link">Examples</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">6. </span>Simple Model Comparison - One Sample T-Test</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis"><span class="section-number">7. </span>Simple Model Comparison - One Sample T-Test</span></li>
   </ul>
 </nav>
 </div>
@@ -425,7 +427,7 @@
                 <article class="bd-article">
                   
   <section class="tex2jax_ignore mathjax_ignore" id="simple-model-comparison-one-sample-t-test">
-<h1><span class="section-number">6. </span>Simple Model Comparison - One Sample T-Test<a class="headerlink" href="#simple-model-comparison-one-sample-t-test" title="Link to this heading">#</a></h1>
+<h1><span class="section-number">7. </span>Simple Model Comparison - One Sample T-Test<a class="headerlink" href="#simple-model-comparison-one-sample-t-test" title="Link to this heading">#</a></h1>
 <p><em>Author: Šimon Kucharský</em></p>
 <p>In this notebook, we will show how to do a simple model comparison in BayesFlow amortized over the number of observations.</p>
 <p>Amortized Bayesian model comparison leverages neural networks to learn a mapping from data to posterior model probabilities, effectively bypassing the need for costly inference procedures for each new dataset. This method is particularly useful in scenarios where model evaluation needs to be performed repeatedly, as the inference cost is front-loaded into the training phase, enabling rapid comparisons at test time.</p>
@@ -445,7 +447,7 @@
 </div>
 </div>
 <section id="simulator">
-<h2><span class="section-number">6.1. </span>Simulator<a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">7.1. </span>Simulator<a class="headerlink" href="#simulator" title="Link to this heading">#</a></h2>
 <p>First we define our simulators, one for every model that we want to compare. In this notebook, we will use two simple models</p>
 <div class="math notranslate nohighlight">
 \[\begin{split}
@@ -511,7 +513,7 @@ model_indices shape: (100, 2)
 <p>The size of the observations <code class="docutils literal notranslate"><span class="pre">x</span></code> depends on the context variable <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
 </section>
 <section id="defining-the-neural-networks">
-<h2><span class="section-number">6.2. </span>Defining the neural networks<a class="headerlink" href="#defining-the-neural-networks" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">7.2. </span>Defining the neural networks<a class="headerlink" href="#defining-the-neural-networks" title="Link to this heading">#</a></h2>
 <p>To ensure that the training data generated by the simulator can be used for deep learning, we have to do some transformations that will put the data into necessary structures. Here, we will define an <code class="docutils literal notranslate"><span class="pre">adapter</span></code> that takes the data and transforms the input.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -585,7 +587,7 @@ summary_variables shape: (100, 41, 1)
 </div>
 </section>
 <section id="training">
-<h2><span class="section-number">6.3. </span>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">7.3. </span>Training<a class="headerlink" href="#training" title="Link to this heading">#</a></h2>
 <p>Now we are ready to train our approximator that will alow us to compare the two models.</p>
 <p>To achieve this, we will define a bunch of parameters that indicate how long and on how much data we want the train the models.</p>
 <div class="cell docutils container">
@@ -683,7 +685,7 @@ Epoch 20/20
 </div>
 </section>
 <section id="validation">
-<h2><span class="section-number">6.4. </span>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<h2><span class="section-number">7.4. </span>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
 <p>Once we trained the model, we can inspect whether the classification does what we expect it to do.</p>
 <p>Here, we will generate a validation dataset which has been fixed to generate data of <em>sample size</em> <span class="math notranslate nohighlight">\(n=10\)</span>.</p>
 <div class="cell docutils container">
@@ -769,15 +771,15 @@ INFO:matplotlib.mathtext:Substituting symbol M from STIXNonUnicode
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><span class="section-number">5. </span>From ABC to BayesFlow</p>
+        <p class="prev-next-title"><span class="section-number">6. </span>From ABC to BayesFlow</p>
       </div>
     </a>
     <a class="right-next"
-       href="../api/bayesflow.html"
+       href="Lotka_Volterra_Point_Estimation_and_Expert_Stats.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">API Reference</p>
+        <p class="prev-next-title"><span class="section-number">8. </span>Rapid Iteration with Point Estimation - Lotka-Volterra Dynamics</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -800,10 +802,10 @@ INFO:matplotlib.mathtext:Substituting symbol M from STIXNonUnicode
   </div>
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">6.1. Simulator</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-neural-networks">6.2. Defining the neural networks</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">6.3. Training</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">6.4. Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#simulator">7.1. Simulator</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#defining-the-neural-networks">7.2. Defining the neural networks</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training">7.3. Training</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">7.4. Validation</a></li>
 </ul>
   </nav></div>
 
