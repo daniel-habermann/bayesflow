@@ -93,7 +93,7 @@ utils
     tree_concatenate
     tree_stack
     vjp
-    weighted_sum
+    weighted_mean
   
   
 

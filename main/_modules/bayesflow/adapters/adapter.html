@@ -401,7 +401,7 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.adapters.adapter</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">MutableSequence</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Mapping</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">MutableSequence</span><span class="p">,</span> <span class="n">Sequence</span><span class="p">,</span> <span class="n">Mapping</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
@@ -427,6 +427,7 @@
     <span class="n">NumpyTransform</span><span class="p">,</span>
     <span class="n">OneHot</span><span class="p">,</span>
     <span class="n">Rename</span><span class="p">,</span>
+    <span class="n">SerializableCustomTransform</span><span class="p">,</span>
     <span class="n">Sqrt</span><span class="p">,</span>
     <span class="n">Standardize</span><span class="p">,</span>
     <span class="n">ToArray</span><span class="p">,</span>
@@ -698,6 +699,91 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">transform</span> <span class="o">=</span> <span class="n">FilterTransform</span><span class="p">(</span>
             <span class="n">transform_constructor</span><span class="o">=</span><span class="n">NumpyTransform</span><span class="p">,</span>
+            <span class="n">predicate</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
+            <span class="n">include</span><span class="o">=</span><span class="n">include</span><span class="p">,</span>
+            <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">,</span>
+            <span class="n">forward</span><span class="o">=</span><span class="n">forward</span><span class="p">,</span>
+            <span class="n">inverse</span><span class="o">=</span><span class="n">inverse</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transforms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transform</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="Adapter.apply_serializable">
+<a class="viewcode-back" href="../../../api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.apply_serializable">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply_serializable</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">include</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">forward</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">inverse</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">predicate</span><span class="p">:</span> <span class="n">Predicate</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">exclude</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Sequence</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Append a :py:class:`~transforms.SerializableCustomTransform` to the adapter.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        forward : function, no lambda</span>
+<span class="sd">            Registered serializable function to transform the data in the forward pass.</span>
+<span class="sd">            For the adapter to be serializable, this function has to be serializable</span>
+<span class="sd">            as well (see Notes). Therefore, only proper functions and no lambda</span>
+<span class="sd">            functions can be used here.</span>
+<span class="sd">        inverse : function, no lambda</span>
+<span class="sd">            Registered serializable function to transform the data in the inverse pass.</span>
+<span class="sd">            For the adapter to be serializable, this function has to be serializable</span>
+<span class="sd">            as well (see Notes). Therefore, only proper functions and no lambda</span>
+<span class="sd">            functions can be used here.</span>
+<span class="sd">        predicate : Predicate, optional</span>
+<span class="sd">            Function that indicates which variables should be transformed.</span>
+<span class="sd">        include : str or Sequence of str, optional</span>
+<span class="sd">            Names of variables to include in the transform.</span>
+<span class="sd">        exclude : str or Sequence of str, optional</span>
+<span class="sd">            Names of variables to exclude from the transform.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments passed to the transform.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            When the provided functions are not registered serializable functions.</span>
+
+<span class="sd">        Notes</span>
+<span class="sd">        -----</span>
+<span class="sd">        Important: The forward and inverse functions have to be registered with Keras.</span>
+<span class="sd">        To do so, use the `@keras.saving.register_keras_serializable` decorator.</span>
+<span class="sd">        They must also be registered (and identical) when loading the adapter</span>
+<span class="sd">        at a later point in time.</span>
+
+<span class="sd">        Examples</span>
+<span class="sd">        --------</span>
+
+<span class="sd">        The example below shows how to use the</span>
+<span class="sd">        `keras.saving.register_keras_serializable` decorator to</span>
+<span class="sd">        register functions with Keras. Note that for this simple</span>
+<span class="sd">        example, one usually would use the simpler :py:meth:`apply`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        &gt;&gt;&gt; import keras</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; @keras.saving.register_keras_serializable(&quot;custom&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; def forward_fn(x):</span>
+<span class="sd">        &gt;&gt;&gt;     return x**2</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; @keras.saving.register_keras_serializable(&quot;custom&quot;)</span>
+<span class="sd">        &gt;&gt;&gt; def inverse_fn(x):</span>
+<span class="sd">        &gt;&gt;&gt;     return x**0.5</span>
+<span class="sd">        &gt;&gt;&gt;</span>
+<span class="sd">        &gt;&gt;&gt; adapter = bf.Adapter().apply_serializable(</span>
+<span class="sd">        &gt;&gt;&gt;     &quot;x&quot;,</span>
+<span class="sd">        &gt;&gt;&gt;     forward=forward_fn,</span>
+<span class="sd">        &gt;&gt;&gt;     inverse=inverse_fn,</span>
+<span class="sd">        &gt;&gt;&gt; )</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">transform</span> <span class="o">=</span> <span class="n">FilterTransform</span><span class="p">(</span>
+            <span class="n">transform_constructor</span><span class="o">=</span><span class="n">SerializableCustomTransform</span><span class="p">,</span>
             <span class="n">predicate</span><span class="o">=</span><span class="n">predicate</span><span class="p">,</span>
             <span class="n">include</span><span class="o">=</span><span class="n">include</span><span class="p">,</span>
             <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">,</span>

@@ -377,6 +377,7 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.OneHot.html">OneHot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Rename.html">Rename</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.SerializableCustomTransform.html">SerializableCustomTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
@@ -571,7 +572,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_concatenate.html">tree_concatenate</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.tree_stack.html">tree_stack</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.vjp.html">vjp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_sum.html">weighted_sum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.weighted_mean.html">weighted_mean</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.workflows.html">workflows</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -691,33 +692,6 @@ To such estimates the adapter cannot be straightforwardly applied in inverse dir
 because the adapter is built to map vectors from the inference variable space. When subclassing
 <a class="reference internal" href="bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule" title="bayesflow.scores.ScoringRule"><code class="xref py py-class docutils literal notranslate"><span class="pre">ScoringRule</span></code></a>, add the names of such heads to the following list to warn users about difficulties
 with a type of estimate whenever the adapter is applied to them in inverse direction.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="bayesflow.scores.ParametricDistributionScore.aggregate">
-<span class="sig-name descname"><span class="pre">aggregate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scores</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tensor</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tensor</span></span></span><a class="headerlink" href="#bayesflow.scores.ParametricDistributionScore.aggregate" title="Link to this definition">#</a></dt>
-<dd><p>Computes the mean of <strong>scores</strong>, optionally applying <strong>weights</strong>.</p>
-<p>This function computes the mean value of the given scores. When weights are provided,
-it first multiplies the scores by the weights and then computes the mean of the result.
-If no weights are provided, it computes the mean of the scores.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>scores</strong><span class="classifier">Tensor</span></dt><dd><p>A tensor containing the scores to be aggregated.</p>
-</dd>
-<dt><strong>weights</strong><span class="classifier">Tensor, optional (default - None)</span></dt><dd><p>A tensor of weights corresponding to each score. Must be the same shape as <cite>scores</cite>.
-If not provided, the function returns the mean of <cite>scores</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt>Tensor</dt><dd><p>The aggregated score computed as a weighted mean if <strong>weights</strong> is provided,
-or as the simple mean of <strong>scores</strong> otherwise.</p>
-</dd>
-</dl>
-</dd>
-</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -870,7 +844,6 @@ return just an instance of keras.layers.Identity.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.sample"><code class="docutils literal notranslate"><span class="pre">sample()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.score"><code class="docutils literal notranslate"><span class="pre">score()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.NOT_TRANSFORMING_LIKE_VECTOR_WARNING"><code class="docutils literal notranslate"><span class="pre">NOT_TRANSFORMING_LIKE_VECTOR_WARNING</span></code></a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.aggregate"><code class="docutils literal notranslate"><span class="pre">aggregate()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.from_config"><code class="docutils literal notranslate"><span class="pre">from_config()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.get_config"><code class="docutils literal notranslate"><span class="pre">get_config()</span></code></a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.scores.ParametricDistributionScore.get_head"><code class="docutils literal notranslate"><span class="pre">get_head()</span></code></a></li>

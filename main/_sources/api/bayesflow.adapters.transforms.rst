@@ -43,6 +43,7 @@ transforms
     OneHot
     Rename
     Scale
+    SerializableCustomTransform
     Shift
     Sqrt
     Standardize

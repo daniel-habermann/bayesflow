@@ -629,36 +629,6 @@
 <span class="sd">        &lt;tf.Tensor: shape=(), dtype=float32, numpy=1.013983130455017&gt;</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
-
-
-<div class="viewcode-block" id="ScoringRule.aggregate">
-<a class="viewcode-back" href="../../../api/bayesflow.scores.ScoringRule.html#bayesflow.scores.ScoringRule.aggregate">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="n">Tensor</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Computes the mean of **scores**, optionally applying **weights**.</span>
-
-<span class="sd">        This function computes the mean value of the given scores. When weights are provided,</span>
-<span class="sd">        it first multiplies the scores by the weights and then computes the mean of the result.</span>
-<span class="sd">        If no weights are provided, it computes the mean of the scores.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        scores : Tensor</span>
-<span class="sd">            A tensor containing the scores to be aggregated.</span>
-<span class="sd">        weights : Tensor, optional (default - None)</span>
-<span class="sd">            A tensor of weights corresponding to each score. Must be the same shape as `scores`.</span>
-<span class="sd">            If not provided, the function returns the mean of `scores`.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Tensor</span>
-<span class="sd">            The aggregated score computed as a weighted mean if **weights** is provided,</span>
-<span class="sd">            or as the simple mean of **scores** otherwise.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">if</span> <span class="n">weights</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span> <span class="o">*</span> <span class="n">weights</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span></div>
 </div>
 
 </pre></div>
