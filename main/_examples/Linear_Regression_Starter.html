@@ -437,21 +437,10 @@
 <p>At a high level, our architecture consists of a summary network <span class="math notranslate nohighlight">\(\mathbf{h}\)</span> and an inference network <span class="math notranslate nohighlight">\(\mathbf{f}\)</span> which jointly learn to invert a generative model. The summary network transforms input data <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> of potentially variable size to a fixed-length representations. The inference network generates random draws from an approximate posterior <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> via a conditional generative networks (here, an invertible network).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">bayesflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:bayesflow:
-When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
-
-with torch.enable_grad():
-    ...
-
-in contexts where you need gradients (e.g. custom training loops).
 </pre></div>
 </div>
 </div>
@@ -466,7 +455,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>In this notebook we will take components from each of these modules and show how they work together.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid scientific notation for outputs</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># avoid scientific notation for outputs</span>
 <span class="n">np</span><span class="o">.</span><span class="n">set_printoptions</span><span class="p">(</span><span class="n">suppress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -480,7 +469,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>We will start with our data simulator:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">likelihood</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">likelihood</span><span class="p">(</span><span class="n">beta</span><span class="p">,</span> <span class="n">sigma</span><span class="p">,</span> <span class="n">N</span><span class="p">):</span>
     <span class="c1"># x: predictor variable</span>
     <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
     <span class="c1"># y: response variable</span>
@@ -493,7 +482,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>As inputs, it takes the regression coefficient vector <code class="docutils literal notranslate"><span class="pre">beta</span></code> (intercept and slope), the residual SD <code class="docutils literal notranslate"><span class="pre">sigma</span></code>, and the number of observations <code class="docutils literal notranslate"><span class="pre">N</span></code> to simulate both our predictor variable <code class="docutils literal notranslate"><span class="pre">x</span></code> and subsequently our response variable <code class="docutils literal notranslate"><span class="pre">y</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data_draws</span> <span class="o">=</span> <span class="n">likelihood</span><span class="p">(</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">data_draws</span> <span class="o">=</span> <span class="n">likelihood</span><span class="p">(</span><span class="n">beta</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">sigma</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">N</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data_draws</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">data_draws</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">])</span>
 </pre></div>
@@ -509,7 +498,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>Next, we define our prior simulator to sample draws of the model parameters <code class="docutils literal notranslate"><span class="pre">beta</span></code> and <code class="docutils literal notranslate"><span class="pre">sigma</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">prior</span><span class="p">():</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">prior</span><span class="p">():</span>
     <span class="c1"># beta: regression coefficients (intercept, slope)</span>
     <span class="n">beta</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">normal</span><span class="p">([</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
     <span class="c1"># sigma: residual standard deviation</span>
@@ -521,7 +510,7 @@ in contexts where you need gradients (e.g. custom training loops).
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prior_draws</span> <span class="o">=</span> <span class="n">prior</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prior_draws</span> <span class="o">=</span> <span class="n">prior</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">prior_draws</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">prior_draws</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">])</span>
 </pre></div>
@@ -537,7 +526,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>If we fix the number of observations <code class="docutils literal notranslate"><span class="pre">N</span></code>, the combination of likelihood and prior already fully defines our model simulator. However, we want to train BayesFlow to perform posterior approximations of linear regression models for <em>varying number of observations</em>. As such, we also need a simulator for <code class="docutils literal notranslate"><span class="pre">N</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">meta</span><span class="p">():</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">meta</span><span class="p">():</span>
     <span class="c1"># N: number of observation in a dataset</span>
     <span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">15</span><span class="p">)</span>
     <span class="k">return</span> <span class="nb">dict</span><span class="p">(</span><span class="n">N</span><span class="o">=</span><span class="n">N</span><span class="p">)</span>
@@ -547,7 +536,7 @@ in contexts where you need gradients (e.g. custom training loops).
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">meta_draws</span> <span class="o">=</span> <span class="n">meta</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">meta_draws</span> <span class="o">=</span> <span class="n">meta</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">meta_draws</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">])</span>
 </pre></div>
 </div>
@@ -561,7 +550,7 @@ in contexts where you need gradients (e.g. custom training loops).
 <p>We can combine these three functions into a bayesflow simulator via:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">simulators</span><span class="o">.</span><span class="n">make_simulator</span><span class="p">([</span><span class="n">prior</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">],</span> <span class="n">meta_fn</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">simulator</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">simulators</span><span class="o">.</span><span class="n">make_simulator</span><span class="p">([</span><span class="n">prior</span><span class="p">,</span> <span class="n">likelihood</span><span class="p">],</span> <span class="n">meta_fn</span><span class="o">=</span><span class="n">meta</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -571,7 +560,7 @@ that the number of observations <code class="docutils literal notranslate"><span
 <p>Let’s see how sampling from the simulator works by sampling a batch of 500 datasets:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate a batch of three training samples</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate a batch of three training samples</span>
 <span class="n">sim_draws</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sim_draws</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">])</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">sim_draws</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -594,7 +583,7 @@ that the number of observations <code class="docutils literal notranslate"><span
 <p>Let’s define the parameter key and corresponding names of individual parameters for easy filtering and plotting down the line.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">par_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">par_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">]</span>
 <span class="n">par_names</span> <span class="o">=</span> <span class="p">[</span><span class="sa">r</span><span class="s2">&quot;$\beta_0$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\beta_1$&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;$\sigma$&quot;</span><span class="p">]</span>
 </pre></div>
 </div>
@@ -602,7 +591,7 @@ that the number of observations <code class="docutils literal notranslate"><span
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pairs_samples</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pairs_samples</span><span class="p">(</span>
     <span class="n">samples</span><span class="o">=</span><span class="n">sim_draws</span><span class="p">,</span>
     <span class="n">variable_keys</span><span class="o">=</span><span class="n">par_keys</span><span class="p">,</span>
     <span class="n">variable_names</span><span class="o">=</span><span class="n">par_names</span>
@@ -621,7 +610,7 @@ that the number of observations <code class="docutils literal notranslate"><span
 <p>Below, we build our own <code class="docutils literal notranslate"><span class="pre">adapter</span></code> from scratch but later on, <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> will also provide default adapters that will already automate most of the commonly required steps.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span> <span class="o">=</span> <span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">bf</span><span class="o">.</span><span class="n">Adapter</span><span class="p">()</span>
     <span class="o">.</span><span class="n">broadcast</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="n">to</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">as_set</span><span class="p">([</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">])</span>
@@ -646,7 +635,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>Let’s check the shape of our processed data to be passed to the neural networks:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">processed_draws</span> <span class="o">=</span> <span class="n">adapter</span><span class="p">(</span><span class="n">sim_draws</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">processed_draws</span> <span class="o">=</span> <span class="n">adapter</span><span class="p">(</span><span class="n">sim_draws</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">processed_draws</span><span class="p">[</span><span class="s2">&quot;summary_variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">processed_draws</span><span class="p">[</span><span class="s2">&quot;inference_conditions&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">processed_draws</span><span class="p">[</span><span class="s2">&quot;inference_variables&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
@@ -676,7 +665,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>This network will take (at least) 3D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">num_obs,</span> <span class="pre">D)</span></code> and reduce them to 2D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">summary_dim)</span></code>, where <code class="docutils literal notranslate"><span class="pre">summary_dim</span></code> is a hyperparameter to be set by the user (you). Heuristically, this number should not be lower than the number of parameters in a model. Below, we create a permutation-invariant network with <code class="docutils literal notranslate"><span class="pre">summary_dim</span> <span class="pre">=</span> <span class="pre">10</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">summary_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">SetTransformer</span><span class="p">(</span><span class="n">summary_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">summary_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">SetTransformer</span><span class="p">(</span><span class="n">summary_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -687,7 +676,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>To actually approximate the posterior distribution, we need to define a generative neural network. Here we choose a simple coupling flow network. For more complicated models and corresponding posteriors, we may need to choose a different, more flexible generative network, for example <code class="docutils literal notranslate"><span class="pre">bf.networks.FlowMatching()</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inference_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">inference_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -698,7 +687,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>Workflow objects make life easier by combining inference networks and summary networks into approximators (internally).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
     <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
     <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
     <span class="n">inference_network</span><span class="o">=</span><span class="n">inference_network</span><span class="p">,</span>
@@ -712,14 +701,14 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p><strong>Note</strong>: when using JAX and the shape of your data differs in every batch (e.g., when observations vary), you will observe some compilation overhead during the first few steps. The total training time for this example is around 2 minutes on a standard laptop.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit_online</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">num_batches_per_epoch</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit_online</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">num_batches_per_epoch</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -739,7 +728,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 </ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the number of posterior draws you want to get</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the number of posterior draws you want to get</span>
 <span class="n">num_samples</span> <span class="o">=</span> <span class="mi">1000</span>
 
 <span class="c1"># Simulate validation data (unseen during training)</span>
@@ -762,7 +751,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>Initial sanity checks of the posterior samples look good. <code class="docutils literal notranslate"><span class="pre">post_draws[&quot;beta&quot;]</span></code> has shape <code class="docutils literal notranslate"><span class="pre">(200,</span> <span class="pre">2000,</span> <span class="pre">2)</span></code> which makes sense since we asked for inference of a 200 data sets (first dimension is 200), for which we wanted to generated 1000 posterior samples (second dimension is 1000). The third dimension is 2, since the <code class="docutils literal notranslate"><span class="pre">beta</span></code> variable was defined as a vector of length 2 (intercept and slope).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">post_draws</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">post_draws</span><span class="p">[</span><span class="s2">&quot;sigma&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span>
 </pre></div>
 </div>
 </div>
@@ -776,7 +765,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>Let’s plot the joint posterior distribution of <code class="docutils literal notranslate"><span class="pre">beta</span></code> (both intercept and slope). Based on how we generated this particular dataset, we would expect the posteriors of <code class="docutils literal notranslate"><span class="pre">beta</span></code> to vary around its true values from <code class="docutils literal notranslate"><span class="pre">val_sims[&quot;beta&quot;]</span></code>. Of course, if this was real data, we wouldn’t know the ground truth values. Still, it is always a good idea to first perform inference on simulated data as a diagnostic for whether the approximator has learned to approximate the true posteriors well enough. We will examplariy check the posterior of the first dataset:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pairs_posterior</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">pairs_posterior</span><span class="p">(</span>
     <span class="n">estimates</span><span class="o">=</span><span class="n">post_draws</span><span class="p">,</span> 
     <span class="n">targets</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span>
     <span class="n">dataset_id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
@@ -793,7 +782,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p><strong>Note</strong>: We are validating recovery for a given <span class="math notranslate nohighlight">\(N\)</span> that happened to be drawn in the validation phase. Naturally, results will vary for different <span class="math notranslate nohighlight">\(N\)</span>, but you can simply leverage the power of amortization to check recovery over the entire range of plausble observation numbers. For an actual scientific application, you would want to train longer.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span>
     <span class="n">estimates</span><span class="o">=</span><span class="n">post_draws</span><span class="p">,</span> 
     <span class="n">targets</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span>
     <span class="n">variable_names</span><span class="o">=</span><span class="n">par_names</span>
@@ -810,7 +799,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>There are multiple graphical methods that use this property for diagnostics. For example, we can use histograms together with an uncertainty band within which we would expect the histogram bars to be if the rank statistics were indeed uniform.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_histogram</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_histogram</span><span class="p">(</span>
     <span class="n">estimates</span><span class="o">=</span><span class="n">post_draws</span><span class="p">,</span> 
     <span class="n">targets</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span>
     <span class="n">variable_names</span><span class="o">=</span><span class="n">par_names</span>
@@ -828,7 +817,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>The histograms look quite good overall, but could be a bit more uniform. That said, the SBC histograms have some drawbacks on how the confidence bands are computed, so we recommend using another kind of plot that is based on the empirical cumulative distribution function (ECDF). For the ECDF, we can compute better confidence bands than for histograms, so the SBC ECDF plot is usually preferable. <a class="reference external" href="https://hyunjimoon.github.io/SBC/articles/rank_visualizations.html">This SBC interpretation guide by Martin Modrák</a> gives further background information and also practical examples of how to interpret the SBC plots.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_ecdf</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_ecdf</span><span class="p">(</span>
     <span class="n">estimates</span><span class="o">=</span><span class="n">post_draws</span><span class="p">,</span> 
     <span class="n">targets</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span>
     <span class="n">variable_names</span><span class="o">=</span><span class="n">par_names</span><span class="p">,</span>
@@ -846,7 +835,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>After having convinced us that the posterior approximation are overall reasonable, we can check how much and what kind of information in the data we encode in the posterior. Specifically, we might want to look at two interesting scores: (a) The posterior contraction, which measures how much smaller the posterior variance is relative to the prior variance (higher values indicate more contraction relative to the prior). (b) The posterior z-score which indicates the standardized difference between the posterior mean and the true parameter value. Since the posterior z-score requires the true parameter values, it can only be computed in simulated data settings. Here, we show the results for the <span class="math notranslate nohighlight">\(\beta\)</span> coefficients only to illustrate the use of the <code class="docutils literal notranslate"><span class="pre">variable_keys</span></code> argument.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">z_score_contraction</span><span class="p">(</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">z_score_contraction</span><span class="p">(</span>
     <span class="n">estimates</span><span class="o">=</span><span class="n">post_draws</span><span class="p">,</span> 
     <span class="n">targets</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span>
     <span class="n">variable_keys</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;beta&quot;</span><span class="p">],</span>
@@ -866,7 +855,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>For saving and later on reloading bayesflow approximators, we provide some convenient functionalities. For saving, we use:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended - full serialization (checkpoints folder must exist)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended - full serialization (checkpoints folder must exist)</span>
 <span class="n">workflow</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
 
 <span class="c1"># Not recommended due to adapter mismatches - weights only</span>
@@ -874,33 +863,12 @@ reliably without, for example, exploding or vanishing gradients during training.
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2025-04-21 11:54:04.969579: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
-2025-04-21 11:54:04.977366: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
-WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
-E0000 00:00:1745250844.984817 4140753 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
-E0000 00:00:1745250844.987174 4140753 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
-W0000 00:00:1745250844.993850 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1745250844.993860 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1745250844.993861 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-W0000 00:00:1745250844.993863 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
-2025-04-21 11:54:04.996047: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
-To enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
-</pre></div>
-</div>
-</div>
 </div>
 <p>For loading, we then use:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load approximator</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load approximator</span>
 <span class="n">approximator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/radevs/anaconda3/envs/bf/lib/python3.11/site-packages/keras/src/saving/serialization_lib.py:734: UserWarning: `compile()` was not called as part of model loading because the model&#39;s `compile()` method is custom. All subclassed Models that have `compile()` overridden should also override `get_compile_config()` and `compile_from_config(config)`. Alternatively, you can call `compile()` manually after loading.
-  instance.compile_from_config(compile_config)
 </pre></div>
 </div>
 </div>
@@ -908,7 +876,7 @@ To enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, re
 <p>All the usual methods continue to work on the loaded approximator. For example:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Again, obtain num_samples samples of the parameter posterior for every validation dataset</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Again, obtain num_samples samples of the parameter posterior for every validation dataset</span>
 <span class="n">post_draws</span> <span class="o">=</span> <span class="n">approximator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
 
 <span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span>
