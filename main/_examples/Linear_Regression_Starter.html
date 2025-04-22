@@ -438,6 +438,7 @@
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">bayesflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
@@ -856,7 +857,9 @@ reliably without, for example, exploding or vanishing gradients during training.
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended - full serialization (checkpoints folder must exist)</span>
-<span class="n">workflow</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;checkpoints&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;regression.keras&quot;</span>
+<span class="n">filepath</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">workflow</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="n">filepath</span><span class="p">)</span>
 
 <span class="c1"># Not recommended due to adapter mismatches - weights only</span>
 <span class="c1"># approximator.save_weights(filepath=&quot;checkpoints/regression.h5&quot;)</span>
@@ -868,7 +871,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load approximator</span>
-<span class="n">approximator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
+<span class="n">approximator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">filepath</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

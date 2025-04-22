@@ -407,6 +407,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 
 <span class="c1"># this import needs to be exactly like this to work with monkey patching</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize_keras_object</span>
@@ -506,7 +507,10 @@
             <span class="c1"># we marked this as a type during serialization</span>
             <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">_type_prefix</span><span class="p">)</span> <span class="p">:]</span>
             <span class="n">tp</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">get_registered_object</span><span class="p">(</span>
-                <span class="n">obj</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">,</span> <span class="n">module_objects</span><span class="o">=</span><span class="n">builtins</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="vm">__dict__</span>
+                <span class="c1"># TODO: can we pass module objects without overwriting numpy&#39;s dict with builtins?</span>
+                <span class="n">obj</span><span class="p">,</span>
+                <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">,</span>
+                <span class="n">module_objects</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">|</span> <span class="n">builtins</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">tp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
@@ -526,10 +530,9 @@
 <span class="nd">@allow_args</span>
 <span class="k">def</span><span class="w"> </span><span class="nf">serializable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="c1"># get the calling module&#39;s name, e.g. &quot;bayesflow.networks.inference_network&quot;</span>
-        <span class="n">stack</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
-        <span class="n">module</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmodule</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
-        <span class="n">package</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="n">frame</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">_getframe</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_globals</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="s2">&quot;bayesflow&quot;</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">name</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
