@@ -444,11 +444,11 @@
     <span class="p">}</span>
 
     <span class="n">OPTIMAL_TRANSPORT_DEFAULT_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;sinkhorn&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;method&quot;</span><span class="p">:</span> <span class="s2">&quot;log_sinkhorn&quot;</span><span class="p">,</span>
         <span class="s2">&quot;regularization&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
         <span class="s2">&quot;max_steps&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
-        <span class="s2">&quot;tolerance&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
+        <span class="s2">&quot;atol&quot;</span><span class="p">:</span> <span class="mf">1e-5</span><span class="p">,</span>
+        <span class="s2">&quot;rtol&quot;</span><span class="p">:</span> <span class="mf">1e-4</span><span class="p">,</span>
     <span class="p">}</span>
 
     <span class="n">INTEGRATE_DEFAULT_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
