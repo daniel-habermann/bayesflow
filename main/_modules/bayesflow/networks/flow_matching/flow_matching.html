@@ -404,26 +404,27 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distribution</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">expand_right_as</span><span class="p">,</span>
     <span class="n">find_network</span><span class="p">,</span>
     <span class="n">integrate</span><span class="p">,</span>
     <span class="n">jacobian_trace</span><span class="p">,</span>
-    <span class="n">keras_kwargs</span><span class="p">,</span>
+    <span class="n">layer_kwargs</span><span class="p">,</span>
     <span class="n">optimal_transport</span><span class="p">,</span>
-    <span class="n">serialize_value_or_type</span><span class="p">,</span>
-    <span class="n">deserialize_value_or_type</span><span class="p">,</span>
     <span class="n">weighted_mean</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serialize</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">serializable</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">..inference_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceNetwork</span>
 
 
 <div class="viewcode-block" id="FlowMatching">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.FlowMatching.html#bayesflow.networks.FlowMatching">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.networks&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FlowMatching</span><span class="p">(</span><span class="n">InferenceNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements Optimal Transport Flow Matching, originally introduced as Rectified Flow, with ideas incorporated</span>
 <span class="sd">    from [1-3].</span>
@@ -457,10 +458,10 @@
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
-        <span class="n">base_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="n">subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">keras</span><span class="o">.</span><span class="n">Layer</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
+        <span class="n">base_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Distribution</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
         <span class="n">use_optimal_transport</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">loss_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
+        <span class="n">loss_fn</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">keras</span><span class="o">.</span><span class="n">Loss</span> <span class="o">=</span> <span class="s2">&quot;mse&quot;</span><span class="p">,</span>
         <span class="n">integrate_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">optimal_transport_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">subnet_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -479,27 +480,26 @@
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
-<span class="sd">        subnet : str or type, optional</span>
+<span class="sd">        subnet : str or keras.Layer, optional</span>
 <span class="sd">            The architecture used for the transformation network. Can be &quot;mlp&quot; or a custom</span>
 <span class="sd">            callable network. Default is &quot;mlp&quot;.</span>
 <span class="sd">        base_distribution : str, optional</span>
 <span class="sd">            The base probability distribution from which samples are drawn, such as &quot;normal&quot;.</span>
 <span class="sd">            Default is &quot;normal&quot;.</span>
 <span class="sd">        use_optimal_transport : bool, optional</span>
-<span class="sd">            Whether to apply optimal transport for improved training stability. Default is False.</span>
+<span class="sd">            Whether to apply optimal transport for improved training stability. Default is True.</span>
 <span class="sd">        loss_fn : str, optional</span>
 <span class="sd">            The loss function used for training, such as &quot;mse&quot;. Default is &quot;mse&quot;.</span>
 <span class="sd">        integrate_kwargs : dict[str, any], optional</span>
 <span class="sd">            Additional keyword arguments for the integration process. Default is None.</span>
 <span class="sd">        optimal_transport_kwargs : dict[str, any], optional</span>
 <span class="sd">            Additional keyword arguments for configuring optimal transport. Default is None.</span>
-<span class="sd">        subnet_kwargs: dict[str, any], optional</span>
+<span class="sd">        subnet_kwargs: dict[str, any], optional, deprecated</span>
 <span class="sd">            Keyword arguments passed to the subnet constructor or used to update the default MLP settings.</span>
 <span class="sd">        **kwargs</span>
 <span class="sd">            Additional keyword arguments passed to the subnet and other components.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="o">=</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">keras_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">use_optimal_transport</span> <span class="o">=</span> <span class="n">use_optimal_transport</span>
 
@@ -510,57 +510,68 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">SeedGenerator</span><span class="p">()</span>
 
+        <span class="k">if</span> <span class="n">subnet_kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using `subnet_kwargs` is deprecated.&quot;</span>
+                <span class="s2">&quot;Instead, instantiate the network yourself and pass the arguments directly.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
         <span class="n">subnet_kwargs</span> <span class="o">=</span> <span class="n">subnet_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
         <span class="k">if</span> <span class="n">subnet</span> <span class="o">==</span> <span class="s2">&quot;mlp&quot;</span><span class="p">:</span>
             <span class="n">subnet_kwargs</span> <span class="o">=</span> <span class="n">FlowMatching</span><span class="o">.</span><span class="n">MLP_DEFAULT_CONFIG</span> <span class="o">|</span> <span class="n">subnet_kwargs</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span> <span class="o">=</span> <span class="n">find_network</span><span class="p">(</span><span class="n">subnet</span><span class="p">,</span> <span class="o">**</span><span class="n">subnet_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
-
-        <span class="c1"># serialization: store all parameters necessary to call __init__</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="n">base_distribution</span><span class="p">,</span>
-            <span class="s2">&quot;use_optimal_transport&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_optimal_transport</span><span class="p">,</span>
-            <span class="s2">&quot;optimal_transport_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_transport_kwargs</span><span class="p">,</span>
-            <span class="s2">&quot;integrate_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate_kwargs</span><span class="p">,</span>
-            <span class="s2">&quot;subnet_kwargs&quot;</span><span class="p">:</span> <span class="n">subnet_kwargs</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">serialize_value_or_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;subnet&quot;</span><span class="p">,</span> <span class="n">subnet</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;output_projector&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FlowMatching.build">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.FlowMatching.html#bayesflow.networks.FlowMatching.build">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xz_shape</span><span class="p">:</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="p">:</span> <span class="n">Shape</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="o">=</span><span class="n">conditions_shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="c1"># building when the network is already built can cause issues with serialization</span>
+            <span class="c1"># see https://github.com/keras-team/keras/issues/21147</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">xz_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
 
-        <span class="c1"># construct time vector</span>
+        <span class="c1"># account for concatenating the time and conditions</span>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
         <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">if</span> <span class="n">conditions_shape</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">input_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="n">conditions_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
         <span class="n">input_shape</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="n">out_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">out_shape</span><span class="p">)</span></div>
+        <span class="n">input_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="FlowMatching.from_config">
+<a class="viewcode-back" href="../../../../api/bayesflow.networks.FlowMatching.html#bayesflow.networks.FlowMatching.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">deserialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="FlowMatching.get_config">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.FlowMatching.html#bayesflow.networks.FlowMatching.get_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span></div>
+        <span class="n">base_config</span> <span class="o">=</span> <span class="n">layer_kwargs</span><span class="p">(</span><span class="n">base_config</span><span class="p">)</span>
 
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;subnet&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span><span class="p">,</span>
+            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="p">,</span>
+            <span class="s2">&quot;use_optimal_transport&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_optimal_transport</span><span class="p">,</span>
+            <span class="s2">&quot;loss_fn&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">loss_fn</span><span class="p">,</span>
+            <span class="s2">&quot;integrate_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">integrate_kwargs</span><span class="p">,</span>
+            <span class="s2">&quot;optimal_transport_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimal_transport_kwargs</span><span class="p">,</span>
+            <span class="c1"># we do not need to store subnet_kwargs</span>
+        <span class="p">}</span>
 
-<div class="viewcode-block" id="FlowMatching.from_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.networks.FlowMatching.html#bayesflow.networks.FlowMatching.from_config">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">deserialize_value_or_type</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;subnet&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="n">serialize</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FlowMatching.velocity">
@@ -664,9 +675,20 @@
             <span class="n">x0</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x1</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_optimal_transport</span><span class="p">:</span>
-                <span class="n">x1</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">conditions</span> <span class="o">=</span> <span class="n">optimal_transport</span><span class="p">(</span>
-                    <span class="n">x1</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">conditions</span><span class="p">,</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">optimal_transport_kwargs</span>
+                <span class="c1"># we must choose between resampling x0 or x1</span>
+                <span class="c1"># since the data is possibly noisy and may contain outliers, it is better</span>
+                <span class="c1"># to possibly drop some samples from x1 than from x0</span>
+                <span class="c1"># in the marginal over multiple batches, this is not a problem</span>
+                <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span><span class="p">,</span> <span class="n">assignments</span> <span class="o">=</span> <span class="n">optimal_transport</span><span class="p">(</span>
+                    <span class="n">x0</span><span class="p">,</span>
+                    <span class="n">x1</span><span class="p">,</span>
+                    <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span><span class="p">,</span>
+                    <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">optimal_transport_kwargs</span><span class="p">,</span>
+                    <span class="n">return_assignments</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                 <span class="p">)</span>
+                <span class="k">if</span> <span class="n">conditions</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># conditions must be resampled along with x1</span>
+                    <span class="n">conditions</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">conditions</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
             <span class="n">t</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">uniform</span><span class="p">((</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">x0</span><span class="p">)[</span><span class="mi">0</span><span class="p">],),</span> <span class="n">seed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span><span class="p">)</span>
             <span class="n">t</span> <span class="o">=</span> <span class="n">expand_right_as</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="n">x0</span><span class="p">)</span>

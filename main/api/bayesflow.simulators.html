@@ -377,9 +377,11 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.SerializableCustomTransform.html">SerializableCustomTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Split.html">Split</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToDict.html">ToDict</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Transform.html">Transform</a></li>
 </ul>
 </details></li>
@@ -419,9 +421,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.distributions.html">distributions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.find_distribution.html">find_distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalNormal.html">DiagonalNormal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalStudentT.html">DiagonalStudentT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.Distribution.html">Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.Mixture.html">Mixture</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.experimental.html">experimental</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -473,11 +477,19 @@
 </details></li>
 <li class="toctree-l1 current active has-children"><a class="current reference internal" href="#">simulators</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.make_simulator.html">make_simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.BernoulliGLM.html">BernoulliGLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.BernoulliGLMRaw.html">BernoulliGLMRaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianLinear.html">GaussianLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianLinearUniform.html">GaussianLinearUniform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianMixture.html">GaussianMixture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.HierarchicalSimulator.html">HierarchicalSimulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.InverseKinematics.html">InverseKinematics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.LambdaSimulator.html">LambdaSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.LotkaVolterra.html">LotkaVolterra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.ModelComparisonSimulator.html">ModelComparisonSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SIR.html">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SLCP.html">SLCP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SLCPDistractors.html">SLCPDistractors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SequentialSimulator.html">SequentialSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.Simulator.html">Simulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.TwoMoons.html">TwoMoons</a></li>
@@ -537,7 +549,6 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_inference_network.html">find_inference_network</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_memory_budget.html">find_memory_budget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_network.html">find_network</a></li>
@@ -550,8 +561,9 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jacobian.html">jacobian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jacobian_trace.html">jacobian_trace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jvp.html">jvp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.keras_kwargs.html">keras_kwargs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.layer_kwargs.html">layer_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.make_quadratic.html">make_quadratic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.model_kwargs.html">model_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.optimal_transport.html">optimal_transport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.pad.html">pad</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.parse_bytes.html">parse_bytes</a></li>
@@ -559,6 +571,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.prepare_plot_data.html">prepare_plot_data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.prettify_subplots.html">prettify_subplots</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.searchsorted.html">searchsorted</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.sequential_kwargs.html">sequential_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.serialize_value_or_type.html">serialize_value_or_type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.simultaneous_ecdf_bands.html">simultaneous_ecdf_bands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.size_of.html">size_of</a></li>
@@ -668,8 +681,26 @@ mathematical models, or data generating processes, with their primary function b
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.HierarchicalSimulator.html#bayesflow.simulators.HierarchicalSimulator" title="bayesflow.simulators.HierarchicalSimulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HierarchicalSimulator</span></code></a>(hierarchy)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.BernoulliGLM.html#bayesflow.simulators.BernoulliGLM" title="bayesflow.simulators.BernoulliGLM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BernoulliGLM</span></code></a>([T, scale_by_T, rng])</p></td>
+<td><p>Bernoulli GLM simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.5</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.BernoulliGLMRaw.html#bayesflow.simulators.BernoulliGLMRaw" title="bayesflow.simulators.BernoulliGLMRaw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BernoulliGLMRaw</span></code></a>([T, rng])</p></td>
+<td><p>Bernoulli GLM raw simulated benchmark.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.GaussianLinear.html#bayesflow.simulators.GaussianLinear" title="bayesflow.simulators.GaussianLinear"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaussianLinear</span></code></a>([D, prior_scale, n_obs, ...])</p></td>
+<td><p>Gaussian Linear simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.1</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.GaussianLinearUniform.html#bayesflow.simulators.GaussianLinearUniform" title="bayesflow.simulators.GaussianLinearUniform"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaussianLinearUniform</span></code></a>([D, lower_bound, ...])</p></td>
+<td><p>Gaussian Linear Uniform simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.2</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.GaussianMixture.html#bayesflow.simulators.GaussianMixture" title="bayesflow.simulators.GaussianMixture"><code class="xref py py-obj docutils literal notranslate"><span class="pre">GaussianMixture</span></code></a>([D, lower_bound, ...])</p></td>
+<td><p>Gaussian Mixture simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.7</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.HierarchicalSimulator.html#bayesflow.simulators.HierarchicalSimulator" title="bayesflow.simulators.HierarchicalSimulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">HierarchicalSimulator</span></code></a>(hierarchy)</p></td>
 <td><p>Initialize the hierarchical simulator with a sequence of simulators.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.InverseKinematics.html#bayesflow.simulators.InverseKinematics" title="bayesflow.simulators.InverseKinematics"><code class="xref py py-obj docutils literal notranslate"><span class="pre">InverseKinematics</span></code></a>([scales, l1, l2, l3, rng])</p></td>
+<td><p>Inverse Kinematics simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.10763.pdf">https://arxiv.org/pdf/2101.10763.pdf</a></p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.LambdaSimulator.html#bayesflow.simulators.LambdaSimulator" title="bayesflow.simulators.LambdaSimulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">LambdaSimulator</span></code></a>(sample_fn, *[, is_batched])</p></td>
 <td><p>Implements a simulator based on a sampling function.</p></td>
@@ -683,7 +714,13 @@ mathematical models, or data generating processes, with their primary function b
 <tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.SIR.html#bayesflow.simulators.SIR" title="bayesflow.simulators.SIR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SIR</span></code></a>([N, T, I0, R0, subsample, total_count, ...])</p></td>
 <td><p>SIR simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.9</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.SequentialSimulator.html#bayesflow.simulators.SequentialSimulator" title="bayesflow.simulators.SequentialSimulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SequentialSimulator</span></code></a>(simulators[, expand_outputs])</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.SLCP.html#bayesflow.simulators.SLCP" title="bayesflow.simulators.SLCP"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLCP</span></code></a>([lower_bound, upper_bound, n_obs, ...])</p></td>
+<td><p>SLCP simulated benchmark See <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.3</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.SLCPDistractors.html#bayesflow.simulators.SLCPDistractors" title="bayesflow.simulators.SLCPDistractors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SLCPDistractors</span></code></a>([lower_bound, upper_bound, ...])</p></td>
+<td><p>SLCP Distractors simulated benchmark See: <a class="reference external" href="https://arxiv.org/pdf/2101.04653.pdf">https://arxiv.org/pdf/2101.04653.pdf</a>, Task T.4</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.simulators.SequentialSimulator.html#bayesflow.simulators.SequentialSimulator" title="bayesflow.simulators.SequentialSimulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SequentialSimulator</span></code></a>(simulators[, ...])</p></td>
 <td><p>Combines multiple simulators into one, sequentially.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.simulators.Simulator.html#bayesflow.simulators.Simulator" title="bayesflow.simulators.Simulator"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Simulator</span></code></a>()</p></td>

@@ -1276,6 +1276,9 @@
 <span class="sd">        where the final learning rate is proportional to the square of the initial learning rate, as found to work</span>
 <span class="sd">        best in SBI.</span>
 
+<span class="sd">        The default optimizer will use 5% of the epochs as warmup; during the warmup phase, the learning rate</span>
+<span class="sd">        will be increased from 10% of the initial learning rate to initial learning rate supplied to the workflow.</span>
+
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
 <span class="sd">        epochs : int</span>
@@ -1297,12 +1300,16 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">return</span>
 
+        <span class="n">total_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">epochs</span> <span class="o">*</span> <span class="n">num_batches</span><span class="p">)</span>
+        <span class="n">warmup_steps</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mf">0.05</span> <span class="o">*</span> <span class="n">epochs</span> <span class="o">*</span> <span class="n">num_batches</span><span class="p">)</span>
+        <span class="n">decay_steps</span> <span class="o">=</span> <span class="n">total_steps</span> <span class="o">-</span> <span class="n">warmup_steps</span>
+
         <span class="c1"># Default case</span>
         <span class="n">learning_rate</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">CosineDecay</span><span class="p">(</span>
-            <span class="n">initial_learning_rate</span><span class="o">=</span><span class="mf">0.5</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
+            <span class="n">initial_learning_rate</span><span class="o">=</span><span class="mf">0.1</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
             <span class="n">warmup_target</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_learning_rate</span><span class="p">,</span>
-            <span class="n">warmup_steps</span><span class="o">=</span><span class="n">num_batches</span><span class="p">,</span>
-            <span class="n">decay_steps</span><span class="o">=</span><span class="n">epochs</span> <span class="o">*</span> <span class="n">num_batches</span><span class="p">,</span>
+            <span class="n">warmup_steps</span><span class="o">=</span><span class="n">warmup_steps</span><span class="p">,</span>
+            <span class="n">decay_steps</span><span class="o">=</span><span class="n">decay_steps</span><span class="p">,</span>
             <span class="n">alpha</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
         <span class="p">)</span>
 
@@ -1310,7 +1317,7 @@
         <span class="k">if</span> <span class="n">strategy</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;online&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">AdamW</span><span class="p">(</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mf">5e-3</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.5</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_fit</span><span class="p">(</span>

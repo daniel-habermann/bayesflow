@@ -401,10 +401,23 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.utils.serialization</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">copy</span><span class="w"> </span><span class="kn">import</span> <span class="n">copy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">builtins</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># this import needs to be exactly like this to work with monkey patching</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize_keras_object</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.context_managers</span><span class="w"> </span><span class="kn">import</span> <span class="n">monkey_patch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">allow_args</span>
 
 
 <span class="n">PREFIX</span> <span class="o">=</span> <span class="s2">&quot;_bayesflow_&quot;</span>
+
+<span class="n">_type_prefix</span> <span class="o">=</span> <span class="s2">&quot;__bayesflow_type__&quot;</span>
 
 
 <div class="viewcode-block" id="serialize_value_or_type">
@@ -485,6 +498,53 @@
         <span class="k">del</span> <span class="n">updated_config</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">PREFIX</span><span class="si">}{</span><span class="n">name</span><span class="si">}</span><span class="s2">_val&quot;</span><span class="p">]</span>
     <span class="k">return</span> <span class="n">updated_config</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">deserialize</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">safe_mode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">monkey_patch</span><span class="p">(</span><span class="n">deserialize_keras_object</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">)</span> <span class="k">as</span> <span class="n">original_deserialize</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">obj</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_type_prefix</span><span class="p">):</span>
+            <span class="c1"># we marked this as a type during serialization</span>
+            <span class="n">obj</span> <span class="o">=</span> <span class="n">obj</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">_type_prefix</span><span class="p">)</span> <span class="p">:]</span>
+            <span class="n">tp</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">get_registered_object</span><span class="p">(</span>
+                <span class="n">obj</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">,</span> <span class="n">module_objects</span><span class="o">=</span><span class="n">builtins</span><span class="o">.</span><span class="vm">__dict__</span> <span class="o">|</span> <span class="n">np</span><span class="o">.</span><span class="vm">__dict__</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">tp</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not deserialize type </span><span class="si">{</span><span class="n">obj</span><span class="si">!r}</span><span class="s2">. Make sure it is registered with &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;`keras.saving.register_keras_serializable` or pass it in `custom_objects`.&quot;</span>
+                <span class="p">)</span>
+            <span class="k">return</span> <span class="n">tp</span>
+        <span class="k">if</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+            <span class="c1"># add this base case since keras does not cover it</span>
+            <span class="k">return</span> <span class="n">obj</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="n">original_deserialize</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">,</span> <span class="n">safe_mode</span><span class="o">=</span><span class="n">safe_mode</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">obj</span>
+
+
+<span class="nd">@allow_args</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">serializable</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">package</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">package</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># get the calling module&#39;s name, e.g. &quot;bayesflow.networks.inference_network&quot;</span>
+        <span class="n">stack</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">stack</span><span class="p">()</span>
+        <span class="n">module</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getmodule</span><span class="p">(</span><span class="n">stack</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">package</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="n">module</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="vm">__name__</span><span class="p">)</span>
+
+    <span class="c1"># register subclasses as keras serializable</span>
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">register_keras_serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="n">package</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">)(</span><span class="bp">cls</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="p">(</span><span class="nb">tuple</span><span class="p">,</span> <span class="nb">list</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">tree</span><span class="o">.</span><span class="n">map_structure</span><span class="p">(</span><span class="n">serialize</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">inspect</span><span class="o">.</span><span class="n">isclass</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_type_prefix</span> <span class="o">+</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">get_registered_name</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">serialize_keras_object</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
 </pre></div>
 
                 </article>

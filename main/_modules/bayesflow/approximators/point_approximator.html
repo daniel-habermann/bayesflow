@@ -406,18 +406,17 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span><span class="p">,</span>
-<span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_kwargs</span><span class="p">,</span> <span class="n">split_arrays</span><span class="p">,</span> <span class="n">squeeze_inner_estimates_dict</span><span class="p">,</span> <span class="n">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">.continuous_approximator</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContinuousApproximator</span>
 
 
 <div class="viewcode-block" id="PointApproximator">
 <a class="viewcode-back" href="../../../api/bayesflow.approximators.PointApproximator.html#bayesflow.approximators.PointApproximator">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.approximators&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">PointApproximator</span><span class="p">(</span><span class="n">ContinuousApproximator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A workflow for fast amortized point estimation of a conditional distribution.</span>
@@ -471,9 +470,9 @@
         <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
             <span class="n">estimates</span> <span class="o">=</span> <span class="n">split_arrays</span><span class="p">(</span><span class="n">estimates</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">)</span>
         <span class="c1"># Reorder the nested dictionary so that original variable names are at the top.</span>
-        <span class="n">estimates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_reorder_estimates</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span>
+        <span class="n">estimates</span> <span class="o">=</span> <span class="n">PointApproximator</span><span class="o">.</span><span class="n">_reorder_estimates</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span>
         <span class="c1"># Remove unnecessary nesting.</span>
-        <span class="n">estimates</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_squeeze_estimates</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span>
+        <span class="n">estimates</span> <span class="o">=</span> <span class="n">PointApproximator</span><span class="o">.</span><span class="n">_squeeze_estimates</span><span class="p">(</span><span class="n">estimates</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">estimates</span></div>
 
@@ -498,7 +497,7 @@
 <span class="sd">        ----------</span>
 <span class="sd">        num_samples : int</span>
 <span class="sd">            The number of samples to generate.</span>
-<span class="sd">        conditions : dict[str, np.ndarray]</span>
+<span class="sd">        conditions : Mapping[str, np.ndarray]</span>
 <span class="sd">            A dictionary mapping variable names to arrays representing the conditions</span>
 <span class="sd">            for the sampling process.</span>
 <span class="sd">        split : bool, optional</span>
@@ -564,7 +563,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">log_prob</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">log_prob</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">data</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="c1"># Squeeze log probabilities dictionary if there&#39;s only one key-value pair.</span>
-        <span class="n">log_prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_squeeze_parametric_score_major_dict</span><span class="p">(</span><span class="n">log_prob</span><span class="p">)</span>
+        <span class="n">log_prob</span> <span class="o">=</span> <span class="n">PointApproximator</span><span class="o">.</span><span class="n">_squeeze_parametric_score_major_dict</span><span class="p">(</span><span class="n">log_prob</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">log_prob</span></div>
 
@@ -614,8 +613,9 @@
             <span class="p">)</span>
         <span class="k">return</span> <span class="n">processed</span>
 
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_reorder_estimates</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">estimates</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span>
+        <span class="n">estimates</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Reorders the nested dictionary so that the inference variable names become the top-level keys.&quot;&quot;&quot;</span>
         <span class="c1"># Grab the variable names from one sample inner dictionary.</span>
@@ -628,8 +628,9 @@
                 <span class="n">reordered</span><span class="p">[</span><span class="n">variable</span><span class="p">][</span><span class="n">score_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">inner_key</span><span class="p">:</span> <span class="n">value</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span> <span class="k">for</span> <span class="n">inner_key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">inner_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
         <span class="k">return</span> <span class="n">reordered</span>
 
+    <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_squeeze_estimates</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">estimates</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]]</span>
+        <span class="n">estimates</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]],</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Squeezes each inner estimate dictionary to remove unnecessary nesting.&quot;&quot;&quot;</span>
         <span class="n">squeezed</span> <span class="o">=</span> <span class="p">{}</span>
@@ -640,9 +641,8 @@
             <span class="p">}</span>
         <span class="k">return</span> <span class="n">squeezed</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_squeeze_parametric_score_major_dict</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">samples</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_squeeze_parametric_score_major_dict</span><span class="p">(</span><span class="n">samples</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="ow">or</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Squeezes the dictionary to just the value if there is only one key-value pair.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">return</span> <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">samples</span><span class="o">.</span><span class="n">values</span><span class="p">()))</span>  <span class="c1"># Extract and return the only item&#39;s value</span>

@@ -34,11 +34,19 @@ simulators
     :toctree:
     :template: base.rst
   
+    BernoulliGLM
+    BernoulliGLMRaw
+    GaussianLinear
+    GaussianLinearUniform
+    GaussianMixture
     HierarchicalSimulator
+    InverseKinematics
     LambdaSimulator
     LotkaVolterra
     ModelComparisonSimulator
     SIR
+    SLCP
+    SLCPDistractors
     SequentialSimulator
     Simulator
     TwoMoons

@@ -404,19 +404,17 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Sequence</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.networks.summary_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummaryNetwork</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">keras_kwargs</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_input_shape</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.mamba_block</span><span class="w"> </span><span class="kn">import</span> <span class="n">MambaBlock</span>
 
 
 <div class="viewcode-block" id="Mamba">
 <a class="viewcode-back" href="../../../../api/bayesflow.wrappers.mamba.mamba.Mamba.html#bayesflow.wrappers.mamba.mamba.Mamba">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.wrappers&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Mamba</span><span class="p">(</span><span class="n">SummaryNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Wraps a sequence of Mamba modules using the simple Mamba module from:</span>
@@ -476,7 +474,7 @@
 <span class="sd">            Additional keyword arguments passed to the `SummaryNetwork` parent class.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">keras_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">device</span> <span class="o">!=</span> <span class="s2">&quot;cuda&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;MambaSSM only supports cuda as `device`.&quot;</span><span class="p">)</span>
@@ -492,7 +490,7 @@
 
 <div class="viewcode-block" id="Mamba.call">
 <a class="viewcode-back" href="../../../../api/bayesflow.wrappers.mamba.mamba.Mamba.html#bayesflow.wrappers.mamba.mamba.Mamba.call">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_series</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_series</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">training</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tensor</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Apply a sequence of Mamba blocks, followed by pooling, dropout, and summary statistics.</span>
 
@@ -502,8 +500,8 @@
 <span class="sd">            Input tensor representing the time series data, typically of shape</span>
 <span class="sd">            (batch_size, sequence_length, feature_dim).</span>
 <span class="sd">        training : bool, optional</span>
-<span class="sd">            Whether the model is in training mode (default is True). Affects behavior of</span>
-<span class="sd">            layers like dropout.</span>
+<span class="sd">            Whether the model is in training mode (default is False). Affects the behavior of</span>
+<span class="sd">            the inner dropout and norm layers.</span>
 <span class="sd">        **kwargs : dict</span>
 <span class="sd">            Additional keyword arguments (not used in this method).</span>
 
@@ -522,14 +520,6 @@
         <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_stats</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">summary</span></div>
-
-
-<div class="viewcode-block" id="Mamba.build">
-<a class="viewcode-back" href="../../../../api/bayesflow.wrappers.mamba.mamba.Mamba.html#bayesflow.wrappers.mamba.mamba.Mamba.build">[docs]</a>
-    <span class="nd">@sanitize_input_shape</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">input_shape</span><span class="p">))</span></div>
 </div>
 
 </pre></div>

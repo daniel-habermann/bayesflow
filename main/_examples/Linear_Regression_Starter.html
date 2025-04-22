@@ -435,22 +435,23 @@
 <p>In traditional Bayesian inference, we seek to approximate the posterior distribution of model parameters given observed data for each new data instance separately. This process can be computationally expensive, especially for complex models or large datasets, because it often involves iterative optimization or sampling methods. This step needs to be repeated for each new instance of data.</p>
 <p>Amortized Bayesian inference offers a solution to this problem. “Amortization” here refers to spreading out the computational cost over multiple instances. Instead of computing a new posterior from scratch for each data instance, amortized inference learns a function. This function is parameterized by a neural network, that directly maps observations to an approximation of the posterior distribution. This function is trained over the dataset to approximate the posterior for <em>any</em> new data instance efficiently. In this example, we will use a simple Gaussian model to illustrate the basic concepts of amortized posterior estimation.</p>
 <p>At a high level, our architecture consists of a summary network <span class="math notranslate nohighlight">\(\mathbf{h}\)</span> and an inference network <span class="math notranslate nohighlight">\(\mathbf{f}\)</span> which jointly learn to invert a generative model. The summary network transforms input data <span class="math notranslate nohighlight">\(\mathbf{x}\)</span> of potentially variable size to a fixed-length representations. The inference network generates random draws from an approximate posterior <span class="math notranslate nohighlight">\(\mathbf{q}\)</span> via a conditional generative networks (here, an invertible network).</p>
-<p>We load a bunch of libraries and choose the keras backend, we want to use.
-Here we use JAX but you can freely change that and the notebook will work all the same.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ensure the backend is set</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-
-<span class="k">if</span> <span class="s2">&quot;KERAS_BACKEND&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">:</span>
-    <span class="c1"># set this to &quot;torch&quot;, &quot;tensorflow&quot;, or &quot;jax&quot;</span>
-    <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>
-
-<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">bayesflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:bayesflow:
+When using torch backend, we need to disable autograd by default to avoid excessive memory usage. Use
+
+with torch.enable_grad():
+    ...
+
+in contexts where you need gradients (e.g. custom training loops).
 </pre></div>
 </div>
 </div>
@@ -500,7 +501,7 @@ Here we use JAX but you can freely change that and the notebook will work all th
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(3,)
-[-0.02379952  1.47901078  3.01718255]
+[2.08489853 1.02115326 1.46841197]
 </pre></div>
 </div>
 </div>
@@ -528,7 +529,7 @@ Here we use JAX but you can freely change that and the notebook will work all th
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(2,)
-[ 6.00418464 -0.45589576]
+[-0.47796844  0.35522176]
 </pre></div>
 </div>
 </div>
@@ -552,7 +553,7 @@ Here we use JAX but you can freely change that and the notebook will work all th
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>5
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>10
 </pre></div>
 </div>
 </div>
@@ -581,11 +582,11 @@ that the number of observations <code class="docutils literal notranslate"><span
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>5
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>7
 (500, 2)
 (500, 1)
-(500, 5)
-(500, 5)
+(500, 7)
+(500, 7)
 </pre></div>
 </div>
 </div>
@@ -610,18 +611,14 @@ that the number of observations <code class="docutils literal notranslate"><span
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\radevs\AppData\Local\anaconda3\envs\bf\Lib\site-packages\seaborn\axisgrid.py:118: UserWarning: The figure layout has changed to tight
-  self._figure.tight_layout(*args, **kwargs)
-</pre></div>
-</div>
-<img alt="../_images/a7660db040755c19b1e1ea310fcae960eeb18f0bbd9060b65b5e0e9aaf05bbb8.png" src="../_images/a7660db040755c19b1e1ea310fcae960eeb18f0bbd9060b65b5e0e9aaf05bbb8.png" />
+<img alt="../_images/fe3b5e6549acafa64f56297c4935bac2f2e1af9e9226c1c1df8c8fce0c36248a.png" src="../_images/fe3b5e6549acafa64f56297c4935bac2f2e1af9e9226c1c1df8c8fce0c36248a.png" />
 </div>
 </div>
 </section>
 <section id="adapter">
 <h2><span class="section-number">1.3. </span>Adapter<a class="headerlink" href="#adapter" title="Link to this heading">#</a></h2>
 <p>To ensure that the training data generated by the simulator can be used for deep learning, we have do a bunch of transformations via <code class="docutils literal notranslate"><span class="pre">adapter</span></code> objects. They provides multiple flexible functionalities, from standardization to renaming, and so on.</p>
-<p>Below, we build our own <code class="docutils literal notranslate"><span class="pre">adapter</span></code> from scratch but later on, <code class="docutils literal notranslate"><span class="pre">BayesFlo</span></code> will also provide default adapters that will already automate most of the commonly required steps.</p>
+<p>Below, we build our own <code class="docutils literal notranslate"><span class="pre">adapter</span></code> from scratch but later on, <code class="docutils literal notranslate"><span class="pre">BayesFlow</span></code> will also provide default adapters that will already automate most of the commonly required steps.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">adapter</span> <span class="o">=</span> <span class="p">(</span>
@@ -631,6 +628,7 @@ that the number of observations <code class="docutils literal notranslate"><span
     <span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="s2">&quot;sigma&quot;</span><span class="p">,</span> <span class="n">lower</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
     <span class="o">.</span><span class="n">standardize</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">])</span>
     <span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">)</span>
+    <span class="o">.</span><span class="n">convert_dtype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="s2">&quot;float32&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="s2">&quot;beta&quot;</span><span class="p">,</span> <span class="s2">&quot;sigma&quot;</span><span class="p">],</span> <span class="n">into</span><span class="o">=</span><span class="s2">&quot;inference_variables&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">],</span> <span class="n">into</span><span class="o">=</span><span class="s2">&quot;summary_variables&quot;</span><span class="p">)</span>
     <span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;inference_conditions&quot;</span><span class="p">)</span>
@@ -639,7 +637,7 @@ that the number of observations <code class="docutils literal notranslate"><span
 </div>
 </div>
 </div>
-<p>Let me elaborate on a few adapter steps:</p>
+<p>Let us discuss a few adapter steps in detail:</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">.broadcast(&quot;N&quot;,</span> <span class="pre">to=&quot;x&quot;)</span></code> transform will copy the value of <code class="docutils literal notranslate"><span class="pre">N</span></code> batch-size times to ensure that it will also have a <code class="docutils literal notranslate"><span class="pre">batch_size</span></code> dimension even though it was actually just a single value, constant over all datasets within a batch. The batch dimension will be inferred from <code class="docutils literal notranslate"><span class="pre">x</span></code> (this needs to be present during inference).</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">.as_set([&quot;x&quot;,</span> <span class="pre">&quot;y&quot;])</span></code> transform indicates that both <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> are treated as sets. That is, their values will be treated as <em>exchangable</em> such that they will imply the same inference regardless of the values’ order. This makes sense, since in linear regression, we can index the observations in arbitrary order and always get the same regression line.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">.constrain(&quot;sigma&quot;,</span> <span class="pre">lower=0)</span></code> transform ensures that the residual standard deviation parameter <code class="docutils literal notranslate"><span class="pre">sigma</span></code> will always be positive. Without this constrain, the neural networks may attempt to predict negative <code class="docutils literal notranslate"><span class="pre">sigma</span></code> which of course would not make much sense.</p>
@@ -656,7 +654,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(500, 5, 2)
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(500, 7, 2)
 (500, 1)
 (500, 3)
 </pre></div>
@@ -664,7 +662,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 </div>
 </div>
 <p>Those shapes are as we expect them to be. The first dimenstion is always the batch size which was 500 for our example data. All variables adhere to this rule since the first dimension is indeed 500.</p>
-<p>For <code class="docutils literal notranslate"><span class="pre">summary_variables</span></code>, the second dimension is equal to <code class="docutils literal notranslate"><span class="pre">N</span></code>, which happend to be sampled as <code class="docutils literal notranslate"><span class="pre">14</span></code> for these example data. It’s third dimension is <code class="docutils literal notranslate"><span class="pre">2</span></code>, since we have combined <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> into summary variables, each of which are vectors of length <code class="docutils literal notranslate"><span class="pre">N</span></code> within each simulated dataset.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">summary_variables</span></code>, the second dimension is equal to the sampled valued of <code class="docutils literal notranslate"><span class="pre">N</span></code>. It’s third dimension is <code class="docutils literal notranslate"><span class="pre">2</span></code>, since we have combined <code class="docutils literal notranslate"><span class="pre">x</span></code> and <code class="docutils literal notranslate"><span class="pre">y</span></code> into summary variables, each of which are vectors of length <code class="docutils literal notranslate"><span class="pre">N</span></code> within each simulated dataset.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">inference_conditions</span></code>, the second dimension is just <code class="docutils literal notranslate"><span class="pre">1</span></code> because we have passed only the scalar variable <code class="docutils literal notranslate"><span class="pre">N</span></code> there.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">inference_variables</span></code>, the second dimension is <code class="docutils literal notranslate"><span class="pre">3</span></code> because it consists of
 <code class="docutils literal notranslate"><span class="pre">beta</span></code> (a vector of length <code class="docutils literal notranslate"><span class="pre">2</span></code>) and <code class="docutils literal notranslate"><span class="pre">sigma</span></code> (a scalar).</p>
@@ -674,10 +672,11 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p>Below, we will define the neural networks that we will use to estimate the posterior distribution of our linear regression parameters.</p>
 <section id="summary-network">
 <h3><span class="section-number">1.4.1. </span>Summary Network<a class="headerlink" href="#summary-network" title="Link to this heading">#</a></h3>
-<p>Since our likelihood generates data exchangeably, we need to respect the permutation invariance of the data. Exchangeability in data means that the probability distribution of a sequence of observations remains the same regardless of the order in which the observations appear. In other words, the data is permutation invariant. For that, we will use a <code class="docutils literal notranslate"><span class="pre">DeepSet</span></code> which does exactly that. This network will take (at least) 3D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">n_obs,</span> <span class="pre">D)</span></code> and reduce them to 2D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">summary_dim)</span></code>, where <code class="docutils literal notranslate"><span class="pre">summary_dim</span></code> is a hyperparameter to be set by the user (you). Heuristically, this number should not be lower than the number of parameters in a model. Below, we create a permutation-invariant network with <code class="docutils literal notranslate"><span class="pre">summary_dim</span> <span class="pre">=</span> <span class="pre">10</span></code>:</p>
+<p>Since our likelihood generates data exchangeably, we need to respect the permutation invariance of the data. Exchangeability in data means that the probability distribution of a sequence of observations remains the same regardless of the order in which the observations appear. In other words, the data is permutation invariant. For that, we will use a <code class="docutils literal notranslate"><span class="pre">SetTransformer</span></code> which does exactly that (a <code class="docutils literal notranslate"><span class="pre">DeepSet</span></code> is a cheaper version for simpler problems).</p>
+<p>This network will take (at least) 3D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">num_obs,</span> <span class="pre">D)</span></code> and reduce them to 2D tensors of shape <code class="docutils literal notranslate"><span class="pre">(batch_size,</span> <span class="pre">summary_dim)</span></code>, where <code class="docutils literal notranslate"><span class="pre">summary_dim</span></code> is a hyperparameter to be set by the user (you). Heuristically, this number should not be lower than the number of parameters in a model. Below, we create a permutation-invariant network with <code class="docutils literal notranslate"><span class="pre">summary_dim</span> <span class="pre">=</span> <span class="pre">10</span></code>:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">summary_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">DeepSet</span><span class="p">(</span><span class="n">summary_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">summary_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">SetTransformer</span><span class="p">(</span><span class="n">summary_dim</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -685,7 +684,7 @@ reliably without, for example, exploding or vanishing gradients during training.
 </section>
 <section id="inference-network">
 <h3><span class="section-number">1.4.2. </span>Inference Network<a class="headerlink" href="#inference-network" title="Link to this heading">#</a></h3>
-<p>To actually approximate the posterior distribution, we need to define a generative neural network. Here we choose a simple coupling flow network:</p>
+<p>To actually approximate the posterior distribution, we need to define a generative neural network. Here we choose a simple coupling flow network. For more complicated models and corresponding posteriors, we may need to choose a different, more flexible generative network, for example <code class="docutils literal notranslate"><span class="pre">bf.networks.FlowMatching()</span></code>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inference_network</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">()</span>
@@ -693,28 +692,18 @@ reliably without, for example, exploding or vanishing gradients during training.
 </div>
 </div>
 </div>
-<p>For more complicated models and corresponding posteriors, we may need to choose a different, more flexible generative network, for example <code class="docutils literal notranslate"><span class="pre">bf.networks.FlowMatching()</span></code>.</p>
-<p>We can now define our posterior <code class="docutils literal notranslate"><span class="pre">approximator</span></code> consisting of the two networks and our adapter from above.</p>
+</section>
+<section id="workflow">
+<h3><span class="section-number">1.4.3. </span>Workflow<a class="headerlink" href="#workflow" title="Link to this heading">#</a></h3>
+<p>Workflow objects make life easier by combining inference networks and summary networks into approximators (internally).</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">approximator</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">ContinuousApproximator</span><span class="p">(</span>
-   <span class="n">inference_network</span><span class="o">=</span><span class="n">inference_network</span><span class="p">,</span>
-   <span class="n">summary_network</span><span class="o">=</span><span class="n">summary_network</span><span class="p">,</span>
-   <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
+    <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
+    <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
+    <span class="n">inference_network</span><span class="o">=</span><span class="n">inference_network</span><span class="p">,</span>
+    <span class="n">summary_network</span><span class="o">=</span><span class="n">summary_network</span><span class="p">,</span>
 <span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<p>We define some training hyperparameters such as the learning rate and optimization algorithm to apply before compile the approximator with these choices. This is made easier with <code class="docutils literal notranslate"><span class="pre">Workflow</span></code> objects, as demonstrated in other tutorials.</p>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">epochs</span> <span class="o">=</span> <span class="mi">30</span>
-<span class="n">num_batches</span> <span class="o">=</span> <span class="mi">128</span>
-<span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
-<span class="n">learning_rate</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">schedules</span><span class="o">.</span><span class="n">CosineDecay</span><span class="p">(</span><span class="mf">5e-4</span><span class="p">,</span> <span class="n">decay_steps</span><span class="o">=</span><span class="n">epochs</span><span class="o">*</span><span class="n">num_batches</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">)</span>
-<span class="n">optimizer</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">optimizers</span><span class="o">.</span><span class="n">Adam</span><span class="p">(</span><span class="n">learning_rate</span><span class="o">=</span><span class="n">learning_rate</span><span class="p">,</span> <span class="n">clipnorm</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
-<span class="n">approximator</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">optimizer</span><span class="o">=</span><span class="n">optimizer</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -723,93 +712,19 @@ reliably without, for example, exploding or vanishing gradients during training.
 <p><strong>Note</strong>: when using JAX and the shape of your data differs in every batch (e.g., when observations vary), you will observe some compilation overhead during the first few steps. The total training time for this example is around 2 minutes on a standard laptop.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">approximator</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span>
-    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
-    <span class="n">num_batches</span><span class="o">=</span><span class="n">num_batches</span><span class="p">,</span>
-    <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
-    <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Building dataset from simulator instance of SequentialSimulator.
-INFO:bayesflow:Using 20 data loading workers.
-INFO:bayesflow:Building on a test batch.
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">42s</span> 298ms/step - loss: 2.7195 - loss/inference_loss: 2.7195
-Epoch 2/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: 1.5215 - loss/inference_loss: 1.5215
-Epoch 3/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: 1.1648 - loss/inference_loss: 1.1648
-Epoch 4/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: 0.8991 - loss/inference_loss: 0.8991
-Epoch 5/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.7519 - loss/inference_loss: 0.7519
-Epoch 6/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.5804 - loss/inference_loss: 0.5804
-Epoch 7/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.5204 - loss/inference_loss: 0.5204
-Epoch 8/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.4657 - loss/inference_loss: 0.4657
-Epoch 9/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: 0.3375 - loss/inference_loss: 0.3375
-Epoch 10/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.2869 - loss/inference_loss: 0.2869
-Epoch 11/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.2040 - loss/inference_loss: 0.2040
-Epoch 12/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: 0.2421 - loss/inference_loss: 0.2421
-Epoch 13/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: 0.1711 - loss/inference_loss: 0.1711
-Epoch 14/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.0909 - loss/inference_loss: 0.0909
-Epoch 15/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: 0.0994 - loss/inference_loss: 0.0994
-Epoch 16/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.0054 - loss/inference_loss: 0.0054
-Epoch 17/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.0202 - loss/inference_loss: 0.0202
-Epoch 18/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: 0.0617 - loss/inference_loss: 0.0617
-Epoch 19/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: -0.1003 - loss/inference_loss: -0.1003
-Epoch 20/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: -0.0775 - loss/inference_loss: -0.0775
-Epoch 21/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.0360 - loss/inference_loss: -0.0360
-Epoch 22/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.0990 - loss/inference_loss: -0.0990
-Epoch 23/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 21ms/step - loss: -0.1538 - loss/inference_loss: -0.1538
-Epoch 24/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 20ms/step - loss: -0.1302 - loss/inference_loss: -0.1302
-Epoch 25/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.2126 - loss/inference_loss: -0.2126
-Epoch 26/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.2000 - loss/inference_loss: -0.2000
-Epoch 27/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.1525 - loss/inference_loss: -0.1525
-Epoch 28/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.2035 - loss/inference_loss: -0.2035
-Epoch 29/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.1277 - loss/inference_loss: -0.1277
-Epoch 30/30
-<span class=" -Color -Color-Bold">128/128</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 19ms/step - loss: -0.1609 - loss/inference_loss: -0.1609
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">fit_online</span><span class="p">(</span><span class="n">epochs</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="mi">64</span><span class="p">,</span> <span class="n">num_batches_per_epoch</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">loss</span><span class="p">(</span><span class="n">history</span><span class="p">,</span> <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/d0df77689142b9394dd05e80286eb600bf7659cb885c5df41efd43a7686f64bf.png" src="../_images/d0df77689142b9394dd05e80286eb600bf7659cb885c5df41efd43a7686f64bf.png" />
+<img alt="../_images/8dd45e9f5b08736cd3061324ac94a1a76ae4d8223fdf17bb6e86af50081d6f77.png" src="../_images/8dd45e9f5b08736cd3061324ac94a1a76ae4d8223fdf17bb6e86af50081d6f77.png" />
 </div>
 </div>
 </section>
@@ -817,6 +732,11 @@ Epoch 30/30
 <section id="diagnostics">
 <h2><span class="section-number">1.5. </span>Diagnostics<a class="headerlink" href="#diagnostics" title="Link to this heading">#</a></h2>
 <p>Let’s check out the resulting inference. Say we want to obtain 1000 posterior samples from our approximated posterior of a simulated dataset where we know the ground truth values.</p>
+<p>You can also explore the automated diagnostics available through the methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">compute_default_diagnostics()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">plot_default_diagnostics()</span></code></p></li>
+</ul>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set the number of posterior draws you want to get</span>
@@ -826,7 +746,7 @@ Epoch 30/30
 <span class="n">val_sims</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span>
 
 <span class="c1"># Obtain num_samples samples of the parameter posterior for every validation dataset</span>
-<span class="n">post_draws</span> <span class="o">=</span> <span class="n">approximator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
+<span class="n">post_draws</span> <span class="o">=</span> <span class="n">workflow</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">val_sims</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)</span>
 
 <span class="c1"># post_draws is a dictionary of draws with one element per named parameters</span>
 <span class="n">post_draws</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span> 
@@ -847,7 +767,7 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>8.839590354457375e-07
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2.8543972559122407e-09
 </pre></div>
 </div>
 </div>
@@ -866,15 +786,11 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\radevs\AppData\Local\anaconda3\envs\bf\Lib\site-packages\seaborn\axisgrid.py:118: UserWarning: The figure layout has changed to tight
-  self._figure.tight_layout(*args, **kwargs)
-</pre></div>
-</div>
-<img alt="../_images/e0b10238b62182085401c86847d5a02d0692c312d9af1e724c6c63642ce77bd2.png" src="../_images/e0b10238b62182085401c86847d5a02d0692c312d9af1e724c6c63642ce77bd2.png" />
+<img alt="../_images/b00e6edad674a8cde53162069bd217c2300641925d1cc99a86bd4e83746b8ac8.png" src="../_images/b00e6edad674a8cde53162069bd217c2300641925d1cc99a86bd4e83746b8ac8.png" />
 </div>
 </div>
 <p>The true parameter values of the first dataset are indeed well covered by the posterior. Let’s check this more systematically for all validation datasets:</p>
-<p><strong>Note</strong>: We are validating recovery for a given <span class="math notranslate nohighlight">\(N\)</span> that happened to be drawn in the validation phase. Naturally, results will vary for different <span class="math notranslate nohighlight">\(N\)</span>, but you can simply leverage the power of amortization to check recovery over the entire range of plausble observation numbers.</p>
+<p><strong>Note</strong>: We are validating recovery for a given <span class="math notranslate nohighlight">\(N\)</span> that happened to be drawn in the validation phase. Naturally, results will vary for different <span class="math notranslate nohighlight">\(N\)</span>, but you can simply leverage the power of amortization to check recovery over the entire range of plausble observation numbers. For an actual scientific application, you would want to train longer.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">recovery</span><span class="p">(</span>
@@ -886,10 +802,10 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/1e49a0dfc2bceec56026f1a2b063c5f60706aab178185698e9bf0a024ffc6d92.png" src="../_images/1e49a0dfc2bceec56026f1a2b063c5f60706aab178185698e9bf0a024ffc6d92.png" />
+<img alt="../_images/b6834dc39239df1baa140fcbb757a80cb09de136c4f19211c85575b3ef66b9c9.png" src="../_images/b6834dc39239df1baa140fcbb757a80cb09de136c4f19211c85575b3ef66b9c9.png" />
 </div>
 </div>
-<p>Accuracy looks good for most datasets There is some more variation especially for <span class="math notranslate nohighlight">\(\beta_2\)</span> but this is not necessarily a reason for concern. Keep in mind that perfect accuracy is not the goal of bayesflow inference. Rather, the goal is to estimate the correct posterior as close as possible. And this correct posterior might very well be far away from the true value for some datasets. In fact, we would fully expect the true value to sometimes be at the tail of the posterior.</p>
+<p>Accuracy looks good for most datasets There is some more variation especially for <span class="math notranslate nohighlight">\(\beta_1\)</span> and <span class="math notranslate nohighlight">\(\sigma\)</span> but this is not necessarily a reason for concern. Keep in mind that perfect accuracy is not the goal of bayesflow inference. Rather, the goal is to estimate the correct posterior as close as possible. And this correct posterior might very well be far away from the true value for some datasets. In fact, we would fully expect the true value to sometimes be at the tail of the posterior.</p>
 <p>If this was not the case, than our posterior approximation may be too wide. Unfortunately, in many cases we don’t have access to the correct posterior, so we need a method that provides us with an indication of the posterior approximations’ accuracy without. This is where simulation-based calibration (SBC) comes into play. In short, if the true values are simulated from the prior used during inference (as is the case for our validatian data above), We would expect the rank of the true parameter value to be uniformly distributed from 1 to <code class="docutils literal notranslate"><span class="pre">num_samples</span></code>.</p>
 <p>There are multiple graphical methods that use this property for diagnostics. For example, we can use histograms together with an uncertainty band within which we would expect the histogram bars to be if the rank statistics were indeed uniform.</p>
 <div class="cell docutils container">
@@ -906,10 +822,10 @@ Epoch 30/30
 <div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:bayesflow:The ratio of simulations / posterior draws should be &gt; 20 for reliable variance reduction, but your ratio is 0. Confidence intervals might be unreliable!
 </pre></div>
 </div>
-<img alt="../_images/9db50a19fc550379f341560099dd97d4d0329881def5759531ea96ea8d7b7122.png" src="../_images/9db50a19fc550379f341560099dd97d4d0329881def5759531ea96ea8d7b7122.png" />
+<img alt="../_images/adee7b68b49872667beb884cac0e4ac15d2ca418e9ba578476932bd7fbeb9283.png" src="../_images/adee7b68b49872667beb884cac0e4ac15d2ca418e9ba578476932bd7fbeb9283.png" />
 </div>
 </div>
-<p>The histograms look quite good overall, but could be a bit more uniform especially for <span class="math notranslate nohighlight">\(\beta_0\)</span>. That said, the SBC histograms have some drawbacks on how the confidence bands are computed, so we recommend using another kind of plot that is based on the empirical cumulative distribution function (ECDF). For the ECDF, we can compute better confidence bands than for histograms, so the SBC ECDF plot is usually preferable. <a class="reference external" href="https://hyunjimoon.github.io/SBC/articles/rank_visualizations.html">This SBC interpretation guide by Martin Modrák</a> gives further background information and also practical examples of how to interpret the SBC plots.</p>
+<p>The histograms look quite good overall, but could be a bit more uniform. That said, the SBC histograms have some drawbacks on how the confidence bands are computed, so we recommend using another kind of plot that is based on the empirical cumulative distribution function (ECDF). For the ECDF, we can compute better confidence bands than for histograms, so the SBC ECDF plot is usually preferable. <a class="reference external" href="https://hyunjimoon.github.io/SBC/articles/rank_visualizations.html">This SBC interpretation guide by Martin Modrák</a> gives further background information and also practical examples of how to interpret the SBC plots.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">f</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">diagnostics</span><span class="o">.</span><span class="n">plots</span><span class="o">.</span><span class="n">calibration_ecdf</span><span class="p">(</span>
@@ -923,10 +839,10 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/e98fae055b93f57dda4c10521961cf6a2ef65531892d9f29773e1710c26339d4.png" src="../_images/e98fae055b93f57dda4c10521961cf6a2ef65531892d9f29773e1710c26339d4.png" />
+<img alt="../_images/8041da1da39d7fefb08cb352d984ec9e8b128ef40dd0292ab5011d0e5d904184.png" src="../_images/8041da1da39d7fefb08cb352d984ec9e8b128ef40dd0292ab5011d0e5d904184.png" />
 </div>
 </div>
-<p>The plot confirms that the approximate posteriors are well calibrated, except for the small issues in the posteriors of <span class="math notranslate nohighlight">\(\beta_0\)</span> that we had already seen in the histograms. Likely, for fully well calibrated inference, we would have to train the approximator a little longer, but that’s okay. After all, we can effort a little more training time since afterwards, inference on any number of new (real or simulated) datasets is very fast due to amortization.</p>
+<p>The plot confirms that the approximate posteriors are well calibrated, except for the small issues that we had already seen in the histograms. Likely, for fully well calibrated inference, we would have to train the approximator a little longer, but that’s okay. After all, we can effort a little more training time since afterwards, inference on any number of new (real or simulated) datasets is very fast due to amortization.</p>
 <p>After having convinced us that the posterior approximation are overall reasonable, we can check how much and what kind of information in the data we encode in the posterior. Specifically, we might want to look at two interesting scores: (a) The posterior contraction, which measures how much smaller the posterior variance is relative to the prior variance (higher values indicate more contraction relative to the prior). (b) The posterior z-score which indicates the standardized difference between the posterior mean and the true parameter value. Since the posterior z-score requires the true parameter values, it can only be computed in simulated data settings. Here, we show the results for the <span class="math notranslate nohighlight">\(\beta\)</span> coefficients only to illustrate the use of the <code class="docutils literal notranslate"><span class="pre">variable_keys</span></code> argument.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -940,38 +856,56 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/996d628c1f94a08c2f2ce9fd0423e3affb8778a56e463b9ae07c4056420db07c.png" src="../_images/996d628c1f94a08c2f2ce9fd0423e3affb8778a56e463b9ae07c4056420db07c.png" />
+<img alt="../_images/50bd8185b86620bd1efebf318f70b485fef52e52fba1297b69cb83cb34bc5619.png" src="../_images/50bd8185b86620bd1efebf318f70b485fef52e52fba1297b69cb83cb34bc5619.png" />
 </div>
 </div>
 <p>We clearly see strong posterior contraction in almost all posteriors of <span class="math notranslate nohighlight">\(\beta_0\)</span> and in most posteriors of <span class="math notranslate nohighlight">\(\beta_1\)</span>. In the latter case, there are some notable exceptions where little learning from prior to posterior has taken place. Most likely this is because the variance of the sample predictor value <span class="math notranslate nohighlight">\(x\)</span> was small, leading to reduced information about the slope <span class="math notranslate nohighlight">\(\beta_1\)</span>.</p>
 <p>In terms of posterior z-score, most estimates are between -2 and 2, which makes sense if our posterior is approximately normal and well calibrated. However, again, there are some notable exceptions with quite large posterior z-scores over greater than 3 in absolute values. These may be cases, where the learned posterior approximation was not yet fully accurate. So likely, these extreme cases would vanish if we trained our approximator a little longer.</p>
 <section id="saving-and-loading-the-trained-networks">
 <h3><span class="section-number">1.5.1. </span>Saving and Loading the Trained Networks<a class="headerlink" href="#saving-and-loading-the-trained-networks" title="Link to this heading">#</a></h3>
+<p>For saving and later on reloading bayesflow approximators, we provide some convenient functionalities. For saving, we use:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Recommended - full serialization (checkpoints folder must exist)</span>
-<span class="n">approximator</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
+<span class="n">workflow</span><span class="o">.</span><span class="n">approximator</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">filepath</span><span class="o">=</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
 
 <span class="c1"># Not recommended due to adapter mismatches - weights only</span>
 <span class="c1"># approximator.save_weights(filepath=&quot;checkpoints/regression.h5&quot;)</span>
 </pre></div>
 </div>
 </div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>2025-04-21 11:54:04.969579: I tensorflow/core/util/port.cc:153] oneDNN custom operations are on. You may see slightly different numerical results due to floating-point round-off errors from different computation orders. To turn them off, set the environment variable `TF_ENABLE_ONEDNN_OPTS=0`.
+2025-04-21 11:54:04.977366: E external/local_xla/xla/stream_executor/cuda/cuda_fft.cc:467] Unable to register cuFFT factory: Attempting to register factory for plugin cuFFT when one has already been registered
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+E0000 00:00:1745250844.984817 4140753 cuda_dnn.cc:8579] Unable to register cuDNN factory: Attempting to register factory for plugin cuDNN when one has already been registered
+E0000 00:00:1745250844.987174 4140753 cuda_blas.cc:1407] Unable to register cuBLAS factory: Attempting to register factory for plugin cuBLAS when one has already been registered
+W0000 00:00:1745250844.993850 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1745250844.993860 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1745250844.993861 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+W0000 00:00:1745250844.993863 4140753 computation_placer.cc:177] computation placer already registered. Please check linkage and avoid linking the same target more than once.
+2025-04-21 11:54:04.996047: I tensorflow/core/platform/cpu_feature_guard.cc:210] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX_VNNI FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+</pre></div>
 </div>
+</div>
+</div>
+<p>For loading, we then use:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Overwrite approximator object with loaded object</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Load approximator</span>
 <span class="n">approximator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">saving</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="s2">&quot;checkpoints/regression.keras&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\radevs\AppData\Local\anaconda3\envs\bf\Lib\site-packages\keras\src\saving\serialization_lib.py:734: UserWarning: `compile()` was not called as part of model loading because the model&#39;s `compile()` method is custom. All subclassed Models that have `compile()` overridden should also override `get_compile_config()` and `compile_from_config(config)`. Alternatively, you can call `compile()` manually after loading.
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/home/radevs/anaconda3/envs/bf/lib/python3.11/site-packages/keras/src/saving/serialization_lib.py:734: UserWarning: `compile()` was not called as part of model loading because the model&#39;s `compile()` method is custom. All subclassed Models that have `compile()` overridden should also override `get_compile_config()` and `compile_from_config(config)`. Alternatively, you can call `compile()` manually after loading.
   instance.compile_from_config(compile_config)
 </pre></div>
 </div>
 </div>
 </div>
+<p>All the usual methods continue to work on the loaded approximator. For example:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Again, obtain num_samples samples of the parameter posterior for every validation dataset</span>
@@ -986,7 +920,7 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/9c93c2e6662f8ef5340aa4cbcfecfd7a9bfba7a302a008ce6f8229c976806bd7.png" src="../_images/9c93c2e6662f8ef5340aa4cbcfecfd7a9bfba7a302a008ce6f8229c976806bd7.png" />
+<img alt="../_images/fb97ac8a26e156045c1683100e91dab7af086eaa4cb73a8b2fe6354569a36f70.png" src="../_images/fb97ac8a26e156045c1683100e91dab7af086eaa4cb73a8b2fe6354569a36f70.png" />
 </div>
 </div>
 </section>
@@ -1046,6 +980,7 @@ Epoch 30/30
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#neural-approximator">1.4. Neural Approximator</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-network">1.4.1. Summary Network</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#inference-network">1.4.2. Inference Network</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#workflow">1.4.3. Workflow</a></li>
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#diagnostics">1.5. Diagnostics</a><ul class="nav section-nav flex-column">

@@ -402,16 +402,14 @@
                   
   <h1>Source code for bayesflow.networks.coupling_flow.coupling_flow</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">find_permutation</span><span class="p">,</span>
-    <span class="n">keras_kwargs</span><span class="p">,</span>
-    <span class="n">serialize_value_or_type</span><span class="p">,</span>
-    <span class="n">deserialize_value_or_type</span><span class="p">,</span>
+    <span class="n">layer_kwargs</span><span class="p">,</span>
     <span class="n">weighted_mean</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">serializable</span><span class="p">,</span> <span class="n">serialize</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.actnorm</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActNorm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.couplings</span><span class="w"> </span><span class="kn">import</span> <span class="n">DualCoupling</span>
@@ -420,7 +418,7 @@
 
 <div class="viewcode-block" id="CouplingFlow">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.CouplingFlow.html#bayesflow.networks.CouplingFlow">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;networks.coupling_flow&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CouplingFlow</span><span class="p">(</span><span class="n">InferenceNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a coupling flow as a sequence of dual couplings with permutations and activation</span>
 <span class="sd">    normalization. Incorporates ideas from [1-5].</span>
@@ -453,6 +451,8 @@
         <span class="n">permutation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span><span class="p">,</span>
         <span class="n">use_actnorm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">base_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="n">subnet_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">transform_kwargs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -489,58 +489,75 @@
 <span class="sd">        base_distribution : str, optional</span>
 <span class="sd">            The base probability distribution from which samples are drawn, such as</span>
 <span class="sd">            &quot;normal&quot;. Default is &quot;normal&quot;.</span>
+<span class="sd">        subnet_kwargs : dict of str to any, optional</span>
+<span class="sd">            Keyword arguments forwarded to the subnet (e.g., MLP) constructor within</span>
+<span class="sd">            each coupling layer, such as hidden sizes or activation choices.</span>
+<span class="sd">        transform_kwargs : dict of str to any, optional</span>
+<span class="sd">            Keyword arguments forwarded to the affine or spline transforms</span>
+<span class="sd">            (e.g., bins for splines)</span>
 <span class="sd">        **kwargs</span>
-<span class="sd">            Additional keyword arguments passed to the ActNorm, permutation, and</span>
-<span class="sd">            coupling layers for customization.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="o">=</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">keras_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+<span class="sd">            Additional keyword arguments passed to `InvertibleLayer`.</span>
 
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="o">=</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span> <span class="o">=</span> <span class="n">subnet</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform</span> <span class="o">=</span> <span class="n">transform</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span> <span class="o">=</span> <span class="n">permutation</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">use_actnorm</span> <span class="o">=</span> <span class="n">use_actnorm</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">depth</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">use_actnorm</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ActNorm</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;actnorm_kwargs&quot;</span><span class="p">,</span> <span class="p">{})))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ActNorm</span><span class="p">())</span>
 
-            <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">find_permutation</span><span class="p">(</span><span class="n">permutation</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;permutation_kwargs&quot;</span><span class="p">,</span> <span class="p">{})))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">p</span> <span class="o">:=</span> <span class="n">find_permutation</span><span class="p">(</span><span class="n">permutation</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">DualCoupling</span><span class="p">(</span><span class="n">subnet</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coupling_kwargs&quot;</span><span class="p">,</span> <span class="p">{})))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">DualCoupling</span><span class="p">(</span><span class="n">subnet</span><span class="p">,</span> <span class="n">transform</span><span class="p">,</span> <span class="n">subnet_kwargs</span><span class="o">=</span><span class="n">subnet_kwargs</span><span class="p">,</span> <span class="n">transform_kwargs</span><span class="o">=</span><span class="n">transform_kwargs</span><span class="p">)</span>
+            <span class="p">)</span>
 
-        <span class="c1"># serialization: store all parameters necessary to call __init__</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">depth</span><span class="p">,</span>
-            <span class="s2">&quot;transform&quot;</span><span class="p">:</span> <span class="n">transform</span><span class="p">,</span>
-            <span class="s2">&quot;permutation&quot;</span><span class="p">:</span> <span class="n">permutation</span><span class="p">,</span>
-            <span class="s2">&quot;use_actnorm&quot;</span><span class="p">:</span> <span class="n">use_actnorm</span><span class="p">,</span>
-            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="n">base_distribution</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">serialize_value_or_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;subnet&quot;</span><span class="p">,</span> <span class="n">subnet</span><span class="p">)</span>
+        <span class="c1"># We only need to do this from coupling flows, since we do not serialize invertible layers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">subnet_kwargs</span> <span class="o">=</span> <span class="n">subnet_kwargs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transform_kwargs</span> <span class="o">=</span> <span class="n">transform_kwargs</span>
 
     <span class="c1"># noinspection PyMethodOverriding</span>
 <div class="viewcode-block" id="CouplingFlow.build">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.CouplingFlow.html#bayesflow.networks.CouplingFlow.build">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xz_shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
-
         <span class="k">for</span> <span class="n">layer</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">invertible_layers</span><span class="p">:</span>
-            <span class="n">layer</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="o">=</span><span class="n">xz_shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="o">=</span><span class="n">conditions_shape</span><span class="p">)</span></div>
+            <span class="n">layer</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="o">=</span><span class="n">xz_shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="o">=</span><span class="n">conditions_shape</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CouplingFlow.from_config">
+<a class="viewcode-back" href="../../../../api/bayesflow.networks.CouplingFlow.html#bayesflow.networks.CouplingFlow.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">deserialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="CouplingFlow.get_config">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.CouplingFlow.html#bayesflow.networks.CouplingFlow.get_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span></div>
+        <span class="n">base_config</span> <span class="o">=</span> <span class="n">layer_kwargs</span><span class="p">(</span><span class="n">base_config</span><span class="p">)</span>
 
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;subnet&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subnet</span><span class="p">,</span>
+            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span>
+            <span class="s2">&quot;transform&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform</span><span class="p">,</span>
+            <span class="s2">&quot;permutation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">permutation</span><span class="p">,</span>
+            <span class="s2">&quot;use_actnorm&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">use_actnorm</span><span class="p">,</span>
+            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="p">,</span>
+            <span class="s2">&quot;subnet_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">subnet_kwargs</span><span class="p">,</span>
+            <span class="s2">&quot;transform_kwargs&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transform_kwargs</span><span class="p">,</span>
+        <span class="p">}</span>
 
-<div class="viewcode-block" id="CouplingFlow.from_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.networks.CouplingFlow.html#bayesflow.networks.CouplingFlow.from_config">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">deserialize_value_or_type</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;subnet&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="n">serialize</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_forward</span><span class="p">(</span>

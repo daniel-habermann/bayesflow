@@ -431,11 +431,26 @@
 <p><em>Authors: Lars Kühmichel, Marvin Schmitt, Valentin Pratz, Stefan T. Radev</em></p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="c1"># Set to your favorite backend</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KERAS_BACKEND&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;jax&quot;</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">bayesflow</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">bf</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>WARNING:2025-04-21 12:20:32,803:jax._src.xla_bridge:967: An NVIDIA GPU may be present on this machine, but a CUDA-enabled jaxlib is not installed. Falling back to cpu.
 </pre></div>
 </div>
 </div>
@@ -457,7 +472,7 @@ x_2 &amp;= (-\theta_1 + \theta_2)/\sqrt{2} + r\sin{\alpha}
 \theta_1, \theta_2 \sim \text{Uniform}(-1, 1).
 \end{align}
 \]</div>
-<p>This model is typically used for benchmarking simulation-based inference (SBI) methods (see https://arxiv.org/pdf/2101.04653) and any method for amortized Bayesian inference should be capable of recovering the two moons posterior <em>without</em> using a gazillion of simulations. Note, that this is a considerably harder task than modeling the common unconditional two moons data set used often in the context of normalizing flows.</p>
+<p>This model is typically used for benchmarking simulation-based inference (SBI) methods (see https://arxiv.org/pdf/2101.04653) and any method for amortized Bayesian inference should be capable of recovering the two moons posterior <em>without</em> using a gazillion of simulations. Note, that this is a considerably harder task than modeling the common unconditional two moons data set used often in the context of normalizing flows. However, free-form models (e.g., flow matching, diffusion) will tend to outperform normalizing flows on multimodal data sets.</p>
 <p>BayesFlow offers many ways to define your data generating process. Here, we use sequential functions to build a simulator object for online training. Within this composite simulator, each function has access to the outputs of the previous functions. This effectively allows you to define any generative graph.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
@@ -555,7 +570,7 @@ Shapes of sample_data values:
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">num_training_batches</span> <span class="o">=</span> <span class="mi">512</span>
-<span class="n">num_validation_batches</span> <span class="o">=</span> <span class="mi">128</span>
+<span class="n">num_validation_sets</span> <span class="o">=</span> <span class="mi">300</span>
 <span class="n">batch_size</span> <span class="o">=</span> <span class="mi">64</span>
 <span class="n">epochs</span> <span class="o">=</span> <span class="mi">50</span>
 </pre></div>
@@ -564,8 +579,8 @@ Shapes of sample_data values:
 </div>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">training_data</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_training_batches</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">,)</span>
-<span class="n">validation_data</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_validation_batches</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">,)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">training_data</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_training_batches</span> <span class="o">*</span> <span class="n">batch_size</span><span class="p">)</span>
+<span class="n">validation_data</span> <span class="o">=</span> <span class="n">simulator</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">num_validation_sets</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -619,114 +634,6 @@ Shapes of sample_data values:
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
-INFO:bayesflow:Building on a test batch.
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 3ms/step - loss: 1.5975 - loss/inference_loss: 1.5975 - val_loss: 0.3615 - val_loss/inference_loss: 0.3615
-Epoch 2/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3963 - loss/inference_loss: 0.3963 - val_loss: 0.3259 - val_loss/inference_loss: 0.3259
-Epoch 3/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3793 - loss/inference_loss: 0.3793 - val_loss: 0.3774 - val_loss/inference_loss: 0.3774
-Epoch 4/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3734 - loss/inference_loss: 0.3734 - val_loss: 0.2816 - val_loss/inference_loss: 0.2816
-Epoch 5/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3625 - loss/inference_loss: 0.3625 - val_loss: 0.2620 - val_loss/inference_loss: 0.2620
-Epoch 6/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3600 - loss/inference_loss: 0.3600 - val_loss: 0.2465 - val_loss/inference_loss: 0.2465
-Epoch 7/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3646 - loss/inference_loss: 0.3646 - val_loss: 0.3418 - val_loss/inference_loss: 0.3418
-Epoch 8/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3593 - loss/inference_loss: 0.3593 - val_loss: 0.3830 - val_loss/inference_loss: 0.3830
-Epoch 9/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3493 - loss/inference_loss: 0.3493 - val_loss: 0.4498 - val_loss/inference_loss: 0.4498
-Epoch 10/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3492 - loss/inference_loss: 0.3492 - val_loss: 0.3947 - val_loss/inference_loss: 0.3947
-Epoch 11/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3459 - loss/inference_loss: 0.3459 - val_loss: 0.2970 - val_loss/inference_loss: 0.2970
-Epoch 12/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3457 - loss/inference_loss: 0.3457 - val_loss: 0.2243 - val_loss/inference_loss: 0.2243
-Epoch 13/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3451 - loss/inference_loss: 0.3451 - val_loss: 0.4153 - val_loss/inference_loss: 0.4153
-Epoch 14/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3433 - loss/inference_loss: 0.3433 - val_loss: 0.3919 - val_loss/inference_loss: 0.3919
-Epoch 15/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3373 - loss/inference_loss: 0.3373 - val_loss: 0.3400 - val_loss/inference_loss: 0.3400
-Epoch 16/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3440 - loss/inference_loss: 0.3440 - val_loss: 0.1885 - val_loss/inference_loss: 0.1885
-Epoch 17/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3429 - loss/inference_loss: 0.3429 - val_loss: 0.3297 - val_loss/inference_loss: 0.3297
-Epoch 18/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3389 - loss/inference_loss: 0.3389 - val_loss: 0.3932 - val_loss/inference_loss: 0.3932
-Epoch 19/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3330 - loss/inference_loss: 0.3330 - val_loss: 0.2640 - val_loss/inference_loss: 0.2640
-Epoch 20/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3272 - loss/inference_loss: 0.3272 - val_loss: 0.3262 - val_loss/inference_loss: 0.3262
-Epoch 21/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3301 - loss/inference_loss: 0.3301 - val_loss: 0.4301 - val_loss/inference_loss: 0.4301
-Epoch 22/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3329 - loss/inference_loss: 0.3329 - val_loss: 0.4407 - val_loss/inference_loss: 0.4407
-Epoch 23/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3384 - loss/inference_loss: 0.3384 - val_loss: 0.2786 - val_loss/inference_loss: 0.2786
-Epoch 24/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3283 - loss/inference_loss: 0.3283 - val_loss: 0.3840 - val_loss/inference_loss: 0.3840
-Epoch 25/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3235 - loss/inference_loss: 0.3235 - val_loss: 0.3168 - val_loss/inference_loss: 0.3168
-Epoch 26/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3227 - loss/inference_loss: 0.3227 - val_loss: 0.2289 - val_loss/inference_loss: 0.2289
-Epoch 27/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3367 - loss/inference_loss: 0.3367 - val_loss: 0.2283 - val_loss/inference_loss: 0.2283
-Epoch 28/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3331 - loss/inference_loss: 0.3331 - val_loss: 0.3331 - val_loss/inference_loss: 0.3331
-Epoch 29/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3281 - loss/inference_loss: 0.3281 - val_loss: 0.1447 - val_loss/inference_loss: 0.1447
-Epoch 30/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3228 - loss/inference_loss: 0.3228 - val_loss: 0.2868 - val_loss/inference_loss: 0.2868
-Epoch 31/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3226 - loss/inference_loss: 0.3226 - val_loss: 0.2819 - val_loss/inference_loss: 0.2819
-Epoch 32/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3167 - loss/inference_loss: 0.3167 - val_loss: 0.3676 - val_loss/inference_loss: 0.3676
-Epoch 33/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3264 - loss/inference_loss: 0.3264 - val_loss: 0.2303 - val_loss/inference_loss: 0.2303
-Epoch 34/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3141 - loss/inference_loss: 0.3141 - val_loss: 0.2125 - val_loss/inference_loss: 0.2125
-Epoch 35/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3096 - loss/inference_loss: 0.3096 - val_loss: 0.2754 - val_loss/inference_loss: 0.2754
-Epoch 36/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3187 - loss/inference_loss: 0.3187 - val_loss: 0.3006 - val_loss/inference_loss: 0.3006
-Epoch 37/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3157 - loss/inference_loss: 0.3157 - val_loss: 0.3113 - val_loss/inference_loss: 0.3113
-Epoch 38/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3212 - loss/inference_loss: 0.3212 - val_loss: 0.4190 - val_loss/inference_loss: 0.4190
-Epoch 39/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3162 - loss/inference_loss: 0.3162 - val_loss: 0.3351 - val_loss/inference_loss: 0.3351
-Epoch 40/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3159 - loss/inference_loss: 0.3159 - val_loss: 0.3813 - val_loss/inference_loss: 0.3813
-Epoch 41/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3134 - loss/inference_loss: 0.3134 - val_loss: 0.4158 - val_loss/inference_loss: 0.4158
-Epoch 42/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3142 - loss/inference_loss: 0.3142 - val_loss: 0.5772 - val_loss/inference_loss: 0.5772
-Epoch 43/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3136 - loss/inference_loss: 0.3136 - val_loss: 0.3419 - val_loss/inference_loss: 0.3419
-Epoch 44/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">1s</span> 3ms/step - loss: 0.3104 - loss/inference_loss: 0.3104 - val_loss: 0.5761 - val_loss/inference_loss: 0.5761
-Epoch 45/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3166 - loss/inference_loss: 0.3166 - val_loss: 0.2678 - val_loss/inference_loss: 0.2678
-Epoch 46/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3197 - loss/inference_loss: 0.3197 - val_loss: 0.3576 - val_loss/inference_loss: 0.3576
-Epoch 47/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3165 - loss/inference_loss: 0.3165 - val_loss: 0.3637 - val_loss/inference_loss: 0.3637
-Epoch 48/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3145 - loss/inference_loss: 0.3145 - val_loss: 0.3348 - val_loss/inference_loss: 0.3348
-Epoch 49/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: 0.3104 - loss/inference_loss: 0.3104 - val_loss: 0.3068 - val_loss/inference_loss: 0.3068
-Epoch 50/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: 0.3090 - loss/inference_loss: 0.3090 - val_loss: 0.4407 - val_loss/inference_loss: 0.4407
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 </section>
@@ -741,7 +648,7 @@ Epoch 50/50
 <p>When reading the above, you might wonder why we also learn the mapping to <span class="math notranslate nohighlight">\(t=0\)</span> of all intermediate time steps <span class="math notranslate nohighlight">\(t\in[0, T]\)</span>, and not only for <span class="math notranslate nohighlight">\(t=T\)</span>. The main answer is that for efficient training, we do not want to actually compute the two associated points explicitly. Doing so would require to do a precise integration at training time, which is often not feasible as it is too computationally costly. Learning all time steps opens up the possibility for a different training approach where we can avoid this. The details of this become a bit more complicated, and we advise you to take a look at [1] if you are interested in a more thorough and mathematical discussion. Below, we will give a rough description of the underlying concepts.</p>
 <p><strong>Training</strong> First, we know that at <span class="math notranslate nohighlight">\(t=0\)</span>, it holds that <span class="math notranslate nohighlight">\(f(\theta,t=0)=\theta\)</span>, as <span class="math notranslate nohighlight">\(\theta\)</span> is part of the path that ends at <span class="math notranslate nohighlight">\(\theta\)</span>. This <em>boundary condition</em> serves as an “anchor” for our training, this is the information that the network knows at the start of the training procedure (we encode it with a time-dependent skip-connection, so the network is forced to be the identity function at <span class="math notranslate nohighlight">\(t=0\)</span>). For training, we now somehow have to propagate this information to the rest of the part. The basic idea for this is simple. We just take a point <span class="math notranslate nohighlight">\(\theta_1\)</span> closer to the data distribution (smaller time <span class="math notranslate nohighlight">\(t_1\)</span>) and integrate for a small time step <span class="math notranslate nohighlight">\(dt\)</span> to a point <span class="math notranslate nohighlight">\(\theta_2\)</span> on the same path that is closer to the latent distribution (larger time <span class="math notranslate nohighlight">\(t_2=t_1+dt\)</span>). As we know that for <span class="math notranslate nohighlight">\(t=0\)</span> our network provides the correct output for our path, we want to propagate the information from smaller times to larger times. Our training goal is to move the output of <span class="math notranslate nohighlight">\(f(\theta_2, t=t_2)\)</span> towards the output of <span class="math notranslate nohighlight">\(f(\theta_1, t=t_1)\)</span>. How to choose <span class="math notranslate nohighlight">\(\theta_1\)</span>, <span class="math notranslate nohighlight">\(t_1\)</span> and <span class="math notranslate nohighlight">\(dt\)</span> is an empirical question, see the [1] for some thoughts on what works well.</p>
 <p><strong>Distilling inference</strong> In the case of <em>distillation</em>, we start with a trained score-based diffusion model. We can use it to integrate the Probability Flow ODE to get from <span class="math notranslate nohighlight">\(\theta_1\)</span> to <span class="math notranslate nohighlight">\(\theta_2\)</span>. If we do not have such a model, it seems as if we were stuck. We do not know which points lie on the same path, so we do not know which outputs to make similar. Fortunately, it turns out that there is an <em>unbiased approximator</em> that, if averaged over many samples (check out the paper for the exact description), will also give us the correct score. If we use this approximator instead of the score model, and use only a single Euler step to move along the path, we get an algorithm similar to the one described for distillation. It is called Consistency Training (CT) and allows us to train a consistency model using only <em>samples</em> from the data distribution. The algorithm for this was improved a lot in [3], and we have incorporated those improvements into our implementation.</p>
-<p><strong>Improving consistency training</strong> We have made several approximations to get to a standalone <em>consistency training</em> algorithm. As a consequence, the introduced hyperparameters and their choice unfortunately becomes somewhat unintuitive. We have to rely on empirical observations and heuristics to see what works. This was done in [4], we encourage you to use the values provided there as starting points. If you happen to find hyperparameters that work significantly better, please let us know (e.g., by opening an issue or sending an email). This will help others to find the correct region in the hyperparameter space.</p>
+<p><strong>Improving consistency training</strong> We have made several improvements to get to a standalone <em>consistency training</em> algorithm. As a consequence, the introduced hyperparameters and their choice unfortunately becomes somewhat unintuitive. We have to rely on empirical observations and heuristics to see what works. This was done in [4], we encourage you to use the values provided there as starting points. If you happen to find hyperparameters that work significantly better, please let us know (e.g., by opening an issue or sending an email). This will help others to find the correct region in the hyperparameter space.</p>
 <p>[1] Song, Y., Dhariwal, P., Chen, M., &amp; Sutskever, I. (2023). Consistency Models. <em>arXiv preprint</em>. <a class="reference external" href="https://doi.org/10.48550/arXiv.2303.01469">https://doi.org/10.48550/arXiv.2303.01469</a></p>
 <p>[2] Song, Y., Sohl-Dickstein, J., Kingma, D. P., Kumar, A., Ermon, S., &amp; Poole, B. (2021). Score-Based Generative Modeling through Stochastic Differential Equations. In <em>International Conference on Learning Representations</em>. <a class="reference external" href="https://openreview.net/forum?id=PxTIG12RRHS">https://openreview.net/forum?id=PxTIG12RRHS</a></p>
 <p>[3] Song, Y., &amp; Dhariwal, P. (2023). Improved Techniques for Training Consistency Models. <em>arXiv preprint</em>. <a class="reference external" href="https://doi.org/10.48550/arXiv.2310.14189">https://doi.org/10.48550/arXiv.2310.14189</a></p>
@@ -760,11 +667,9 @@ Epoch 50/50
 <p>A short note on dropout: in our experiments, dropout usually lead to worse performance, so generally we recommend setting the droput rate to <span class="math notranslate nohighlight">\(0.0\)</span>. Consistency training takes advantage of a noisy estimator of the score, so probably the training is already sufficiently noisy and extra dropout for regularization is not necessary.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compute the empirical variance of the draws from the prior θ ~ p(θ)</span>
-<span class="n">consistency_model</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">ConsistencyModel</span><span class="p">(</span>
-    <span class="n">subnet</span><span class="o">=</span><span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
-    <span class="n">subnet_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;widths&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">256</span><span class="p">,)</span><span class="o">*</span><span class="mi">6</span><span class="p">},</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">consistency_model</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">ConsistencyModel</span><span class="p">(</span>
     <span class="n">total_steps</span><span class="o">=</span><span class="n">num_training_batches</span><span class="o">*</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">subnet_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;dropout&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;widths&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">256</span><span class="p">,)</span><span class="o">*</span><span class="mi">6</span><span class="p">},</span>
     <span class="n">max_time</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="c1"># this probably needs to be tuned for a novel application</span>
     <span class="n">sigma2</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>  <span class="c1"># the data adapter standardizes our parameters, so set to 1.0</span>
 <span class="p">)</span>
@@ -793,114 +698,6 @@ Epoch 50/50
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
-INFO:bayesflow:Building on a test batch.
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 4ms/step - loss: 0.3549 - loss/inference_loss: 0.3549 - val_loss: 0.2793 - val_loss/inference_loss: 0.2793
-Epoch 2/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.3020 - loss/inference_loss: 0.3020 - val_loss: 0.3505 - val_loss/inference_loss: 0.3505
-Epoch 3/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2831 - loss/inference_loss: 0.2831 - val_loss: 0.2429 - val_loss/inference_loss: 0.2429
-Epoch 4/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2813 - loss/inference_loss: 0.2813 - val_loss: 0.3600 - val_loss/inference_loss: 0.3600
-Epoch 5/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2732 - loss/inference_loss: 0.2732 - val_loss: 0.2537 - val_loss/inference_loss: 0.2537
-Epoch 6/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2722 - loss/inference_loss: 0.2722 - val_loss: 0.2904 - val_loss/inference_loss: 0.2904
-Epoch 7/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2618 - loss/inference_loss: 0.2618 - val_loss: 0.1984 - val_loss/inference_loss: 0.1984
-Epoch 8/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2663 - loss/inference_loss: 0.2663 - val_loss: 0.1680 - val_loss/inference_loss: 0.1680
-Epoch 9/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2599 - loss/inference_loss: 0.2599 - val_loss: 0.2595 - val_loss/inference_loss: 0.2595
-Epoch 10/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2567 - loss/inference_loss: 0.2567 - val_loss: 0.2612 - val_loss/inference_loss: 0.2612
-Epoch 11/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2530 - loss/inference_loss: 0.2530 - val_loss: 0.2694 - val_loss/inference_loss: 0.2694
-Epoch 12/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2596 - loss/inference_loss: 0.2596 - val_loss: 0.3073 - val_loss/inference_loss: 0.3073
-Epoch 13/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2566 - loss/inference_loss: 0.2566 - val_loss: 0.1798 - val_loss/inference_loss: 0.1798
-Epoch 14/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2589 - loss/inference_loss: 0.2589 - val_loss: 0.2743 - val_loss/inference_loss: 0.2743
-Epoch 15/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2493 - loss/inference_loss: 0.2493 - val_loss: 0.2189 - val_loss/inference_loss: 0.2189
-Epoch 16/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2649 - loss/inference_loss: 0.2649 - val_loss: 0.2154 - val_loss/inference_loss: 0.2154
-Epoch 17/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2609 - loss/inference_loss: 0.2609 - val_loss: 0.2758 - val_loss/inference_loss: 0.2758
-Epoch 18/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2526 - loss/inference_loss: 0.2526 - val_loss: 0.1542 - val_loss/inference_loss: 0.1542
-Epoch 19/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2510 - loss/inference_loss: 0.2510 - val_loss: 0.1860 - val_loss/inference_loss: 0.1860
-Epoch 20/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2559 - loss/inference_loss: 0.2559 - val_loss: 0.2213 - val_loss/inference_loss: 0.2213
-Epoch 21/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2524 - loss/inference_loss: 0.2524 - val_loss: 0.2497 - val_loss/inference_loss: 0.2497
-Epoch 22/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2477 - loss/inference_loss: 0.2477 - val_loss: 0.2030 - val_loss/inference_loss: 0.2030
-Epoch 23/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2447 - loss/inference_loss: 0.2447 - val_loss: 0.2862 - val_loss/inference_loss: 0.2862
-Epoch 24/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2451 - loss/inference_loss: 0.2451 - val_loss: 0.3859 - val_loss/inference_loss: 0.3859
-Epoch 25/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2429 - loss/inference_loss: 0.2429 - val_loss: 0.2310 - val_loss/inference_loss: 0.2310
-Epoch 26/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2437 - loss/inference_loss: 0.2437 - val_loss: 0.2236 - val_loss/inference_loss: 0.2236
-Epoch 27/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2432 - loss/inference_loss: 0.2432 - val_loss: 0.3466 - val_loss/inference_loss: 0.3466
-Epoch 28/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2353 - loss/inference_loss: 0.2353 - val_loss: 0.2234 - val_loss/inference_loss: 0.2234
-Epoch 29/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2351 - loss/inference_loss: 0.2351 - val_loss: 0.1637 - val_loss/inference_loss: 0.1637
-Epoch 30/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2364 - loss/inference_loss: 0.2364 - val_loss: 0.2324 - val_loss/inference_loss: 0.2324
-Epoch 31/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2310 - loss/inference_loss: 0.2310 - val_loss: 0.1853 - val_loss/inference_loss: 0.1853
-Epoch 32/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2287 - loss/inference_loss: 0.2287 - val_loss: 0.1234 - val_loss/inference_loss: 0.1234
-Epoch 33/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2159 - loss/inference_loss: 0.2159 - val_loss: 0.1985 - val_loss/inference_loss: 0.1985
-Epoch 34/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2228 - loss/inference_loss: 0.2228 - val_loss: 0.4063 - val_loss/inference_loss: 0.4063
-Epoch 35/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2155 - loss/inference_loss: 0.2155 - val_loss: 0.2233 - val_loss/inference_loss: 0.2233
-Epoch 36/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2257 - loss/inference_loss: 0.2257 - val_loss: 0.1208 - val_loss/inference_loss: 0.1208
-Epoch 37/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2231 - loss/inference_loss: 0.2231 - val_loss: 0.0776 - val_loss/inference_loss: 0.0776
-Epoch 38/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2193 - loss/inference_loss: 0.2193 - val_loss: 0.2310 - val_loss/inference_loss: 0.2310
-Epoch 39/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2204 - loss/inference_loss: 0.2204 - val_loss: 0.1733 - val_loss/inference_loss: 0.1733
-Epoch 40/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2219 - loss/inference_loss: 0.2219 - val_loss: 0.1291 - val_loss/inference_loss: 0.1291
-Epoch 41/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2127 - loss/inference_loss: 0.2127 - val_loss: 0.1073 - val_loss/inference_loss: 0.1073
-Epoch 42/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2257 - loss/inference_loss: 0.2257 - val_loss: 0.2174 - val_loss/inference_loss: 0.2174
-Epoch 43/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2178 - loss/inference_loss: 0.2178 - val_loss: 0.2001 - val_loss/inference_loss: 0.2001
-Epoch 44/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2150 - loss/inference_loss: 0.2150 - val_loss: 0.2282 - val_loss/inference_loss: 0.2282
-Epoch 45/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2130 - loss/inference_loss: 0.2130 - val_loss: 0.1956 - val_loss/inference_loss: 0.1956
-Epoch 46/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2046 - loss/inference_loss: 0.2046 - val_loss: 0.1937 - val_loss/inference_loss: 0.1937
-Epoch 47/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2082 - loss/inference_loss: 0.2082 - val_loss: 0.2303 - val_loss/inference_loss: 0.2303
-Epoch 48/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2067 - loss/inference_loss: 0.2067 - val_loss: 0.1300 - val_loss/inference_loss: 0.1300
-Epoch 49/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: 0.2201 - loss/inference_loss: 0.2201 - val_loss: 0.1432 - val_loss/inference_loss: 0.1432
-Epoch 50/50
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 3ms/step - loss: 0.2097 - loss/inference_loss: 0.2097 - val_loss: 0.1791 - val_loss/inference_loss: 0.1791
-</pre></div>
-</div>
-</div>
 </div>
 </section>
 </section>
@@ -909,28 +706,22 @@ Epoch 50/50
 <p>Of course, BayesFlow also supports established coupling flow models with a variety of parameters, including the timeless <em>affine</em> and <em>spline</em> flows.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">affine_flow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">(</span><span class="n">subnet</span><span class="o">=</span><span class="s2">&quot;mlp&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use a deeper affine coupling flow (default depth is 6)</span>
+<span class="n">affine_flow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">(</span><span class="n">subnet</span><span class="o">=</span><span class="s2">&quot;mlp&quot;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">subnet_kwargs</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;widths&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">64</span><span class="p">,</span> <span class="mi">64</span><span class="p">)})</span>
 
-<span class="n">spline_flow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">(</span><span class="n">subnet</span><span class="o">=</span><span class="s2">&quot;mlp&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="s2">&quot;spline&quot;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">epochs</span> <span class="o">=</span> <span class="mi">30</span> <span class="c1"># coupling flows need less epochs than free-form methods</span>
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">affine_flow_workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
+<span class="n">affine_flow_workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
     <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
     <span class="n">adapter</span><span class="o">=</span><span class="n">adapter</span><span class="p">,</span>
     <span class="n">inference_network</span><span class="o">=</span><span class="n">affine_flow</span><span class="p">,</span>
 <span class="p">)</span>
-
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Use a shallower spline coupling flow (default depth is 6)</span>
+<span class="n">spline_flow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">CouplingFlow</span><span class="p">(</span><span class="n">subnet</span><span class="o">=</span><span class="s2">&quot;mlp&quot;</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="s2">&quot;spline&quot;</span><span class="p">,</span> <span class="n">depth</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 <span class="n">spline_flow_workflow</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">BasicWorkflow</span><span class="p">(</span>
     <span class="n">simulator</span><span class="o">=</span><span class="n">simulator</span><span class="p">,</span>
@@ -943,162 +734,28 @@ Epoch 50/50
 </div>
 <section id="coupling-flow-training">
 <h3><span class="section-number">3.6.1. </span>Coupling Flow Training<a class="headerlink" href="#coupling-flow-training" title="Link to this heading">#</a></h3>
+<p>First, we train the classic coupling flow:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">affine_flow_workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span>
-    <span class="n">training_data</span><span class="p">,</span> 
-    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">training_data</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
     <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_data</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
-INFO:bayesflow:Building on a test batch.
-</pre></div>
 </div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">11s</span> 6ms/step - loss: -1.2724 - loss/inference_loss: -1.2724 - val_loss: -2.2869 - val_loss/inference_loss: -2.2869
-Epoch 2/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -2.4998 - loss/inference_loss: -2.4998 - val_loss: -2.1505 - val_loss/inference_loss: -2.1505
-Epoch 3/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -2.6645 - loss/inference_loss: -2.6645 - val_loss: -2.6893 - val_loss/inference_loss: -2.6893
-Epoch 4/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: -2.7494 - loss/inference_loss: -2.7494 - val_loss: -2.4783 - val_loss/inference_loss: -2.4783
-Epoch 5/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -2.7852 - loss/inference_loss: -2.7852 - val_loss: -2.7409 - val_loss/inference_loss: -2.7409
-Epoch 6/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: -2.8575 - loss/inference_loss: -2.8575 - val_loss: -2.6789 - val_loss/inference_loss: -2.6789
-Epoch 7/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: -2.9127 - loss/inference_loss: -2.9127 - val_loss: -3.0435 - val_loss/inference_loss: -3.0435
-Epoch 8/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -2.9346 - loss/inference_loss: -2.9346 - val_loss: -2.9628 - val_loss/inference_loss: -2.9628
-Epoch 9/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -2.9371 - loss/inference_loss: -2.9371 - val_loss: -2.3899 - val_loss/inference_loss: -2.3899
-Epoch 10/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 4ms/step - loss: -2.9999 - loss/inference_loss: -2.9999 - val_loss: -2.9758 - val_loss/inference_loss: -2.9758
-Epoch 11/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.0083 - loss/inference_loss: -3.0083 - val_loss: -2.5975 - val_loss/inference_loss: -2.5975
-Epoch 12/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.0434 - loss/inference_loss: -3.0434 - val_loss: -3.0387 - val_loss/inference_loss: -3.0387
-Epoch 13/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.0920 - loss/inference_loss: -3.0920 - val_loss: -2.3253 - val_loss/inference_loss: -2.3253
-Epoch 14/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.1255 - loss/inference_loss: -3.1255 - val_loss: -3.1556 - val_loss/inference_loss: -3.1556
-Epoch 15/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.1654 - loss/inference_loss: -3.1654 - val_loss: -2.8726 - val_loss/inference_loss: -2.8726
-Epoch 16/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.1779 - loss/inference_loss: -3.1779 - val_loss: -3.1917 - val_loss/inference_loss: -3.1917
-Epoch 17/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.2124 - loss/inference_loss: -3.2124 - val_loss: -2.1857 - val_loss/inference_loss: -2.1857
-Epoch 18/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.2409 - loss/inference_loss: -3.2409 - val_loss: -2.9640 - val_loss/inference_loss: -2.9640
-Epoch 19/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.2689 - loss/inference_loss: -3.2689 - val_loss: -2.7462 - val_loss/inference_loss: -2.7462
-Epoch 20/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.2759 - loss/inference_loss: -3.2759 - val_loss: -2.9262 - val_loss/inference_loss: -2.9262
-Epoch 21/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.3185 - loss/inference_loss: -3.3185 - val_loss: -2.1308 - val_loss/inference_loss: -2.1308
-Epoch 22/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.3447 - loss/inference_loss: -3.3447 - val_loss: -2.6838 - val_loss/inference_loss: -2.6838
-Epoch 23/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.3607 - loss/inference_loss: -3.3607 - val_loss: -3.4517 - val_loss/inference_loss: -3.4517
-Epoch 24/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.3540 - loss/inference_loss: -3.3540 - val_loss: -3.0357 - val_loss/inference_loss: -3.0357
-Epoch 25/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.3831 - loss/inference_loss: -3.3831 - val_loss: -3.3768 - val_loss/inference_loss: -3.3768
-Epoch 26/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.4183 - loss/inference_loss: -3.4183 - val_loss: -3.1671 - val_loss/inference_loss: -3.1671
-Epoch 27/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.4194 - loss/inference_loss: -3.4194 - val_loss: 9.2951 - val_loss/inference_loss: 9.2951
-Epoch 28/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.3851 - loss/inference_loss: -3.3851 - val_loss: -2.9896 - val_loss/inference_loss: -2.9896
-Epoch 29/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">2s</span> 5ms/step - loss: -3.4251 - loss/inference_loss: -3.4251 - val_loss: -3.3175 - val_loss/inference_loss: -3.3175
-Epoch 30/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">3s</span> 5ms/step - loss: -3.4083 - loss/inference_loss: -3.4083 - val_loss: -3.2599 - val_loss/inference_loss: -3.2599
-</pre></div>
-</div>
-</div>
-</div>
+<p>Next, we train a spline flow for fewer epochs. Spline flows will generally outperform affine flows on multi-modal, low-dimensional problems.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">history</span> <span class="o">=</span> <span class="n">spline_flow_workflow</span><span class="o">.</span><span class="n">fit_offline</span><span class="p">(</span>
     <span class="n">training_data</span><span class="p">,</span>
-    <span class="n">epochs</span><span class="o">=</span><span class="n">epochs</span><span class="p">,</span>
+    <span class="n">epochs</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
     <span class="n">batch_size</span><span class="o">=</span><span class="n">batch_size</span><span class="p">,</span>
     <span class="n">validation_data</span><span class="o">=</span><span class="n">validation_data</span>
 <span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>INFO:bayesflow:Fitting on dataset instance of OfflineDataset.
-INFO:bayesflow:Building on a test batch.
-</pre></div>
-</div>
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Epoch 1/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">21s</span> 11ms/step - loss: -1.0211 - loss/inference_loss: -1.0211 - val_loss: -1.5653 - val_loss/inference_loss: -1.5653
-Epoch 2/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.2318 - loss/inference_loss: -2.2318 - val_loss: -2.4503 - val_loss/inference_loss: -2.4503
-Epoch 3/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.5659 - loss/inference_loss: -2.5659 - val_loss: -2.6406 - val_loss/inference_loss: -2.6406
-Epoch 4/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.7533 - loss/inference_loss: -2.7533 - val_loss: -2.6080 - val_loss/inference_loss: -2.6080
-Epoch 5/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.8607 - loss/inference_loss: -2.8607 - val_loss: -2.8657 - val_loss/inference_loss: -2.8657
-Epoch 6/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.9422 - loss/inference_loss: -2.9422 - val_loss: -2.3686 - val_loss/inference_loss: -2.3686
-Epoch 7/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -2.9989 - loss/inference_loss: -2.9989 - val_loss: -2.9271 - val_loss/inference_loss: -2.9271
-Epoch 8/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.0638 - loss/inference_loss: -3.0638 - val_loss: -3.0360 - val_loss/inference_loss: -3.0360
-Epoch 9/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.0553 - loss/inference_loss: -3.0553 - val_loss: -3.2254 - val_loss/inference_loss: -3.2254
-Epoch 10/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.1095 - loss/inference_loss: -3.1095 - val_loss: -3.0538 - val_loss/inference_loss: -3.0538
-Epoch 11/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.2038 - loss/inference_loss: -3.2038 - val_loss: -3.1451 - val_loss/inference_loss: -3.1451
-Epoch 12/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.2396 - loss/inference_loss: -3.2396 - val_loss: -3.2923 - val_loss/inference_loss: -3.2923
-Epoch 13/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.2695 - loss/inference_loss: -3.2695 - val_loss: -2.7734 - val_loss/inference_loss: -2.7734
-Epoch 14/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.2778 - loss/inference_loss: -3.2778 - val_loss: -3.3034 - val_loss/inference_loss: -3.3034
-Epoch 15/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.3281 - loss/inference_loss: -3.3281 - val_loss: -2.5565 - val_loss/inference_loss: -2.5565
-Epoch 16/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.3416 - loss/inference_loss: -3.3416 - val_loss: -3.1074 - val_loss/inference_loss: -3.1074
-Epoch 17/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.3612 - loss/inference_loss: -3.3612 - val_loss: -3.4145 - val_loss/inference_loss: -3.4145
-Epoch 18/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.3806 - loss/inference_loss: -3.3806 - val_loss: -3.3677 - val_loss/inference_loss: -3.3677
-Epoch 19/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.4344 - loss/inference_loss: -3.4344 - val_loss: -2.7881 - val_loss/inference_loss: -2.7881
-Epoch 20/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.4364 - loss/inference_loss: -3.4364 - val_loss: -3.2963 - val_loss/inference_loss: -3.2963
-Epoch 21/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.4700 - loss/inference_loss: -3.4700 - val_loss: -2.8206 - val_loss/inference_loss: -2.8206
-Epoch 22/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.4920 - loss/inference_loss: -3.4920 - val_loss: -3.0479 - val_loss/inference_loss: -3.0479
-Epoch 23/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5153 - loss/inference_loss: -3.5153 - val_loss: -3.0690 - val_loss/inference_loss: -3.0690
-Epoch 24/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5309 - loss/inference_loss: -3.5309 - val_loss: -2.9115 - val_loss/inference_loss: -2.9115
-Epoch 25/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5516 - loss/inference_loss: -3.5516 - val_loss: -3.0176 - val_loss/inference_loss: -3.0176
-Epoch 26/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5659 - loss/inference_loss: -3.5659 - val_loss: -3.0676 - val_loss/inference_loss: -3.0676
-Epoch 27/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5792 - loss/inference_loss: -3.5792 - val_loss: -3.3448 - val_loss/inference_loss: -3.3448
-Epoch 28/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5791 - loss/inference_loss: -3.5791 - val_loss: -3.1989 - val_loss/inference_loss: -3.1989
-Epoch 29/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.5712 - loss/inference_loss: -3.5712 - val_loss: -3.0113 - val_loss/inference_loss: -3.0113
-Epoch 30/30
-<span class=" -Color -Color-Bold">512/512</span> <span class=" -Color -Color-Green">━━━━━━━━━━━━━━━━━━━━</span> <span class=" -Color -Color-Bold">4s</span> 8ms/step - loss: -3.4733 - loss/inference_loss: -3.4733 - val_loss: -3.4334 - val_loss/inference_loss: -3.4334
 </pre></div>
 </div>
 </div>
@@ -1135,7 +792,7 @@ Epoch 30/30
 <span class="k">for</span> <span class="n">ax</span><span class="p">,</span> <span class="n">net</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">color</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">axes</span><span class="p">,</span> <span class="n">nets</span><span class="p">,</span> <span class="n">names</span><span class="p">,</span> <span class="n">colors</span><span class="p">):</span>
 
     <span class="c1"># Obtain samples</span>
-    <span class="n">samples</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="n">num_datasets</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)[</span><span class="s2">&quot;theta&quot;</span><span class="p">]</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">net</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">conditions</span><span class="o">=</span><span class="n">conditions</span><span class="p">,</span> <span class="n">num_samples</span><span class="o">=</span><span class="n">num_samples</span><span class="p">)[</span><span class="s2">&quot;theta&quot;</span><span class="p">]</span>
 
     <span class="c1"># Plot samples</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">samples</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.75</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
@@ -1153,7 +810,7 @@ Epoch 30/30
 </div>
 </div>
 <div class="cell_output docutils container">
-<img alt="../_images/b2655f3e6364db7d606eacaa4dd45b75bbfb9a3f8420f93871b96a393b4b8f96.png" src="../_images/b2655f3e6364db7d606eacaa4dd45b75bbfb9a3f8420f93871b96a393b4b8f96.png" />
+<img alt="../_images/3e60b0d195a5f036acca032df8146c40fcbc71764a88ddce7f742f50bd46bea6.png" src="../_images/3e60b0d195a5f036acca032df8146c40fcbc71764a88ddce7f742f50bd46bea6.png" />
 </div>
 </div>
 <p>The posterior looks as we have expected in this case. However, in general, we do not know how the posterior is supposed to look like for any specific dataset. As such, we need diagnostics that validate the correctness of the inferred posterior. One such diagnostic is simulation-based calibration(SBC), which we can apply for free due to amortization. For more details on SBC and diagnostic plots, see:</p>

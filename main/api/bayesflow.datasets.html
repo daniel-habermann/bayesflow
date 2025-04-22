@@ -377,9 +377,11 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Scale.html">Scale</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.SerializableCustomTransform.html">SerializableCustomTransform</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Shift.html">Shift</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Split.html">Split</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Sqrt.html">Sqrt</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Standardize.html">Standardize</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToArray.html">ToArray</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.ToDict.html">ToDict</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.adapters.transforms.Transform.html">Transform</a></li>
 </ul>
 </details></li>
@@ -419,9 +421,11 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.distributions.html">distributions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.find_distribution.html">find_distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalNormal.html">DiagonalNormal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalStudentT.html">DiagonalStudentT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.Distribution.html">Distribution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.Mixture.html">Mixture</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.experimental.html">experimental</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -473,11 +477,19 @@
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.simulators.html">simulators</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.make_simulator.html">make_simulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.BernoulliGLM.html">BernoulliGLM</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.BernoulliGLMRaw.html">BernoulliGLMRaw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianLinear.html">GaussianLinear</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianLinearUniform.html">GaussianLinearUniform</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.GaussianMixture.html">GaussianMixture</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.HierarchicalSimulator.html">HierarchicalSimulator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.InverseKinematics.html">InverseKinematics</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.LambdaSimulator.html">LambdaSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.LotkaVolterra.html">LotkaVolterra</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.ModelComparisonSimulator.html">ModelComparisonSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SIR.html">SIR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SLCP.html">SLCP</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SLCPDistractors.html">SLCPDistractors</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.SequentialSimulator.html">SequentialSimulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.Simulator.html">Simulator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.simulators.TwoMoons.html">TwoMoons</a></li>
@@ -537,7 +549,6 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_distribution.html">find_distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_inference_network.html">find_inference_network</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_memory_budget.html">find_memory_budget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_network.html">find_network</a></li>
@@ -550,8 +561,9 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jacobian.html">jacobian</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jacobian_trace.html">jacobian_trace</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.jvp.html">jvp</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.keras_kwargs.html">keras_kwargs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.layer_kwargs.html">layer_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.make_quadratic.html">make_quadratic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.model_kwargs.html">model_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.optimal_transport.html">optimal_transport</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.pad.html">pad</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.parse_bytes.html">parse_bytes</a></li>
@@ -559,6 +571,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.prepare_plot_data.html">prepare_plot_data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.prettify_subplots.html">prettify_subplots</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.searchsorted.html">searchsorted</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.sequential_kwargs.html">sequential_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.serialize_value_or_type.html">serialize_value_or_type</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.simultaneous_ecdf_bands.html">simultaneous_ecdf_bands</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.size_of.html">size_of</a></li>
@@ -659,16 +672,16 @@ effective training strategy (e.g., online or offline).</p>
 <p class="rubric">Classes</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.datasets.DiskDataset.html#bayesflow.datasets.DiskDataset" title="bayesflow.datasets.DiskDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiskDataset</span></code></a>(root, *[, pattern, load_fn])</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.datasets.DiskDataset.html#bayesflow.datasets.DiskDataset" title="bayesflow.datasets.DiskDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DiskDataset</span></code></a>(root, *[, pattern, load_fn, stage])</p></td>
 <td><p>A dataset used to load pre-simulated files from disk.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="bayesflow.datasets.OfflineDataset.html#bayesflow.datasets.OfflineDataset" title="bayesflow.datasets.OfflineDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OfflineDataset</span></code></a>(data, batch_size, adapter[, ...])</p></td>
 <td><p>A dataset that is pre-simulated and stored in memory.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.datasets.OnlineDataset.html#bayesflow.datasets.OnlineDataset" title="bayesflow.datasets.OnlineDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnlineDataset</span></code></a>(simulator, batch_size, ...)</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="bayesflow.datasets.OnlineDataset.html#bayesflow.datasets.OnlineDataset" title="bayesflow.datasets.OnlineDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">OnlineDataset</span></code></a>(simulator, batch_size, ...[, ...])</p></td>
 <td><p>A dataset that is generated on-the-fly.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.datasets.RoundsDataset.html#bayesflow.datasets.RoundsDataset" title="bayesflow.datasets.RoundsDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoundsDataset</span></code></a>(simulator, batch_size, ...)</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="bayesflow.datasets.RoundsDataset.html#bayesflow.datasets.RoundsDataset" title="bayesflow.datasets.RoundsDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RoundsDataset</span></code></a>(simulator, batch_size, ...[, ...])</p></td>
 <td><p>A dataset that is generated on-the-fly at the beginning of every n-th epoch.</p></td>
 </tr>
 </tbody>

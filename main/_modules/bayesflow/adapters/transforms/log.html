@@ -402,18 +402,15 @@
                   
   <h1>Source code for bayesflow.adapters.transforms.log</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">deserialize_keras_object</span> <span class="k">as</span> <span class="n">deserialize</span><span class="p">,</span>
-    <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span><span class="p">,</span>
-    <span class="n">serialize_keras_object</span> <span class="k">as</span> <span class="n">serialize</span><span class="p">,</span>
-<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span><span class="p">,</span> <span class="n">serialize</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.elementwise_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElementwiseTransform</span>
 
 
 <div class="viewcode-block" id="Log">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Log.html#bayesflow.adapters.transforms.Log">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Log</span><span class="p">(</span><span class="n">ElementwiseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Log transforms a variable.</span>
 
@@ -449,21 +446,10 @@
             <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="Log.from_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Log.html#bayesflow.adapters.transforms.Log.from_config">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Log&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
-            <span class="n">p1</span><span class="o">=</span><span class="n">deserialize</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;p1&quot;</span><span class="p">],</span> <span class="n">custom_objects</span><span class="p">),</span>
-        <span class="p">)</span></div>
-
-
 <div class="viewcode-block" id="Log.get_config">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Log.html#bayesflow.adapters.transforms.Log.get_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;p1&quot;</span><span class="p">:</span> <span class="n">serialize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">),</span>
-        <span class="p">}</span></div>
+        <span class="k">return</span> <span class="n">serialize</span><span class="p">({</span><span class="s2">&quot;p1&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">p1</span><span class="p">})</span></div>
 </div>
 
 </pre></div>

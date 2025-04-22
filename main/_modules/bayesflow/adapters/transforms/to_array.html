@@ -404,15 +404,15 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">numbers</span><span class="w"> </span><span class="kn">import</span> <span class="n">Number</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize_type</span><span class="p">,</span> <span class="n">serialize_type</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span><span class="p">,</span> <span class="n">serialize</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">.elementwise_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElementwiseTransform</span>
 
 
 <div class="viewcode-block" id="ToArray">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ToArray.html#bayesflow.adapters.transforms.ToArray">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ToArray</span><span class="p">(</span><span class="n">ElementwiseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Checks provided data for any non-arrays and converts them to numpy arrays.</span>
@@ -431,23 +431,14 @@
 <span class="sd">            [3, 4]])</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">original_type</span><span class="p">:</span> <span class="nb">type</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">original_type</span> <span class="o">=</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="ToArray.from_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ToArray.html#bayesflow.adapters.transforms.ToArray.from_config">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ToArray&quot;</span><span class="p">:</span>
-        <span class="n">instance</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">()</span>
-        <span class="n">instance</span><span class="o">.</span><span class="n">original_type</span> <span class="o">=</span> <span class="n">deserialize_type</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;original_type&quot;</span><span class="p">])</span>
-        <span class="k">return</span> <span class="n">instance</span></div>
-
+        <span class="bp">self</span><span class="o">.</span><span class="n">original_type</span> <span class="o">=</span> <span class="n">original_type</span>
 
 <div class="viewcode-block" id="ToArray.get_config">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ToArray.html#bayesflow.adapters.transforms.ToArray.get_config">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;original_type&quot;</span><span class="p">:</span> <span class="n">serialize_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">original_type</span><span class="p">)}</span></div>
+        <span class="k">return</span> <span class="n">serialize</span><span class="p">({</span><span class="s2">&quot;original_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">original_type</span><span class="p">})</span></div>
 
 
 <div class="viewcode-block" id="ToArray.forward">

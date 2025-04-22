@@ -403,27 +403,28 @@
   <h1>Source code for bayesflow.experimental.free_form_flow.free_form_flow</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras</span><span class="w"> </span><span class="kn">import</span> <span class="n">ops</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.distributions</span><span class="w"> </span><span class="kn">import</span> <span class="n">Distribution</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">find_network</span><span class="p">,</span>
-    <span class="n">keras_kwargs</span><span class="p">,</span>
     <span class="n">concatenate_valid</span><span class="p">,</span>
+    <span class="n">find_network</span><span class="p">,</span>
     <span class="n">jacobian</span><span class="p">,</span>
     <span class="n">jvp</span><span class="p">,</span>
+    <span class="n">model_kwargs</span><span class="p">,</span>
     <span class="n">vjp</span><span class="p">,</span>
-    <span class="n">serialize_value_or_type</span><span class="p">,</span>
-    <span class="n">deserialize_value_or_type</span><span class="p">,</span>
     <span class="n">weighted_mean</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">serializable</span><span class="p">,</span> <span class="n">serialize</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.networks</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceNetwork</span>
 
 
 <div class="viewcode-block" id="FreeFormFlow">
 <a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;networks.free_form_flow&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">FreeFormFlow</span><span class="p">(</span><span class="n">InferenceNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a dimensionality-preserving Free-form Flow.</span>
 <span class="sd">    Incorporates ideas from [1-2].</span>
@@ -458,10 +459,12 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">beta</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">50.0</span><span class="p">,</span>
-        <span class="n">encoder_subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
-        <span class="n">decoder_subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
-        <span class="n">base_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
+        <span class="n">encoder_subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">keras</span><span class="o">.</span><span class="n">Layer</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
+        <span class="n">decoder_subnet</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">keras</span><span class="o">.</span><span class="n">Layer</span> <span class="o">=</span> <span class="s2">&quot;mlp&quot;</span><span class="p">,</span>
+        <span class="n">base_distribution</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Distribution</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span><span class="p">,</span>
         <span class="n">hutchinson_sampling</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;qr&quot;</span><span class="p">,</span>
+        <span class="n">encoder_subnet_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">decoder_subnet_kwargs</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Creates an instance of a Free-form Flow.</span>
@@ -485,62 +488,50 @@
 <span class="sd">        **kwargs              : dict, optional, default: {}</span>
 <span class="sd">            Additional keyword arguments</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="o">=</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">keras_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">))</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">base_distribution</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">encoder_subnet_kwargs</span> <span class="ow">or</span> <span class="n">decoder_subnet_kwargs</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;Using `subnet_kwargs` is deprecated.&quot;</span>
+                <span class="s2">&quot;Instead, instantiate the network yourself and pass the arguments directly.&quot;</span><span class="p">,</span>
+                <span class="ne">DeprecationWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">encoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">encoder_subnet_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="n">decoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">decoder_subnet_kwargs</span> <span class="ow">or</span> <span class="p">{}</span>
 
         <span class="k">if</span> <span class="n">encoder_subnet</span> <span class="o">==</span> <span class="s2">&quot;mlp&quot;</span><span class="p">:</span>
-            <span class="n">encoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">FreeFormFlow</span><span class="o">.</span><span class="n">ENCODER_MLP_DEFAULT_CONFIG</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">encoder_subnet_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;encoder_subnet_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">encoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;encoder_subnet_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span> <span class="o">=</span> <span class="n">find_network</span><span class="p">(</span><span class="n">encoder_subnet</span><span class="p">,</span> <span class="o">**</span><span class="n">encoder_subnet_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
+            <span class="n">encoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">FreeFormFlow</span><span class="o">.</span><span class="n">ENCODER_MLP_DEFAULT_CONFIG</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">|</span> <span class="n">encoder_subnet_kwargs</span>
 
         <span class="k">if</span> <span class="n">decoder_subnet</span> <span class="o">==</span> <span class="s2">&quot;mlp&quot;</span><span class="p">:</span>
-            <span class="n">decoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">FreeFormFlow</span><span class="o">.</span><span class="n">DECODER_MLP_DEFAULT_CONFIG</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-            <span class="n">decoder_subnet_kwargs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoder_subnet_kwargs&quot;</span><span class="p">,</span> <span class="p">{}))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">decoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decoder_subnet_kwargs&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">decoder_subnet_kwargs</span> <span class="o">=</span> <span class="n">FreeFormFlow</span><span class="o">.</span><span class="n">DECODER_MLP_DEFAULT_CONFIG</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="o">|</span> <span class="n">decoder_subnet_kwargs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span> <span class="o">=</span> <span class="n">find_network</span><span class="p">(</span><span class="n">encoder_subnet</span><span class="p">,</span> <span class="o">**</span><span class="n">encoder_subnet_kwargs</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+            <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;encoder_projector&quot;</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder_subnet</span> <span class="o">=</span> <span class="n">find_network</span><span class="p">(</span><span class="n">decoder_subnet</span><span class="p">,</span> <span class="o">**</span><span class="n">decoder_subnet_kwargs</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">decoder_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span>
+            <span class="n">units</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bias_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">kernel_initializer</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;decoder_projector&quot;</span>
+        <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">hutchinson_sampling</span> <span class="o">=</span> <span class="n">hutchinson_sampling</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">beta</span> <span class="o">=</span> <span class="n">beta</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">seed_generator</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">SeedGenerator</span><span class="p">()</span>
 
-        <span class="c1"># serialization: store all parameters necessary to call __init__</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="n">beta</span><span class="p">,</span>
-            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="n">base_distribution</span><span class="p">,</span>
-            <span class="s2">&quot;hutchinson_sampling&quot;</span><span class="p">:</span> <span class="n">hutchinson_sampling</span><span class="p">,</span>
-            <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">serialize_value_or_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;encoder_subnet&quot;</span><span class="p">,</span> <span class="n">encoder_subnet</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">serialize_value_or_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;decoder_subnet&quot;</span><span class="p">,</span> <span class="n">decoder_subnet</span><span class="p">)</span>
-
-<div class="viewcode-block" id="FreeFormFlow.get_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow.get_config">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
-        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span></div>
-
-
-<div class="viewcode-block" id="FreeFormFlow.from_config">
-<a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow.from_config">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">deserialize_value_or_type</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;encoder_subnet&quot;</span><span class="p">)</span>
-        <span class="n">config</span> <span class="o">=</span> <span class="n">deserialize_value_or_type</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;decoder_subnet&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">config</span><span class="p">)</span></div>
-
-
     <span class="c1"># noinspection PyMethodOverriding</span>
 <div class="viewcode-block" id="FreeFormFlow.build">
 <a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow.build">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">xz_shape</span><span class="p">,</span> <span class="n">conditions_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">built</span><span class="p">:</span>
+            <span class="c1"># building when the network is already built can cause issues with serialization</span>
+            <span class="c1"># see https://github.com/keras-team/keras/issues/21147</span>
+            <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">xz_shape</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder_projector</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">xz_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder_projector</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">xz_shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
@@ -555,11 +546,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">decoder_subnet</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
 
-        <span class="n">input_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">encoder_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span>
 
-        <span class="n">input_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">decoder_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span></div>
+        <span class="n">output_shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_subnet</span><span class="o">.</span><span class="n">compute_output_shape</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">decoder_projector</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">output_shape</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_forward</span><span class="p">(</span>
@@ -666,6 +657,31 @@
         <span class="n">loss</span> <span class="o">=</span> <span class="n">weighted_mean</span><span class="p">(</span><span class="n">losses</span><span class="p">,</span> <span class="n">sample_weight</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">base_metrics</span> <span class="o">|</span> <span class="p">{</span><span class="s2">&quot;loss&quot;</span><span class="p">:</span> <span class="n">loss</span><span class="p">}</span></div>
+
+
+<div class="viewcode-block" id="FreeFormFlow.from_config">
+<a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow.from_config">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_config</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="n">deserialize</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">custom_objects</span><span class="o">=</span><span class="n">custom_objects</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="FreeFormFlow.get_config">
+<a class="viewcode-back" href="../../../../api/bayesflow.experimental.FreeFormFlow.html#bayesflow.experimental.FreeFormFlow.get_config">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_config</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">base_config</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">get_config</span><span class="p">()</span>
+        <span class="n">base_config</span> <span class="o">=</span> <span class="n">model_kwargs</span><span class="p">(</span><span class="n">base_config</span><span class="p">)</span>
+
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;beta&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">beta</span><span class="p">,</span>
+            <span class="s2">&quot;encoder_subnet&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">encoder_subnet</span><span class="p">,</span>
+            <span class="s2">&quot;decoder_subnet&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">decoder_subnet</span><span class="p">,</span>
+            <span class="s2">&quot;base_distribution&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">base_distribution</span><span class="p">,</span>
+            <span class="s2">&quot;hutchinson_sampling&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">hutchinson_sampling</span><span class="p">,</span>
+            <span class="c1"># we do not need to store subnet_kwargs</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">base_config</span> <span class="o">|</span> <span class="n">serialize</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

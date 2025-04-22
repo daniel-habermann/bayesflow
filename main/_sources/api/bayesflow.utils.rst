@@ -60,7 +60,6 @@ utils
     fill_triangular_matrix
     filter_kwargs
     find_batch_size
-    find_distribution
     find_inference_network
     find_memory_budget
     find_network
@@ -73,8 +72,9 @@ utils
     jacobian
     jacobian_trace
     jvp
-    keras_kwargs
+    layer_kwargs
     make_quadratic
+    model_kwargs
     optimal_transport
     pad
     parse_bytes
@@ -82,6 +82,7 @@ utils
     prepare_plot_data
     prettify_subplots
     searchsorted
+    sequential_kwargs
     serialize_value_or_type
     simultaneous_ecdf_bands
     size_of

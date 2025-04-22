@@ -402,11 +402,10 @@
                   
   <h1>Source code for bayesflow.networks.transformers.set_transformer</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_lengths_same</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.decorators</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_input_shape</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">..summary_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">SummaryNetwork</span>
 
@@ -417,7 +416,7 @@
 
 <div class="viewcode-block" id="SetTransformer">
 <a class="viewcode-back" href="../../../../api/bayesflow.networks.SetTransformer.html#bayesflow.networks.SetTransformer">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.networks&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SetTransformer</span><span class="p">(</span><span class="n">SummaryNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements the set transformer architecture from [1] which ultimately represents</span>
 <span class="sd">    a learnable permutation-invariant function. Designed to naturally model interactions in</span>
@@ -440,7 +439,7 @@
         <span class="n">num_seeds</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
         <span class="n">dropout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
         <span class="n">mlp_activation</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;gelu&quot;</span><span class="p">,</span>
-        <span class="n">kernel_initializer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;he_normal&quot;</span><span class="p">,</span>
+        <span class="n">kernel_initializer</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lecun_normal&quot;</span><span class="p">,</span>
         <span class="n">use_bias</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">layer_norm</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
         <span class="n">num_inducing_points</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -471,7 +470,7 @@
 <span class="sd">            Dropout rate applied to the attention and MLP layers. If set to None, no dropout is applied.</span>
 <span class="sd">        mlp_activation : str, optional (default - &#39;gelu&#39;)</span>
 <span class="sd">            Activation function used in the dense layers. Common choices include &quot;relu&quot;, &quot;elu&quot;, and &quot;gelu&quot;.</span>
-<span class="sd">        kernel_initializer : str, optional (default - &#39;he_normal&#39;)</span>
+<span class="sd">        kernel_initializer : str, optional (default - &#39;lecun_normal&#39;)</span>
 <span class="sd">            Initializer for the kernel weights matrix. Common choices include &quot;glorot_uniform&quot;, &quot;he_normal&quot;, etc.</span>
 <span class="sd">        use_bias : bool, optional (default - True)</span>
 <span class="sd">            Whether to include a bias term in the dense layers.</span>
@@ -531,6 +530,7 @@
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pooling_by_attention</span> <span class="o">=</span> <span class="n">PoolingByMultiHeadAttention</span><span class="p">(</span><span class="o">**</span><span class="p">(</span><span class="n">global_attention_settings</span> <span class="o">|</span> <span class="n">pooling_settings</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">Dense</span><span class="p">(</span><span class="n">summary_dim</span><span class="p">)</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">summary_dim</span> <span class="o">=</span> <span class="n">summary_dim</span>
 
 <div class="viewcode-block" id="SetTransformer.call">
@@ -558,14 +558,6 @@
         <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pooling_by_attention</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">training</span><span class="o">=</span><span class="n">training</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
         <span class="n">summary</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_projector</span><span class="p">(</span><span class="n">summary</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">summary</span></div>
-
-
-<div class="viewcode-block" id="SetTransformer.build">
-<a class="viewcode-back" href="../../../../api/bayesflow.networks.SetTransformer.html#bayesflow.networks.SetTransformer.build">[docs]</a>
-    <span class="nd">@sanitize_input_shape</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">build</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_shape</span><span class="p">):</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">build</span><span class="p">(</span><span class="n">input_shape</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">input_shape</span><span class="p">))</span></div>
 </div>
 
 </pre></div>

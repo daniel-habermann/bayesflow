@@ -401,18 +401,22 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.utils.optimal_transport.optimal_transport</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.hungarian</span><span class="w"> </span><span class="kn">import</span> <span class="n">hungarian</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.random</span><span class="w"> </span><span class="kn">import</span> <span class="n">random</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.log_sinkhorn</span><span class="w"> </span><span class="kn">import</span> <span class="n">log_sinkhorn</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sinkhorn</span><span class="w"> </span><span class="kn">import</span> <span class="n">sinkhorn</span>
+
+<span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;sinkhorn&quot;</span><span class="p">:</span> <span class="n">sinkhorn</span><span class="p">,</span>
+    <span class="s2">&quot;sinkhorn_knopp&quot;</span><span class="p">:</span> <span class="n">sinkhorn</span><span class="p">,</span>
+    <span class="s2">&quot;log_sinkhorn&quot;</span><span class="p">:</span> <span class="n">log_sinkhorn</span><span class="p">,</span>
+    <span class="s2">&quot;log_sinkhorn_knopp&quot;</span><span class="p">:</span> <span class="n">log_sinkhorn</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="optimal_transport">
 <a class="viewcode-back" href="../../../../api/bayesflow.utils.optimal_transport.html#bayesflow.utils.optimal_transport">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">optimal_transport</span><span class="p">(</span>
-    <span class="n">x1</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">x2</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="o">*</span><span class="n">aux</span><span class="p">:</span> <span class="n">Tensor</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sinkhorn_knopp&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">Tensor</span><span class="p">,</span> <span class="n">Tensor</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">optimal_transport</span><span class="p">(</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;log_sinkhorn&quot;</span><span class="p">,</span> <span class="n">return_assignments</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Matches elements from x2 onto x1, such that the transport cost between them is minimized, according to the method</span>
 <span class="sd">    and cost matrix used.</span>
 
@@ -428,31 +432,24 @@
 <span class="sd">    :param x2: Tensor of shape (m, ...)</span>
 <span class="sd">        Samples from the second distribution.</span>
 
-<span class="sd">    :param aux: Tensors of shape (n, ...)</span>
-<span class="sd">        Auxiliary tensors to be permuted along with x1.</span>
-<span class="sd">        Note that x2 is never permuted for all currently available methods.</span>
-
 <span class="sd">    :param method: Method used to compute the transport cost.</span>
-<span class="sd">        Default: &#39;sinkhorn_knopp&#39;</span>
+<span class="sd">        Default: &#39;log_sinkhorn&#39;</span>
 
-<span class="sd">    :param kwargs: Additional keyword arguments passed to the optimization method.</span>
+<span class="sd">    :param return_assignments: Whether to return the assignment indices.</span>
+<span class="sd">        Default: False</span>
+
+<span class="sd">    :param kwargs: Additional keyword arguments that are passed to the optimization method.</span>
 
 <span class="sd">    :return: Tensors of shapes (n, ...) and (m, ...)</span>
 <span class="sd">        x1 and x2 in optimal transport permutation order.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">methods</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;hungarian&quot;</span><span class="p">:</span> <span class="n">hungarian</span><span class="p">,</span>
-        <span class="s2">&quot;sinkhorn&quot;</span><span class="p">:</span> <span class="n">sinkhorn</span><span class="p">,</span>
-        <span class="s2">&quot;sinkhorn_knopp&quot;</span><span class="p">:</span> <span class="n">sinkhorn</span><span class="p">,</span>
-        <span class="s2">&quot;random&quot;</span><span class="p">:</span> <span class="n">random</span><span class="p">,</span>
-    <span class="p">}</span>
+    <span class="n">assignments</span> <span class="o">=</span> <span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()](</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="n">x2</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">take</span><span class="p">(</span><span class="n">x2</span><span class="p">,</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 
-    <span class="n">method</span> <span class="o">=</span> <span class="n">method</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">return_assignments</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="n">assignments</span>
 
-    <span class="k">if</span> <span class="n">method</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">methods</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported method name: &#39;</span><span class="si">{</span><span class="n">method</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">methods</span><span class="p">[</span><span class="n">method</span><span class="p">](</span><span class="n">x1</span><span class="p">,</span> <span class="n">x2</span><span class="p">,</span> <span class="o">*</span><span class="n">aux</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">x1</span><span class="p">,</span> <span class="n">x2</span></div>
 
 </pre></div>
 

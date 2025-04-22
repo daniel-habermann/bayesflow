@@ -45,9 +45,11 @@ transforms
     Scale
     SerializableCustomTransform
     Shift
+    Split
     Sqrt
     Standardize
     ToArray
+    ToDict
     Transform
   
   
