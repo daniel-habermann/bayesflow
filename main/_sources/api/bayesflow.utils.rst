@@ -60,6 +60,7 @@ utils
     fill_triangular_matrix
     filter_kwargs
     find_batch_size
+    find_distribution
     find_inference_network
     find_memory_budget
     find_network

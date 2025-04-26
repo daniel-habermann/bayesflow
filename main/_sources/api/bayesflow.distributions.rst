@@ -16,14 +16,6 @@ distributions
 
   
   
-  .. rubric:: Functions
-
-  .. autosummary::
-    :toctree:
-    :template: base.rst
-  
-    find_distribution
-  
   
 
   

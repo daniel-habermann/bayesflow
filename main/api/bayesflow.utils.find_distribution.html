@@ -45,7 +45,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.distributions.find_distribution';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.utils.find_distribution';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '/versions.json';
@@ -53,13 +53,13 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.distributions.find_distribution.html" />
+    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.utils.find_distribution.html" />
     <link rel="icon" href="../_static/bayesflow_hex.ico"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="DiagonalNormal" href="bayesflow.distributions.DiagonalNormal.html" />
-    <link rel="prev" title="distributions" href="bayesflow.distributions.html" />
+    <link rel="next" title="find_inference_network" href="bayesflow.utils.find_inference_network.html" />
+    <link rel="prev" title="find_batch_size" href="bayesflow.utils.find_batch_size.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -109,7 +109,7 @@
   </button>
   
   
-  <div class="col-lg-3 navbar-header-items__start">
+  <div class=" navbar-header-items__start">
     
       <div class="navbar-item">
 
@@ -136,29 +136,9 @@
     
   </div>
   
-  <div class="col-lg-9 navbar-header-items">
+  <div class=" navbar-header-items">
     
     <div class="me-auto navbar-header-items__center">
-      
-        <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-2"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-2"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-2"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-2">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
       
         <div class="navbar-item">
 <nav>
@@ -180,7 +160,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../about.html">
-    About us
+    About Us
   </a>
 </li>
 
@@ -194,7 +174,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/index.html">
-    Developer docs
+    Developer Docs
   </a>
 </li>
 
@@ -209,10 +189,8 @@
         <div class="navbar-item navbar-persistent--container">
           
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
         </div>
       
@@ -225,6 +203,54 @@
   <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
 </button></div>
       
+        <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bayesflow-org/bayesflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://discuss.bayesflow.org/" title="Discourse Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-discourse fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Discourse Forum</span></a>
+        </li>
+</ul></div>
+      
+        <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-2"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-2"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-2"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-2">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
+      
     </div>
     
   </div>
@@ -232,10 +258,8 @@
   
     <div class="navbar-persistent--mobile">
 
-<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
- <i class="fa-solid fa-magnifying-glass"></i>
- <span class="search-button__default-text">Search</span>
- <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
 </button>
     </div>
   
@@ -268,29 +292,6 @@
           
           
             <div class="navbar-item">
-<div class="version-switcher__container dropdown pst-js-only">
-  <button id="pst-version-switcher-button-3"
-    type="button"
-    class="version-switcher__button btn btn-sm dropdown-toggle"
-    data-bs-toggle="dropdown"
-    aria-haspopup="listbox"
-    aria-controls="pst-version-switcher-list-3"
-    aria-label="Version switcher list"
-  >
-    Choose version  <!-- this text may get changed later by javascript -->
-    <span class="caret"></span>
-  </button>
-  <div id="pst-version-switcher-list-3"
-    class="version-switcher__menu dropdown-menu list-group-flush py-0"
-    role="listbox" aria-labelledby="pst-version-switcher-button-3">
-    <!-- dropdown will be populated by javascript on page load -->
-  </div>
-</div></div>
-          
-        
-          
-          
-            <div class="navbar-item">
 <nav>
   <ul class="bd-navbar-elements navbar-nav">
     
@@ -310,7 +311,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../about.html">
-    About us
+    About Us
   </a>
 </li>
 
@@ -324,7 +325,7 @@
 
 <li class="nav-item ">
   <a class="nav-link nav-internal" href="../development/index.html">
-    Developer docs
+    Developer Docs
   </a>
 </li>
 
@@ -345,6 +346,54 @@
   <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
   <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
 </button></div>
+        
+          <div class="navbar-item"><ul class="navbar-icon-links"
+    aria-label="Icon Links">
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://github.com/bayesflow-org/bayesflow" title="GitHub" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-square-github fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">GitHub</span></a>
+        </li>
+        <li class="nav-item">
+          
+          
+          
+          
+          
+          
+          
+          
+          <a href="https://discuss.bayesflow.org/" title="Discourse Forum" class="nav-link pst-navbar-icon" rel="noopener" target="_blank" data-bs-toggle="tooltip" data-bs-placement="bottom"><i class="fa-brands fa-discourse fa-lg" aria-hidden="true"></i>
+            <span class="sr-only">Discourse Forum</span></a>
+        </li>
+</ul></div>
+        
+          <div class="navbar-item">
+<div class="version-switcher__container dropdown pst-js-only">
+  <button id="pst-version-switcher-button-3"
+    type="button"
+    class="version-switcher__button btn btn-sm dropdown-toggle"
+    data-bs-toggle="dropdown"
+    aria-haspopup="listbox"
+    aria-controls="pst-version-switcher-list-3"
+    aria-label="Version switcher list"
+  >
+    Choose version  <!-- this text may get changed later by javascript -->
+    <span class="caret"></span>
+  </button>
+  <div id="pst-version-switcher-list-3"
+    class="version-switcher__menu dropdown-menu list-group-flush py-0"
+    role="listbox" aria-labelledby="pst-version-switcher-button-3">
+    <!-- dropdown will be populated by javascript on page load -->
+  </div>
+</div></div>
         
       </div>
     
@@ -420,8 +469,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.z_score_contraction.html">z_score_contraction</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="bayesflow.distributions.html">distributions</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">find_distribution</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.distributions.html">distributions</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalNormal.html">DiagonalNormal</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.DiagonalStudentT.html">DiagonalStudentT</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.distributions.Distribution.html">Distribution</a></li>
@@ -496,7 +544,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="bayesflow.types.html">types</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="bayesflow.utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.utils.keras_utils.html">keras_utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.keras_utils.inverse_shifted_softplus.html">inverse_shifted_softplus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.keras_utils.inverse_softplus.html">inverse_softplus</a></li>
@@ -549,6 +597,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.fill_triangular_matrix.html">fill_triangular_matrix</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.filter_kwargs.html">filter_kwargs</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_batch_size.html">find_batch_size</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">find_distribution</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_inference_network.html">find_inference_network</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_memory_budget.html">find_memory_budget</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.find_network.html">find_network</a></li>
@@ -648,7 +697,7 @@
     <li class="breadcrumb-item"><a href="bayesflow.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="bayesflow.distributions.html" class="nav-link">distributions</a></li>
+    <li class="breadcrumb-item"><a href="bayesflow.utils.html" class="nav-link">utils</a></li>
     
     <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">find_distribution</span></li>
   </ul>
@@ -670,14 +719,14 @@
   <section id="find-distribution">
 <h1>find_distribution<a class="headerlink" href="#find-distribution" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="bayesflow.distributions.find_distribution">
-<span class="sig-prename descclassname"><span class="pre">bayesflow.distributions.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/distributions/find_distribution.html#find_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.distributions.find_distribution" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="bayesflow.utils.find_distribution">
+<span class="sig-prename descclassname"><span class="pre">bayesflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arg</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/utils/dispatch/find_distribution.html#find_distribution"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.utils.find_distribution" title="Link to this definition">#</a></dt>
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">bayesflow.distributions.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">bayesflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">bayesflow.distributions.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">none</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">bayesflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">none</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><span class="pre">None</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dt class="sig sig-object py">
-<span class="sig-prename descclassname"><span class="pre">bayesflow.distributions.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="bayesflow.distributions.Distribution.html#bayesflow.distributions.Distribution" title="bayesflow.distributions.distribution.Distribution"><span class="pre">Distribution</span></a></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
+<span class="sig-prename descclassname"><span class="pre">bayesflow.utils.</span></span><span class="sig-name descname"><span class="pre">find_distribution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distribution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Layer</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span></dt>
 <dd></dd></dl>
 
 </section>
@@ -693,20 +742,20 @@
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="bayesflow.distributions.html"
+       href="bayesflow.utils.find_batch_size.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">distributions</p>
+        <p class="prev-next-title">find_batch_size</p>
       </div>
     </a>
     <a class="right-next"
-       href="bayesflow.distributions.DiagonalNormal.html"
+       href="bayesflow.utils.find_inference_network.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">DiagonalNormal</p>
+        <p class="prev-next-title">find_inference_network</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -730,7 +779,7 @@
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.distributions.find_distribution"><code class="docutils literal notranslate"><span class="pre">find_distribution()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.utils.find_distribution"><code class="docutils literal notranslate"><span class="pre">find_distribution()</span></code></a></li>
 </ul>
 
 
@@ -741,7 +790,7 @@
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.distributions.find_distribution.rst">
+    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.utils.find_distribution.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

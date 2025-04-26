@@ -1,6 +1,6 @@
 find\_distribution
 ==================
 
-.. currentmodule:: bayesflow.distributions
+.. currentmodule:: bayesflow.utils
 
 .. autofunction:: find_distribution
