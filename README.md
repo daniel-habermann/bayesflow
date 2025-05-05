@@ -245,8 +245,9 @@ Depending on your needs, you might not want to upgrade yet if one of the followi
   with the new version. Loading models from version 1.x in version 2.0+ is not supported.
 - You require a feature that was not ported to BayesFlow 2.0+ yet. To our knowledge,
   this applies to:
-  * Two-level/Hierarchical models: `TwoLevelGenerativeModel`, `TwoLevelPrior`.
-  * Sensitivity analysis: functionality from the `bayesflow.sensitivity` module.
+  * Two-level/Hierarchical models (planned for version 2.1): `TwoLevelGenerativeModel`, `TwoLevelPrior`.
+  * Sensitivity analysis (partially discontinued): functionality from the `bayesflow.sensitivity` module. This is still
+    possible, but we do no longer offer a special module for it. We plan to add a tutorial on this, see [#455](https://github.com/bayesflow-org/bayesflow/issues/455).
   * MCMC (discontinued): The `bayesflow.mcmc` module. We are considering other options
     to enable the use of BayesFlow in an MCMC setting.
   * Networks: `EvidentialNetwork`.
