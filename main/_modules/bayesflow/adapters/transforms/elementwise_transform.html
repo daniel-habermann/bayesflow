@@ -457,7 +457,7 @@
 
 <div class="viewcode-block" id="ElementwiseTransform">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ElementwiseTransform.html#bayesflow.adapters.transforms.ElementwiseTransform">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ElementwiseTransform</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class on which other transforms are based&quot;&quot;&quot;</span>
 
@@ -493,6 +493,12 @@
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ElementwiseTransform.html#bayesflow.adapters.transforms.ElementwiseTransform.inverse">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="ElementwiseTransform.log_det_jac">
+<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.ElementwiseTransform.html#bayesflow.adapters.transforms.ElementwiseTransform.log_det_jac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_det_jac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 </div>
 
 </pre></div>

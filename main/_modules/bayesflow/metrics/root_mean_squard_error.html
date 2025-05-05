@@ -459,7 +459,7 @@
 
 <div class="viewcode-block" id="RootMeanSquaredError">
 <a class="viewcode-back" href="../../../api/bayesflow.metrics.RootMeanSquaredError.html#bayesflow.metrics.RootMeanSquaredError">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.metrics&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">RootMeanSquaredError</span><span class="p">(</span><span class="n">keras</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">MeanMetricWrapper</span><span class="p">):</span>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;root_mean_squared_error&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="n">fn</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">root_mean_squared_error</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>

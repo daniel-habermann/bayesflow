@@ -479,11 +479,11 @@
 <h1><span class="section-number">2. </span>Moving from BayesFlow v1.1 to v2.0<a class="headerlink" href="#moving-from-bayesflow-v1-1-to-v2-0" title="Link to this heading">#</a></h1>
 <p><em>Authors: Leona Odole, Valentin Pratz</em></p>
 <p><strong>Note: This document is work in progress, and not all relevant changes are discussed yet. If you encounter problems during the transition, please do not hesitate to reach out.</strong></p>
-<p>Long-time users of BayesFlow will notice that with the update to version 2.0 many things have changed. This short guide aims to clarify some of those changes. Users familiar with the previous Quickstart guide will notice that this notebook follows a similar structure, but assumes that users are already familiar with BayesFlow. We omit many of the the mathematical explanations in favor of demonstrating the differences in workflow. For a more detailed explanation of the BayesFlow framework, users should read, for example, the Starter Notebook on Bayesian Linear Regression.</p>
-<p>Additionally to avoid confusion, similarly named objects from <em>BayesFlow v1.1</em> will have <code class="docutils literal notranslate"><span class="pre">1.1</span></code> after their name, whereas those from <em>BayesFlow v2.0</em> will not. Finally, a short table with a summary of the function call changes is provided at the end of the guide.</p>
+<p>Long-time users of BayesFlow will notice that with the update to version 2.0 many things have changed. This short guide aims to clarify some of those changes. Users familiar with the previous Quickstart guide will notice that this notebook follows a similar structure, but assumes that users are already familiar with BayesFlow. We omit many of the mathematical explanations in favor of demonstrating the differences in workflow. For a more detailed explanation of the BayesFlow framework, users should read, for example, the Starter Notebook on Bayesian Linear Regression.</p>
+<p>Additionally, to avoid confusion, similarly named objects from <em>BayesFlow v1.1</em> will have <code class="docutils literal notranslate"><span class="pre">1.1</span></code> after their name, whereas those from <em>BayesFlow v2.0</em> will not. Finally, a short table with a summary of the function call changes is provided at the end of the guide.</p>
 <section id="keras-framework">
 <h2><span class="section-number">2.1. </span>Keras Framework<a class="headerlink" href="#keras-framework" title="Link to this heading">#</a></h2>
-<p>BayesFlow 2.0 looks quite different from BayesFlow 1.1 because the library was refactored to replace the old backend, TensorFlow, with the new <a class="reference external" href="https://keras.io">Keras</a> API. Users can now choose their preferred backend among the machine learning frameworks <code class="docutils literal notranslate"><span class="pre">TensorFlow</span></code>, <code class="docutils literal notranslate"><span class="pre">JAX</span></code> and <code class="docutils literal notranslate"><span class="pre">PyTorch</span></code>.</p>
+<p>BayesFlow 2.0 looks quite different from BayesFlow 1.1 because the library was refactored to replace the old backend, TensorFlow, with the new <a class="reference external" href="https://keras.io">Keras3</a> API. Users can now choose their preferred backend among the machine learning frameworks <a class="reference external" href="https://github.com/tensorflow/tensorflow">TensorFlow</a>, <a class="reference external" href="https://github.com/google/jax">JAX</a> and <a class="reference external" href="https://github.com/pytorch/pytorch">PyTorch</a>.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
@@ -501,7 +501,7 @@
 </div>
 </div>
 </div>
-<p>In general, BayesFlow 2.0 relies much more on dictionaries since parameters are now named by convention. Many objects now expect a dictionary, and parameters and data are returned as dictionaries as well.</p>
+<p>In general, BayesFlow 2.0 relies much more on dictionaries since parameters and data are now named by convention. Many objects now expect a dictionary, and parameters and data are returned as dictionaries as well.</p>
 </section>
 <section id="example-workflow">
 <h2><span class="section-number">2.2. </span>Example Workflow<a class="headerlink" href="#example-workflow" title="Link to this heading">#</a></h2>
@@ -509,7 +509,7 @@
 <h3><span class="section-number">2.2.1. </span>Priors and Likelihood Model<a class="headerlink" href="#priors-and-likelihood-model" title="Link to this heading">#</a></h3>
 <p>Any BayesFlow workflow begins with simulated data which is specified with a prior and a corresponding likelihood function (simulator). While these two core components are still present, their use and naming conventions within the workflow have changed.</p>
 <p>Previously users would define a prior function and pass it to a <code class="docutils literal notranslate"><span class="pre">Prior1.1</span></code> object to sample prior values. The likelihood would also be specified via a function and passed to a <code class="docutils literal notranslate"><span class="pre">Simulator1.1</span></code> wrapper to produce observations for given parameter values. These were then combined in the <code class="docutils literal notranslate"><span class="pre">GenerativeModel1.1</span></code>.</p>
-<p>In 2.0 we no longer make use of the <code class="docutils literal notranslate"><span class="pre">Prior1.1</span></code>, <code class="docutils literal notranslate"><span class="pre">Simulator1.1</span></code> or <code class="docutils literal notranslate"><span class="pre">GenerativeModel1.1</span></code> objects. Instead, the <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class comprises the whole functionality, taking the role of the <code class="docutils literal notranslate"><span class="pre">GenerativeModel1.1</span></code>. It directly produces joint samples from prior and likelihood, without creating separate <code class="docutils literal notranslate"><span class="pre">Prior1.1</span></code> and <code class="docutils literal notranslate"><span class="pre">Simulator1.1</span></code> objects first. The <code class="docutils literal notranslate"><span class="pre">bf.simulator.make_simulator</span></code> offers a convenient wrapper to create the appropriate simulator for different settings.</p>
+<p>In 2.0 we no longer make use of the <code class="docutils literal notranslate"><span class="pre">Prior1.1</span></code>, <code class="docutils literal notranslate"><span class="pre">Simulator1.1</span></code> or <code class="docutils literal notranslate"><span class="pre">GenerativeModel1.1</span></code> objects. Instead, the <code class="docutils literal notranslate"><span class="pre">Simulator</span></code> class comprises the whole functionality, taking the role of the <code class="docutils literal notranslate"><span class="pre">GenerativeModel1.1</span></code>. It directly produces joint samples from prior and likelihood, without creating separate <code class="docutils literal notranslate"><span class="pre">Prior1.1</span></code> and <code class="docutils literal notranslate"><span class="pre">Simulator1.1</span></code> objects first. The <code class="docutils literal notranslate"><span class="pre">bf.make_simulator</span></code> offers a convenient wrapper to create the appropriate simulator for different settings.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">theta_prior</span><span class="p">():</span>
@@ -593,7 +593,7 @@
 </div>
 </div>
 </div>
-<p>For the inference network there are now several implemented architectures for users to choose from. They are <code class="docutils literal notranslate"><span class="pre">FlowMatching</span></code>, <code class="docutils literal notranslate"><span class="pre">ConsistencyModel</span></code>, and <code class="docutils literal notranslate"><span class="pre">CouplingFlow</span></code>. For this demonstration we use <code class="docutils literal notranslate"><span class="pre">FlowMatching</span></code>, for explanations on the different models please refer to the other examples and the API documentation.</p>
+<p>The previous version only featured the <code class="docutils literal notranslate"><span class="pre">InvertibleNetwork1.1</span></code> class as inference network. As the generative modeling landscape has evolved since then, there are now several implemented architectures for users to choose from. <code class="docutils literal notranslate"><span class="pre">CouplingFlow</span></code> features an architecture similar to <code class="docutils literal notranslate"><span class="pre">InvertibleNetwork1.1</span></code>. <code class="docutils literal notranslate"><span class="pre">FlowMatching</span></code> is a continuous flow architecture, which can express more complex distributions, at the cost of higher inference time. For this demonstration we use <code class="docutils literal notranslate"><span class="pre">FlowMatching</span></code>. For explanations on the different models please refer to the other examples and the API documentation.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">inference_net</span> <span class="o">=</span> <span class="n">bf</span><span class="o">.</span><span class="n">networks</span><span class="o">.</span><span class="n">FlowMatching</span><span class="p">()</span>
@@ -686,7 +686,7 @@
 <td class="text-left"><p>Defunct and no longer standalone objects but incorporated into <code class="docutils literal notranslate"><span class="pre">bf.simulators.Simulator</span></code></p></td>
 </tr>
 <tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">GenerativeModel</span></code></p></td>
-<td class="text-left"><p>Defunct with it’s functionality having been taken over by <code class="docutils literal notranslate"><span class="pre">bf.simulators.make_simulator</span></code></p></td>
+<td class="text-left"><p>Defunct with it’s functionality having been taken over by <code class="docutils literal notranslate"><span class="pre">bf.make_simulator</span></code></p></td>
 </tr>
 <tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">training.configurator</span></code></p></td>
 <td class="text-left"><p>Functionality taken over by <code class="docutils literal notranslate"><span class="pre">bf.adapters.Adapter</span></code></p></td>
@@ -696,6 +696,9 @@
 </tr>
 <tr class="row-even"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">AmortizedPosterior</span></code>, <code class="docutils literal notranslate"><span class="pre">AmortizedLikelihood</span></code></p></td>
 <td class="text-left"><p>Functionality taken over by <code class="docutils literal notranslate"><span class="pre">ContinuousApproximator</span></code></p></td>
+</tr>
+<tr class="row-odd"><td class="text-left"><p><code class="docutils literal notranslate"><span class="pre">InvertibleNetwork</span></code></p></td>
+<td class="text-left"><p>Functionality taken over by <code class="docutils literal notranslate"><span class="pre">CouplingFlow</span></code>, but also other networks that are subclasses of <code class="docutils literal notranslate"><span class="pre">InferenceNetwork</span></code>, e.g. <code class="docutils literal notranslate"><span class="pre">FlowMatching</span></code></p></td>
 </tr>
 </tbody>
 </table>

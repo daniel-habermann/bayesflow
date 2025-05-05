@@ -468,7 +468,7 @@
 
 <div class="viewcode-block" id="ModelComparisonApproximator">
 <a class="viewcode-back" href="../../../api/bayesflow.approximators.ModelComparisonApproximator.html#bayesflow.approximators.ModelComparisonApproximator">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.approximators&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ModelComparisonApproximator</span><span class="p">(</span><span class="n">Approximator</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Defines an approximator for model (simulator) comparison, where the (discrete) posterior model probabilities are</span>
@@ -831,7 +831,43 @@
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classifier_network</span><span class="p">(</span><span class="n">classifier_conditions</span><span class="p">)</span>
         <span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">logits_projector</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="n">output</span></div>
+        <span class="k">return</span> <span class="n">output</span>
+
+<div class="viewcode-block" id="ModelComparisonApproximator.summaries">
+<a class="viewcode-back" href="../../../api/bayesflow.approximators.ModelComparisonApproximator.html#bayesflow.approximators.ModelComparisonApproximator.summaries">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">summaries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the summaries of given data.</span>
+
+<span class="sd">        The `data` dictionary is preprocessed using the `adapter` and passed through the summary network.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : Mapping[str, np.ndarray]</span>
+<span class="sd">            Dictionary of data as NumPy arrays.</span>
+<span class="sd">        **kwargs : dict</span>
+<span class="sd">            Additional keyword arguments for the adapter and the summary network.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        summaries : np.ndarray</span>
+<span class="sd">            Log-probabilities of the distribution `p(inference_variables | inference_conditions, h(summary_conditions))`</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the approximator does not have a summary network, or the adapter does not produce the output required</span>
+<span class="sd">            by the summary network.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_network</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;A summary network is required to compute summaries.&quot;</span><span class="p">)</span>
+        <span class="n">data_adapted</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">strict</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;inference&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;summary_variables&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_adapted</span> <span class="ow">or</span> <span class="n">data_adapted</span><span class="p">[</span><span class="s2">&quot;summary_variables&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Summary variables are required to compute summaries.&quot;</span><span class="p">)</span>
+        <span class="n">summary_variables</span> <span class="o">=</span> <span class="n">keras</span><span class="o">.</span><span class="n">ops</span><span class="o">.</span><span class="n">convert_to_tensor</span><span class="p">(</span><span class="n">data_adapted</span><span class="p">[</span><span class="s2">&quot;summary_variables&quot;</span><span class="p">])</span>
+        <span class="n">summaries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_network</span><span class="p">(</span><span class="n">summary_variables</span><span class="p">,</span> <span class="o">**</span><span class="n">filter_kwargs</span><span class="p">(</span><span class="n">kwargs</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">summary_network</span><span class="o">.</span><span class="n">call</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">summaries</span></div>
+</div>
 
 </pre></div>
 

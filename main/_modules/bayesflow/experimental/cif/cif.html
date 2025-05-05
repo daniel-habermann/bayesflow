@@ -451,9 +451,9 @@
                   
   <h1>Source code for bayesflow.experimental.cif.cif</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">Tensor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.networks.inference_network</span><span class="w"> </span><span class="kn">import</span> <span class="n">InferenceNetwork</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.networks.coupling_flow</span><span class="w"> </span><span class="kn">import</span> <span class="n">CouplingFlow</span>
@@ -461,9 +461,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.conditional_gaussian</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConditionalGaussian</span>
 
 
+<span class="c1"># disable module check, use potential module after moving from experimental</span>
 <div class="viewcode-block" id="CIF">
 <a class="viewcode-back" href="../../../../api/bayesflow.experimental.CIF.html#bayesflow.experimental.CIF">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.networks&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.networks&quot;</span><span class="p">,</span> <span class="n">disable_module_check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">CIF</span><span class="p">(</span><span class="n">InferenceNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements a continuously indexed flow (CIF) with a `CouplingFlow`</span>
 <span class="sd">    bijection and `ConditionalGaussian` distributions p and q. Improves on</span>

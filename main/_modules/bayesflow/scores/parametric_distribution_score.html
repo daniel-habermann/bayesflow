@@ -450,17 +450,16 @@
                 <article class="bd-article">
                   
   <h1>Source code for bayesflow.scores.parametric_distribution_score</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">weighted_mean</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.scoring_rule</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoringRule</span>
 
 
 <div class="viewcode-block" id="ParametricDistributionScore">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.ParametricDistributionScore.html#bayesflow.scores.ParametricDistributionScore">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ParametricDistributionScore</span><span class="p">(</span><span class="n">ScoringRule</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_\phi, \theta; k) = -\log(\hat p_\phi(\theta))`</span>
 

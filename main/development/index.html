@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Patterns &amp; Caveats &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>Developer Documentation &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -58,6 +58,7 @@
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="1. Introduction" href="introduction.html" />
     <link rel="prev" title="Contributing to BayesFlow" href="../contributing.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -403,7 +404,13 @@
 <nav class="bd-docs-nav bd-links"
      aria-label="Section Navigation">
   <p class="bd-links__title" role="heading" aria-level="1">Section Navigation</p>
-  <div class="bd-toc-item navbar-nav"></div>
+  <div class="bd-toc-item navbar-nav"><ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pitfalls.html">2. Potential Pitfalls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stages.html">3. Stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialization.html">4. Serialization: Enable Model Saving &amp; Loading</a></li>
+</ul>
+</div>
 </nav></div>
     </div>
   
@@ -442,7 +449,7 @@
         <i class="fa-solid fa-home"></i>
       </a>
     </li>
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Patterns &amp; Caveats</span></li>
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">Developer Documentation</span></li>
   </ul>
 </nav>
 </div>
@@ -459,84 +466,25 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="patterns-caveats">
-<h1>Patterns &amp; Caveats<a class="headerlink" href="#patterns-caveats" title="Link to this heading">#</a></h1>
-<p><strong>Note</strong>: This document is part of BayesFlow’s developer documentation, and
+  <section class="tex2jax_ignore mathjax_ignore" id="developer-documentation">
+<h1>Developer Documentation<a class="headerlink" href="#developer-documentation" title="Link to this heading">#</a></h1>
+<p><strong>Attention:</strong> You are looking BayesFlow’s developer documentation, which is
 aimed at people who want to extend or improve BayesFlow. For user documentation,
-please refer to the examples and the public API documentation.</p>
-<section id="introduction">
-<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
-<p>From version 2 on, BayesFlow is built on <a class="reference external" href="https://keras.io/">Keras</a> v3, which
-allows writing machine learning pipelines that run in JAX, TensorFlow and PyTorch.
-By using functionality provided by Keras, and extending it with backend-specific
-code where necessary, we aim to build BayesFlow in a backend-agnostic fashion as
-well.</p>
-<p>As Keras is built upon three different backend, each with different functionality
-and design decisions, it has its own quirks and compromises. This documents
-outlines some of them, along with the design decisions and programming patterns
-we use to counter them.</p>
-<p>This document is work in progress, so if you read through the code base and
+please refer to the <a class="reference internal" href="../examples.html"><span class="doc">Examples</span></a> and the <a class="reference internal" href="../api/bayesflow.html"><span class="doc">API Reference</span></a>.</p>
+<p>This section is work in progress, so if you read through the code base and
 encounter something that looks odd, but shows up in multiple places, please open
 an issue so that we can add it here. Also, if you introduce a new pattern that
 others will have to use in the future as well, please document it here, along
 with some background information on why it is necessary and how to use it in
 practice.</p>
-</section>
-<section id="privileged-training-argument-in-the-call-method-cannot-be-passed-via-kwargs">
-<h2>Privileged <code class="docutils literal notranslate"><span class="pre">training</span></code> argument in the <code class="docutils literal notranslate"><span class="pre">call()</span></code> method cannot be passed via <code class="docutils literal notranslate"><span class="pre">kwargs</span></code><a class="headerlink" href="#privileged-training-argument-in-the-call-method-cannot-be-passed-via-kwargs" title="Link to this heading">#</a></h2>
-<p>For layers that have different behavior at training and inference time (e.g.,
-dropout or batch normalization layers), a boolean <code class="docutils literal notranslate"><span class="pre">training</span></code> argument can be
-exposed, see <a class="reference external" href="https://keras.io/guides/making_new_layers_and_models_via_subclassing/#privileged-training-argument-in-the-call-method">this section of the Keras documentation</a>.
-If we want to pass this manually, we have to do so explicitly and not as part
-of a set of keyword arguments via <code class="docutils literal notranslate"><span class="pre">**kwargs</span></code>.</p>
-<p>&#64;Lars: Maybe you can add more details on what is going on behind the scenes.</p>
-</section>
-<section id="serialization">
-<h2>Serialization<a class="headerlink" href="#serialization" title="Link to this heading">#</a></h2>
-<p>Serialization deals with the problem of storing objects to disk, and loading
-them at a later point in time. This is straight-forward for data structures like
-numpy arrays, but for classes with custom behavior, like approximators or neural
-network layers, it is somewhat more complex.</p>
-<p>Please refer to the Keras guide <a class="reference external" href="https://keras.io/guides/serialization_and_saving/">Save, serialize, and export models</a>
-for an introduction, and <a class="reference external" href="https://keras.io/guides/customizing_saving_and_serialization/">Customizing Saving and Serialization</a>
-for advanced concepts.</p>
-<p>The basic idea is: by storing the arguments of the constructor of a class
-(i.e., the arguments of the <code class="docutils literal notranslate"><span class="pre">__init__</span></code> function), we can later construct an
-object identical to the one we have stored, except for the weights.
-As the structure is identical, we can then map the stored weights to the newly
-constructed object. The caveat is that all arguments have to be either basic
-Python objects (like int, float, string, bool, …) or themselves serializable.
-If they are not, we have to manually specify how to serialize them, and how to
-load them later on.</p>
-<section id="registering-classes-as-serializable">
-<h3>Registering classes as serializable<a class="headerlink" href="#registering-classes-as-serializable" title="Link to this heading">#</a></h3>
-<p>TODO</p>
-</section>
-<section id="serialization-of-custom-types">
-<h3>Serialization of custom types<a class="headerlink" href="#serialization-of-custom-types" title="Link to this heading">#</a></h3>
-<p>In BayesFlow, we often encounter situations where we do not want to pass a
-specific object (e.g., an MPL of a certain size), but we want to pass its type
-(MLP) and the arguments to construct it. With the type and the arguments, we can
-then construct multiple instances of the network in different places, for example
-as the network inside a coupling block.</p>
-<p>Unfortunately, <code class="docutils literal notranslate"><span class="pre">type</span></code> is not Keras serializable, so we have to serialize those
-arguments manually. To complicate matters further, we also allow passing a string
-instead of a type, which is then used to select the correct type.</p>
-<p>To make it more concrete, we look at the <code class="docutils literal notranslate"><span class="pre">CouplingFlow</span></code> class, which takes the
-argument <code class="docutils literal notranslate"><span class="pre">subnet</span></code> that provide the type of the subnet. It is either a
-string (e.g., <code class="docutils literal notranslate"><span class="pre">&quot;mlp&quot;</span></code>) or a class (e.g., <code class="docutils literal notranslate"><span class="pre">bayesflow.networks.MLP</span></code>). In the first
-case, we can just store the value and load it, in the latter case, we first have
-to convert the type to a string that we can later convert back into a type.</p>
-<p>We provide two helper functions that can deal with both cases:
-<code class="docutils literal notranslate"><span class="pre">bayesflow.utils.serialize_value_or_type(config,</span> <span class="pre">name,</span> <span class="pre">obj)</span></code> and
-<code class="docutils literal notranslate"><span class="pre">bayesflow.utils.deserialize_value_or_type(config,</span> <span class="pre">name)</span></code>.
-In <code class="docutils literal notranslate"><span class="pre">get_config</span></code>, we use the first to store the object, whereas we use the
-latter in <code class="docutils literal notranslate"><span class="pre">from_config</span></code> to load it again.</p>
-<p>As we need all arguments to <code class="docutils literal notranslate"><span class="pre">__init__</span></code> in <code class="docutils literal notranslate"><span class="pre">get_config</span></code>, it can make sense to
-build a <code class="docutils literal notranslate"><span class="pre">config</span></code> dictionary in <code class="docutils literal notranslate"><span class="pre">__init__</span></code> already, which can then be stored when
-<code class="docutils literal notranslate"><span class="pre">get_config</span></code> is called. Take a look at <code class="docutils literal notranslate"><span class="pre">CouplingFlow</span></code> for an example of that.</p>
-</section>
-</section>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="introduction.html">1. Introduction</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pitfalls.html">2. Potential Pitfalls</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stages.html">3. Stages</a></li>
+<li class="toctree-l1"><a class="reference internal" href="serialization.html">4. Serialization: Enable Model Saving &amp; Loading</a></li>
+</ul>
+</div>
 </section>
 
 
@@ -558,6 +506,15 @@ build a <code class="docutils literal notranslate"><span class="pre">config</spa
         <p class="prev-next-title">Contributing to BayesFlow</p>
       </div>
     </a>
+    <a class="right-next"
+       href="introduction.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><span class="section-number">1. </span>Introduction</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
 </div>
                 </footer>
               
@@ -568,24 +525,6 @@ build a <code class="docutils literal notranslate"><span class="pre">config</spa
                 <dialog id="pst-secondary-sidebar-modal"></dialog>
                 <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
 
-
-  <div class="sidebar-secondary-item">
-<div
-    id="pst-page-navigation-heading-2"
-    class="page-toc tocsection onthispage">
-    <i class="fa-solid fa-list"></i> On this page
-  </div>
-  <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
-    <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#privileged-training-argument-in-the-call-method-cannot-be-passed-via-kwargs">Privileged <code class="docutils literal notranslate"><span class="pre">training</span></code> argument in the <code class="docutils literal notranslate"><span class="pre">call()</span></code> method cannot be passed via <code class="docutils literal notranslate"><span class="pre">kwargs</span></code></a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization">Serialization</a><ul class="nav section-nav flex-column">
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-classes-as-serializable">Registering classes as serializable</a></li>
-<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#serialization-of-custom-types">Serialization of custom types</a></li>
-</ul>
-</li>
-</ul>
-  </nav></div>
 
   <div class="sidebar-secondary-item">
 

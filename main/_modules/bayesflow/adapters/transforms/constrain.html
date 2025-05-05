@@ -465,7 +465,7 @@
 
 <div class="viewcode-block" id="Constrain">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Constrain.html#bayesflow.adapters.transforms.Constrain">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Constrain</span><span class="p">(</span><span class="n">ElementwiseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constrains neural network predictions of a data variable to specified bounds.</span>
@@ -541,6 +541,11 @@
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">unconstrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="n">inverse_sigmoid</span><span class="p">((</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">))</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ldj</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">upper</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span>
+
                 <span class="k">case</span> <span class="nb">str</span><span class="p">()</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported method name for double bounded constraint: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
                 <span class="k">case</span> <span class="n">other</span><span class="p">:</span>
@@ -555,6 +560,11 @@
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">unconstrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="n">inverse_softplus</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ldj</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="n">x</span> <span class="o">-</span> <span class="n">lower</span>
+                        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
                 <span class="k">case</span> <span class="s2">&quot;exp&quot;</span> <span class="o">|</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">constrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
@@ -562,6 +572,10 @@
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">unconstrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ldj</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">lower</span><span class="p">)</span>
+
                 <span class="k">case</span> <span class="nb">str</span><span class="p">()</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported method name for single bounded constraint: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
                 <span class="k">case</span> <span class="n">other</span><span class="p">:</span>
@@ -576,12 +590,20 @@
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">unconstrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="o">-</span><span class="n">inverse_softplus</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">upper</span><span class="p">))</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ldj</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="n">x</span> <span class="o">=</span> <span class="o">-</span><span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">upper</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
                 <span class="k">case</span> <span class="s2">&quot;exp&quot;</span> <span class="o">|</span> <span class="s2">&quot;log&quot;</span><span class="p">:</span>
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">constrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">upper</span>
 
                     <span class="k">def</span><span class="w"> </span><span class="nf">unconstrain</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="n">upper</span><span class="p">)</span>
+
+                    <span class="k">def</span><span class="w"> </span><span class="nf">ldj</span><span class="p">(</span><span class="n">x</span><span class="p">):</span>
                         <span class="k">return</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="o">-</span><span class="n">x</span> <span class="o">+</span> <span class="n">upper</span><span class="p">)</span>
                 <span class="k">case</span> <span class="nb">str</span><span class="p">()</span> <span class="k">as</span> <span class="n">name</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported method name for single bounded constraint: &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;.&quot;</span><span class="p">)</span>
@@ -596,6 +618,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">constrain</span> <span class="o">=</span> <span class="n">constrain</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">unconstrain</span> <span class="o">=</span> <span class="n">unconstrain</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ldj</span> <span class="o">=</span> <span class="n">ldj</span>
 
         <span class="c1"># do this last to avoid serialization issues</span>
         <span class="k">match</span> <span class="n">inclusive</span><span class="p">:</span>
@@ -640,6 +663,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">inverse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
         <span class="c1"># inverse means network space -&gt; data space, so constrain the data</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">constrain</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Constrain.log_det_jac">
+<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Constrain.html#bayesflow.adapters.transforms.Constrain.log_det_jac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_det_jac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span> <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">:</span>
+        <span class="n">ldj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ldj</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="n">ldj</span> <span class="o">=</span> <span class="o">-</span><span class="n">ldj</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">ldj</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">ldj</span><span class="o">.</span><span class="n">ndim</span><span class="p">)))</span></div>
 </div>
 
 </pre></div>

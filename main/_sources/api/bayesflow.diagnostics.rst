@@ -22,6 +22,7 @@ diagnostics
     :toctree:
     :template: base.rst
   
+    bootstrap_comparison
     calibration_ecdf
     calibration_ecdf_from_quantiles
     calibration_error
@@ -35,7 +36,7 @@ diagnostics
     posterior_contraction
     recovery
     recovery_from_estimates
-    root_mean_squared_error
+    summary_space_comparison
     z_score_contraction
   
   

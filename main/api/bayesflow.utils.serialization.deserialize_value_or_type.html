@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>root_mean_squared_error &#8212; BayesFlow: Amortized Bayesian Inference</title>
+    <title>deserialize_value_or_type &#8212; BayesFlow: Amortized Bayesian Inference</title>
   
   
   
@@ -45,7 +45,7 @@
     <script src="../_static/doctools.js?v=9bcbadda"></script>
     <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script src="../_static/design-tabs.js?v=f930bc37"></script>
-    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.diagnostics.root_mean_squared_error';</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/bayesflow.utils.serialization.deserialize_value_or_type';</script>
     <script>
         DOCUMENTATION_OPTIONS.theme_version = '0.16.1';
         DOCUMENTATION_OPTIONS.theme_switcher_json_url = '/versions.json';
@@ -53,13 +53,13 @@
         DOCUMENTATION_OPTIONS.show_version_warning_banner =
             false;
         </script>
-    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.diagnostics.root_mean_squared_error.html" />
+    <link rel="canonical" href="https://www.bayesflow.org/api/bayesflow.utils.serialization.deserialize_value_or_type.html" />
     <link rel="icon" href="../_static/bayesflow_hex.ico"/>
     <link rel="author" title="About these documents" href="../about.html" />
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="z_score_contraction" href="bayesflow.diagnostics.z_score_contraction.html" />
-    <link rel="prev" title="recovery_from_estimates" href="bayesflow.diagnostics.recovery_from_estimates.html" />
+    <link rel="next" title="serializable" href="bayesflow.utils.serialization.serializable.html" />
+    <link rel="prev" title="deserialize" href="bayesflow.utils.serialization.deserialize.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   <meta name="docsearch:version" content="" />
@@ -451,7 +451,8 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.datasets.RoundsDataset.html">RoundsDataset</a></li>
 </ul>
 </details></li>
-<li class="toctree-l1 current active has-children"><a class="reference internal" href="bayesflow.diagnostics.html">diagnostics</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.diagnostics.html">diagnostics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.bootstrap_comparison.html">bootstrap_comparison</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_ecdf.html">calibration_ecdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_ecdf_from_quantiles.html">calibration_ecdf_from_quantiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_error.html">calibration_error</a></li>
@@ -465,7 +466,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.posterior_contraction.html">posterior_contraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.recovery.html">recovery</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.recovery_from_estimates.html">recovery_from_estimates</a></li>
-<li class="toctree-l2 current active"><a class="current reference internal" href="#">root_mean_squared_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.summary_space_comparison.html">summary_space_comparison</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.z_score_contraction.html">z_score_contraction</a></li>
 </ul>
 </details></li>
@@ -544,7 +545,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1"><a class="reference internal" href="bayesflow.types.html">types</a></li>
-<li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="bayesflow.utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.utils.keras_utils.html">keras_utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.keras_utils.inverse_shifted_softplus.html">inverse_shifted_softplus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.keras_utils.inverse_softplus.html">inverse_softplus</a></li>
@@ -569,6 +570,14 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.one_hot.html">one_hot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.shifted_softplus.html">shifted_softplus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.softplus.html">softplus</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="bayesflow.utils.serialization.html">serialization</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.deserialize.html">deserialize</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">deserialize_value_or_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serializable.html">serializable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serialize.html">serialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serialize_value_or_type.html">serialize_value_or_type</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
@@ -697,9 +706,12 @@
     <li class="breadcrumb-item"><a href="bayesflow.html" class="nav-link">API Reference</a></li>
     
     
-    <li class="breadcrumb-item"><a href="bayesflow.diagnostics.html" class="nav-link">diagnostics</a></li>
+    <li class="breadcrumb-item"><a href="bayesflow.utils.html" class="nav-link">utils</a></li>
     
-    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">root_mean_squared_error</span></li>
+    
+    <li class="breadcrumb-item"><a href="bayesflow.utils.serialization.html" class="nav-link">serialization</a></li>
+    
+    <li class="breadcrumb-item active" aria-current="page"><span class="ellipsis">deserialize_value_or_type</span></li>
   </ul>
 </nav>
 </div>
@@ -716,58 +728,12 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section id="root-mean-squared-error">
-<h1>root_mean_squared_error<a class="headerlink" href="#root-mean-squared-error" title="Link to this heading">#</a></h1>
+  <section id="deserialize-value-or-type">
+<h1>deserialize_value_or_type<a class="headerlink" href="#deserialize-value-or-type" title="Link to this heading">#</a></h1>
 <dl class="py function">
-<dt class="sig sig-object py" id="bayesflow.diagnostics.root_mean_squared_error">
-<span class="sig-prename descclassname"><span class="pre">bayesflow.diagnostics.</span></span><span class="sig-name descname"><span class="pre">root_mean_squared_error</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">estimates:</span> <span class="pre">~collections.abc.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~numpy.ndarray]</span> <span class="pre">|</span> <span class="pre">~numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">targets:</span> <span class="pre">~collections.abc.Mapping[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">~numpy.ndarray]</span> <span class="pre">|</span> <span class="pre">~numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_keys:</span> <span class="pre">~collections.abc.Sequence[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variable_names:</span> <span class="pre">~collections.abc.Sequence[str]</span> <span class="pre">=</span> <span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize:</span> <span class="pre">bool</span> <span class="pre">=</span> <span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregation:</span> <span class="pre">~collections.abc.Callable</span> <span class="pre">=</span> <span class="pre">&lt;function</span> <span class="pre">median&gt;</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><span class="pre">dict</span></a><span class="p"><span class="pre">[</span></span><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><span class="pre">str</span></a><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/bayesflow/diagnostics/metrics/root_mean_squared_error.html#root_mean_squared_error"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.diagnostics.root_mean_squared_error" title="Link to this definition">#</a></dt>
-<dd><p>Computes the (Normalized) Root Mean Squared Error (RMSE/NRMSE) for the given posterior and prior samples.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>estimates</strong><span class="classifier">np.ndarray of shape (num_datasets, num_draws_post, num_variables)</span></dt><dd><p>Posterior samples, comprising <cite>num_draws_post</cite> random draws from the posterior distribution
-for each data set from <cite>num_datasets</cite>.</p>
-</dd>
-<dt><strong>targets</strong><span class="classifier">np.ndarray of shape (num_datasets, num_variables)</span></dt><dd><p>Prior samples, comprising <cite>num_datasets</cite> ground truths.</p>
-</dd>
-<dt><strong>variable_keys</strong><span class="classifier">Sequence[str], optional (default = None)</span></dt><dd><p>Select keys from the dictionaries provided in estimates and targets.
-By default, select all keys.</p>
-</dd>
-<dt><strong>variable_names</strong><span class="classifier">Sequence[str], optional (default = None)</span></dt><dd><p>Optional variable names to show in the output.</p>
-</dd>
-<dt><strong>normalize</strong><span class="classifier">bool, optional (default = True)</span></dt><dd><p>Whether to normalize the RMSE using the range of the prior samples.</p>
-</dd>
-<dt><strong>aggregation</strong><span class="classifier">callable, optional (default = np.median)</span></dt><dd><p>Function to aggregate the RMSE across draws. Typically <cite>np.mean</cite> or <cite>np.median</cite>.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>result</strong><span class="classifier">dict</span></dt><dd><p>Dictionary containing:</p>
-<ul class="simple">
-<li><dl class="simple">
-<dt>“values”<span class="classifier">np.ndarray</span></dt><dd><p>The aggregated (N)RMSE for each variable.</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>“metric_name”<span class="classifier">str</span></dt><dd><p>The name of the metric (“RMSE” or “NRMSE”).</p>
-</dd>
-</dl>
-</li>
-<li><dl class="simple">
-<dt>“variable_names”<span class="classifier">str</span></dt><dd><p>The (inferred) variable names.</p>
-</dd>
-</dl>
-</li>
-</ul>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>Aggregation is performed after computing the RMSE for each posterior draw, instead of first aggregating
-the posterior draws and then computing the RMSE between aggregates and ground truths.</p>
+<dt class="sig sig-object py" id="bayesflow.utils.serialization.deserialize_value_or_type">
+<span class="sig-prename descclassname"><span class="pre">bayesflow.utils.serialization.</span></span><span class="sig-name descname"><span class="pre">deserialize_value_or_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/utils/serialization.html#deserialize_value_or_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.utils.serialization.deserialize_value_or_type" title="Link to this definition">#</a></dt>
+<dd><p>This function is deprecated.</p>
 </dd></dl>
 
 </section>
@@ -783,20 +749,20 @@ the posterior draws and then computing the RMSE between aggregates and ground tr
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="bayesflow.diagnostics.recovery_from_estimates.html"
+       href="bayesflow.utils.serialization.deserialize.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title">recovery_from_estimates</p>
+        <p class="prev-next-title">deserialize</p>
       </div>
     </a>
     <a class="right-next"
-       href="bayesflow.diagnostics.z_score_contraction.html"
+       href="bayesflow.utils.serialization.serializable.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">z_score_contraction</p>
+        <p class="prev-next-title">serializable</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -820,7 +786,7 @@ the posterior draws and then computing the RMSE between aggregates and ground tr
   <nav class="bd-toc-nav page-toc" aria-labelledby="pst-page-navigation-heading-2">
     
 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.diagnostics.root_mean_squared_error"><code class="docutils literal notranslate"><span class="pre">root_mean_squared_error()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#bayesflow.utils.serialization.deserialize_value_or_type"><code class="docutils literal notranslate"><span class="pre">deserialize_value_or_type()</span></code></a></li>
 </ul>
 
 
@@ -831,7 +797,7 @@ the posterior draws and then computing the RMSE between aggregates and ground tr
 
   
   <div class="tocsection editthispage">
-    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.diagnostics.root_mean_squared_error.rst">
+    <a href="https://github.com/bayesflow-org/bayesflow/edit/main/docsrc/source/api/bayesflow.utils.serialization.deserialize_value_or_type.rst">
       <i class="fa-solid fa-pencil"></i>
       
       

@@ -453,17 +453,17 @@
 <span></span><span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">keras</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">Shape</span><span class="p">,</span> <span class="n">Tensor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.links</span><span class="w"> </span><span class="kn">import</span> <span class="n">PositiveDefinite</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">serializable</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.parametric_distribution_score</span><span class="w"> </span><span class="kn">import</span> <span class="n">ParametricDistributionScore</span>
 
 
 <div class="viewcode-block" id="MultivariateNormalScore">
 <a class="viewcode-back" href="../../../api/bayesflow.scores.MultivariateNormalScore.html#bayesflow.scores.MultivariateNormalScore">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.scores&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">MultivariateNormalScore</span><span class="p">(</span><span class="n">ParametricDistributionScore</span><span class="p">):</span>
 <span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;:math:`S(\hat p_{\mu, \Sigma}, \theta; k) = -\log( \mathcal N (\theta; \mu, \Sigma))`</span>
 

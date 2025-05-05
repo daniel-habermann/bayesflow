@@ -1,6 +1,6 @@
-root\_mean\_squared\_error
+summary\_space\_comparison
 ==========================
 
 .. currentmodule:: bayesflow.diagnostics
 
-.. autofunction:: root_mean_squared_error
+.. autofunction:: summary_space_comparison

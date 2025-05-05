@@ -453,12 +453,11 @@
 <span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">keras.saving</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">deserialize_keras_object</span> <span class="k">as</span> <span class="n">deserialize</span><span class="p">,</span>
-    <span class="n">register_keras_serializable</span> <span class="k">as</span> <span class="n">serializable</span><span class="p">,</span>
-    <span class="n">serialize_keras_object</span> <span class="k">as</span> <span class="n">serialize</span><span class="p">,</span>
     <span class="n">get_registered_name</span><span class="p">,</span>
     <span class="n">get_registered_object</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.utils.serialization</span><span class="w"> </span><span class="kn">import</span> <span class="n">deserialize</span><span class="p">,</span> <span class="n">serializable</span><span class="p">,</span> <span class="n">serialize</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.elementwise_transform</span><span class="w"> </span><span class="kn">import</span> <span class="n">ElementwiseTransform</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">...utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">filter_kwargs</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
@@ -466,7 +465,7 @@
 
 <div class="viewcode-block" id="SerializableCustomTransform">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.SerializableCustomTransform.html#bayesflow.adapters.transforms.SerializableCustomTransform">[docs]</a>
-<span class="nd">@serializable</span><span class="p">(</span><span class="n">package</span><span class="o">=</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SerializableCustomTransform</span><span class="p">(</span><span class="n">ElementwiseTransform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Transforms a parameter using a pair of registered serializable forward and inverse functions.</span>

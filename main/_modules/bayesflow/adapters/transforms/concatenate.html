@@ -461,7 +461,7 @@
 
 <div class="viewcode-block" id="Concatenate">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Concatenate.html#bayesflow.adapters.transforms.Concatenate">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Concatenate</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenate multiple arrays into a new key. Used to specify how data variables should be treated by the network.</span>
 
@@ -580,6 +580,43 @@
             <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;, axis=</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">axis</span><span class="si">}</span><span class="s2">&quot;</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
+
+
+<div class="viewcode-block" id="Concatenate.log_det_jac">
+<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Concatenate.html#bayesflow.adapters.transforms.Concatenate.log_det_jac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_det_jac</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="n">log_det_jac</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">],</span>
+        <span class="o">*</span><span class="p">,</span>
+        <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">]:</span>
+        <span class="c1"># copy to avoid side effects</span>
+        <span class="n">log_det_jac</span> <span class="o">=</span> <span class="n">log_det_jac</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">inverse</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">log_det_jac</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">into</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Cannot obtain an inverse Jacobian of concatenation. &quot;</span>
+                    <span class="s2">&quot;Transform your variables before you concatenate.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">log_det_jac</span>
+
+        <span class="n">required_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">)</span>
+        <span class="n">available_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">log_det_jac</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="n">common_keys</span> <span class="o">=</span> <span class="n">available_keys</span> <span class="o">&amp;</span> <span class="n">required_keys</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">common_keys</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">log_det_jac</span>
+
+        <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="n">log_det_jac</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">common_keys</span><span class="p">]</span>
+
+        <span class="n">log_det_jac</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">into</span><span class="p">]</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">log_det_jac</span></div>
 </div>
 
 </pre></div>

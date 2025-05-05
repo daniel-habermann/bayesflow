@@ -18,6 +18,7 @@ utils
     keras_utils
     logging
     numpy_utils
+    serialization
 
   
   

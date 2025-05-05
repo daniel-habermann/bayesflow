@@ -459,7 +459,7 @@
 
 <div class="viewcode-block" id="Keep">
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Keep.html#bayesflow.adapters.transforms.Keep">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.adapters&quot;</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">Keep</span><span class="p">(</span><span class="n">Transform</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Name the data parameters that should be kept for futher calculation.</span>
@@ -522,6 +522,12 @@
 <a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Keep.html#bayesflow.adapters.transforms.Keep.extra_repr">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">extra_repr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;[&quot;</span> <span class="o">+</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">repr</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">keys</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;]&quot;</span></div>
+
+
+<div class="viewcode-block" id="Keep.log_det_jac">
+<a class="viewcode-back" href="../../../../api/bayesflow.adapters.transforms.Keep.html#bayesflow.adapters.transforms.Keep.log_det_jac">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">log_det_jac</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="n">log_det_jac</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">any</span><span class="p">],</span> <span class="n">inverse</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">inverse</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">log_det_jac</span><span class="p">)</span> <span class="k">if</span> <span class="n">inverse</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">forward</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">log_det_jac</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

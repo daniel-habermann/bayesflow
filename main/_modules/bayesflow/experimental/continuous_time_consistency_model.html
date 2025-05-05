@@ -474,9 +474,10 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">bayesflow.networks.embeddings</span><span class="w"> </span><span class="kn">import</span> <span class="n">FourierEmbedding</span>
 
 
+<span class="c1"># disable module check, use potential module after moving from experimental</span>
 <div class="viewcode-block" id="ContinuousTimeConsistencyModel">
 <a class="viewcode-back" href="../../../api/bayesflow.experimental.ContinuousTimeConsistencyModel.html#bayesflow.experimental.ContinuousTimeConsistencyModel">[docs]</a>
-<span class="nd">@serializable</span>
+<span class="nd">@serializable</span><span class="p">(</span><span class="s2">&quot;bayesflow.networks&quot;</span><span class="p">,</span> <span class="n">disable_module_check</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ContinuousTimeConsistencyModel</span><span class="p">(</span><span class="n">InferenceNetwork</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Implements an sCM (simple, stable, and scalable Consistency Model)</span>
 <span class="sd">    with continous-time Consistency Training (CT) as described in [1].</span>

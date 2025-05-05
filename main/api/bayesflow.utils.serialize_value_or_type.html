@@ -452,6 +452,7 @@
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="bayesflow.diagnostics.html">diagnostics</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.bootstrap_comparison.html">bootstrap_comparison</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_ecdf.html">calibration_ecdf</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_ecdf_from_quantiles.html">calibration_ecdf_from_quantiles</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.calibration_error.html">calibration_error</a></li>
@@ -465,7 +466,7 @@
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.posterior_contraction.html">posterior_contraction</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.recovery.html">recovery</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.recovery_from_estimates.html">recovery_from_estimates</a></li>
-<li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.root_mean_squared_error.html">root_mean_squared_error</a></li>
+<li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.summary_space_comparison.html">summary_space_comparison</a></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.diagnostics.z_score_contraction.html">z_score_contraction</a></li>
 </ul>
 </details></li>
@@ -569,6 +570,14 @@
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.one_hot.html">one_hot</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.shifted_softplus.html">shifted_softplus</a></li>
 <li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.numpy_utils.softplus.html">softplus</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="bayesflow.utils.serialization.html">serialization</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.deserialize.html">deserialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.deserialize_value_or_type.html">deserialize_value_or_type</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serializable.html">serializable</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serialize.html">serialize</a></li>
+<li class="toctree-l3"><a class="reference internal" href="bayesflow.utils.serialization.serialize_value_or_type.html">serialize_value_or_type</a></li>
 </ul>
 </details></li>
 <li class="toctree-l2"><a class="reference internal" href="bayesflow.utils.add_metric.html">add_metric</a></li>
@@ -721,37 +730,7 @@
 <dl class="py function">
 <dt class="sig sig-object py" id="bayesflow.utils.serialize_value_or_type">
 <span class="sig-prename descclassname"><span class="pre">bayesflow.utils.</span></span><span class="sig-name descname"><span class="pre">serialize_value_or_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">obj</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/bayesflow/utils/serialization.html#serialize_value_or_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#bayesflow.utils.serialize_value_or_type" title="Link to this definition">#</a></dt>
-<dd><p>Serialize an object that can be either a value or a type
-and add it to a copy of the supplied dictionary.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><dl class="simple">
-<dt><strong>config</strong><span class="classifier">dict</span></dt><dd><p>Dictionary to add the serialized object to. This function does not
-modify the dictionary in place, but returns a modified copy.</p>
-</dd>
-<dt><strong>name</strong><span class="classifier">str</span></dt><dd><p>Name of the obj that should be stored. Required for later deserialization.</p>
-</dd>
-<dt><strong>obj</strong><span class="classifier">object or type</span></dt><dd><p>The object to serialize. If <cite>obj</cite> is of type <cite>type</cite>, we use
-<cite>keras.saving.get_registered_name</cite> to obtain the registered type name.
-If it is not a type, we try to serialize it as a Keras object.</p>
-</dd>
-</dl>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><dl class="simple">
-<dt><strong>updated_config</strong><span class="classifier">dict</span></dt><dd><p>Updated dictionary with a new key <cite>“_bayesflow_&lt;name&gt;_type”</cite> or
-<cite>“_bayesflow_&lt;name&gt;_val”</cite>. The prefix is used to avoid name collisions,
-the suffix indicates how the stored value has to be deserialized.</p>
-</dd>
-</dl>
-</dd>
-</dl>
-<p class="rubric">Notes</p>
-<p>We allow strings or <cite>type</cite> parameters at several places to instantiate objects
-of a given type (e.g., <cite>subnet</cite> in <cite>CouplingFlow</cite>). As <cite>type</cite> objects cannot
-be serialized, we have to distinguish the two cases for serialization and
-deserialization. This function is a helper function to standardize and
-simplify this.</p>
+<dd><p>This function is deprecated.</p>
 </dd></dl>
 
 </section>

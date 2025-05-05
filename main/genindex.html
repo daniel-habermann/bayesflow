@@ -1012,6 +1012,13 @@
 </li>
       </ul></li>
       <li>
+    bayesflow.utils.serialization
+
+      <ul>
+        <li><a href="api/bayesflow.utils.serialization.html#module-bayesflow.utils.serialization">module</a>
+</li>
+      </ul></li>
+      <li>
     bayesflow.workflows
 
       <ul>
@@ -1049,6 +1056,8 @@
       <li><a href="api/bayesflow.simulators.BernoulliGLM.html#bayesflow.simulators.BernoulliGLM">BernoulliGLM (class in bayesflow.simulators)</a>
 </li>
       <li><a href="api/bayesflow.simulators.BernoulliGLMRaw.html#bayesflow.simulators.BernoulliGLMRaw">BernoulliGLMRaw (class in bayesflow.simulators)</a>
+</li>
+      <li><a href="api/bayesflow.diagnostics.bootstrap_comparison.html#bayesflow.diagnostics.bootstrap_comparison">bootstrap_comparison() (in module bayesflow.diagnostics)</a>
 </li>
       <li><a href="api/bayesflow.adapters.transforms.Broadcast.html#bayesflow.adapters.transforms.Broadcast">Broadcast (class in bayesflow.adapters.transforms)</a>
 </li>
@@ -1734,8 +1743,14 @@
 </li>
       <li><a href="api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.default_adapter">default_adapter() (bayesflow.workflows.BasicWorkflow static method)</a>
 </li>
-      <li><a href="api/bayesflow.utils.deserialize_value_or_type.html#bayesflow.utils.deserialize_value_or_type">deserialize_value_or_type() (in module bayesflow.utils)</a>
+      <li><a href="api/bayesflow.utils.serialization.deserialize.html#bayesflow.utils.serialization.deserialize">deserialize() (in module bayesflow.utils.serialization)</a>
 </li>
+      <li><a href="api/bayesflow.utils.deserialize_value_or_type.html#bayesflow.utils.deserialize_value_or_type">deserialize_value_or_type() (in module bayesflow.utils)</a>
+
+      <ul>
+        <li><a href="api/bayesflow.utils.serialization.deserialize_value_or_type.html#bayesflow.utils.serialization.deserialize_value_or_type">(in module bayesflow.utils.serialization)</a>
+</li>
+      </ul></li>
       <li><a href="api/bayesflow.utils.detailed_loss_callback.html#bayesflow.utils.detailed_loss_callback">detailed_loss_callback() (in module bayesflow.utils)</a>
 </li>
       <li><a href="api/bayesflow.utils.devices.html#bayesflow.utils.devices">devices() (in module bayesflow.utils)</a>
@@ -3020,6 +3035,60 @@
         <li><a href="api/bayesflow.utils.logging.log.html#bayesflow.utils.logging.log">(in module bayesflow.utils.logging)</a>
 </li>
       </ul></li>
+      <li><a href="api/bayesflow.adapters.transforms.AsSet.html#bayesflow.adapters.transforms.AsSet.log_det_jac">log_det_jac() (bayesflow.adapters.transforms.AsSet method)</a>
+
+      <ul>
+        <li><a href="api/bayesflow.adapters.transforms.AsTimeSeries.html#bayesflow.adapters.transforms.AsTimeSeries.log_det_jac">(bayesflow.adapters.transforms.AsTimeSeries method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Broadcast.html#bayesflow.adapters.transforms.Broadcast.log_det_jac">(bayesflow.adapters.transforms.Broadcast method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Concatenate.html#bayesflow.adapters.transforms.Concatenate.log_det_jac">(bayesflow.adapters.transforms.Concatenate method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Constrain.html#bayesflow.adapters.transforms.Constrain.log_det_jac">(bayesflow.adapters.transforms.Constrain method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.ConvertDType.html#bayesflow.adapters.transforms.ConvertDType.log_det_jac">(bayesflow.adapters.transforms.ConvertDType method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Drop.html#bayesflow.adapters.transforms.Drop.log_det_jac">(bayesflow.adapters.transforms.Drop method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.ElementwiseTransform.html#bayesflow.adapters.transforms.ElementwiseTransform.log_det_jac">(bayesflow.adapters.transforms.ElementwiseTransform method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.ExpandDims.html#bayesflow.adapters.transforms.ExpandDims.log_det_jac">(bayesflow.adapters.transforms.ExpandDims method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.FilterTransform.html#bayesflow.adapters.transforms.FilterTransform.log_det_jac">(bayesflow.adapters.transforms.FilterTransform method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Keep.html#bayesflow.adapters.transforms.Keep.log_det_jac">(bayesflow.adapters.transforms.Keep method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Log.html#bayesflow.adapters.transforms.Log.log_det_jac">(bayesflow.adapters.transforms.Log method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.MapTransform.html#bayesflow.adapters.transforms.MapTransform.log_det_jac">(bayesflow.adapters.transforms.MapTransform method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.NumpyTransform.html#bayesflow.adapters.transforms.NumpyTransform.log_det_jac">(bayesflow.adapters.transforms.NumpyTransform method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.OneHot.html#bayesflow.adapters.transforms.OneHot.log_det_jac">(bayesflow.adapters.transforms.OneHot method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Rename.html#bayesflow.adapters.transforms.Rename.log_det_jac">(bayesflow.adapters.transforms.Rename method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Scale.html#bayesflow.adapters.transforms.Scale.log_det_jac">(bayesflow.adapters.transforms.Scale method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.SerializableCustomTransform.html#bayesflow.adapters.transforms.SerializableCustomTransform.log_det_jac">(bayesflow.adapters.transforms.SerializableCustomTransform method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Shift.html#bayesflow.adapters.transforms.Shift.log_det_jac">(bayesflow.adapters.transforms.Shift method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Split.html#bayesflow.adapters.transforms.Split.log_det_jac">(bayesflow.adapters.transforms.Split method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Sqrt.html#bayesflow.adapters.transforms.Sqrt.log_det_jac">(bayesflow.adapters.transforms.Sqrt method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Standardize.html#bayesflow.adapters.transforms.Standardize.log_det_jac">(bayesflow.adapters.transforms.Standardize method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.ToArray.html#bayesflow.adapters.transforms.ToArray.log_det_jac">(bayesflow.adapters.transforms.ToArray method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.ToDict.html#bayesflow.adapters.transforms.ToDict.log_det_jac">(bayesflow.adapters.transforms.ToDict method)</a>
+</li>
+        <li><a href="api/bayesflow.adapters.transforms.Transform.html#bayesflow.adapters.transforms.Transform.log_det_jac">(bayesflow.adapters.transforms.Transform method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/bayesflow.approximators.ContinuousApproximator.html#bayesflow.approximators.ContinuousApproximator.log_prob">log_prob() (bayesflow.approximators.ContinuousApproximator method)</a>
 
       <ul>
@@ -3056,8 +3125,6 @@
         <li><a href="api/bayesflow.workflows.BasicWorkflow.html#bayesflow.workflows.BasicWorkflow.log_prob">(bayesflow.workflows.BasicWorkflow method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/bayesflow.diagnostics.loss.html#bayesflow.diagnostics.loss">loss() (in module bayesflow.diagnostics)</a>
 </li>
       <li><a href="api/bayesflow.approximators.Approximator.html#bayesflow.approximators.Approximator.losses">losses (bayesflow.approximators.Approximator property)</a>
@@ -3389,6 +3456,8 @@
         <li><a href="api/bayesflow.utils.logging.html#module-bayesflow.utils.logging">bayesflow.utils.logging</a>
 </li>
         <li><a href="api/bayesflow.utils.numpy_utils.html#module-bayesflow.utils.numpy_utils">bayesflow.utils.numpy_utils</a>
+</li>
+        <li><a href="api/bayesflow.utils.serialization.html#module-bayesflow.utils.serialization">bayesflow.utils.serialization</a>
 </li>
         <li><a href="api/bayesflow.workflows.html#module-bayesflow.workflows">bayesflow.workflows</a>
 </li>
@@ -4233,12 +4302,8 @@
       </ul></li>
       <li><a href="api/bayesflow.adapters.Adapter.html#bayesflow.adapters.Adapter.reverse">reverse() (bayesflow.adapters.Adapter method)</a>
 </li>
-      <li><a href="api/bayesflow.diagnostics.root_mean_squared_error.html#bayesflow.diagnostics.root_mean_squared_error">root_mean_squared_error() (in module bayesflow.diagnostics)</a>
-
-      <ul>
-        <li><a href="api/bayesflow.metrics.functional.root_mean_squared_error.html#bayesflow.metrics.functional.root_mean_squared_error">(in module bayesflow.metrics.functional)</a>
+      <li><a href="api/bayesflow.metrics.functional.root_mean_squared_error.html#bayesflow.metrics.functional.root_mean_squared_error">root_mean_squared_error() (in module bayesflow.metrics.functional)</a>
 </li>
-      </ul></li>
       <li><a href="api/bayesflow.metrics.RootMeanSquaredError.html#bayesflow.metrics.RootMeanSquaredError">RootMeanSquaredError (class in bayesflow.metrics)</a>
 </li>
       <li><a href="api/bayesflow.datasets.RoundsDataset.html#bayesflow.datasets.RoundsDataset">RoundsDataset (class in bayesflow.datasets)</a>
@@ -4449,10 +4514,18 @@
 </li>
       <li><a href="api/bayesflow.simulators.SequentialSimulator.html#bayesflow.simulators.SequentialSimulator">SequentialSimulator (class in bayesflow.simulators)</a>
 </li>
+      <li><a href="api/bayesflow.utils.serialization.serializable.html#bayesflow.utils.serialization.serializable">serializable() (in module bayesflow.utils.serialization)</a>
+</li>
       <li><a href="api/bayesflow.adapters.transforms.SerializableCustomTransform.html#bayesflow.adapters.transforms.SerializableCustomTransform">SerializableCustomTransform (class in bayesflow.adapters.transforms)</a>
 </li>
-      <li><a href="api/bayesflow.utils.serialize_value_or_type.html#bayesflow.utils.serialize_value_or_type">serialize_value_or_type() (in module bayesflow.utils)</a>
+      <li><a href="api/bayesflow.utils.serialization.serialize.html#bayesflow.utils.serialization.serialize">serialize() (in module bayesflow.utils.serialization)</a>
 </li>
+      <li><a href="api/bayesflow.utils.serialize_value_or_type.html#bayesflow.utils.serialize_value_or_type">serialize_value_or_type() (in module bayesflow.utils)</a>
+
+      <ul>
+        <li><a href="api/bayesflow.utils.serialization.serialize_value_or_type.html#bayesflow.utils.serialization.serialize_value_or_type">(in module bayesflow.utils.serialization)</a>
+</li>
+      </ul></li>
       <li><a href="api/bayesflow.approximators.Approximator.html#bayesflow.approximators.Approximator.set_state_tree">set_state_tree() (bayesflow.approximators.Approximator method)</a>
 
       <ul>
@@ -4703,6 +4776,14 @@
       </ul></li>
       <li><a href="api/bayesflow.networks.ConsistencyModel.html#bayesflow.networks.ConsistencyModel.student">student (bayesflow.networks.ConsistencyModel property)</a>
 </li>
+      <li><a href="api/bayesflow.approximators.ContinuousApproximator.html#bayesflow.approximators.ContinuousApproximator.summaries">summaries() (bayesflow.approximators.ContinuousApproximator method)</a>
+
+      <ul>
+        <li><a href="api/bayesflow.approximators.ModelComparisonApproximator.html#bayesflow.approximators.ModelComparisonApproximator.summaries">(bayesflow.approximators.ModelComparisonApproximator method)</a>
+</li>
+        <li><a href="api/bayesflow.approximators.PointApproximator.html#bayesflow.approximators.PointApproximator.summaries">(bayesflow.approximators.PointApproximator method)</a>
+</li>
+      </ul></li>
       <li><a href="api/bayesflow.approximators.Approximator.html#bayesflow.approximators.Approximator.summary">summary() (bayesflow.approximators.Approximator method)</a>
 
       <ul>
@@ -4715,6 +4796,8 @@
         <li><a href="api/bayesflow.networks.MLP.html#bayesflow.networks.MLP.summary">(bayesflow.networks.MLP method)</a>
 </li>
       </ul></li>
+      <li><a href="api/bayesflow.diagnostics.summary_space_comparison.html#bayesflow.diagnostics.summary_space_comparison">summary_space_comparison() (in module bayesflow.diagnostics)</a>
+</li>
       <li><a href="api/bayesflow.networks.SummaryNetwork.html#bayesflow.networks.SummaryNetwork">SummaryNetwork (class in bayesflow.networks)</a>
 </li>
       <li><a href="api/bayesflow.approximators.Approximator.html#bayesflow.approximators.Approximator.supports_masking">supports_masking (bayesflow.approximators.Approximator property)</a>
