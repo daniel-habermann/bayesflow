@@ -230,3 +230,25 @@ def test_to_dict_transform():
 
     # category should have 5 one-hot categories, even though it was only passed 4
     assert processed["category"].shape[-1] == 5
+
+
+def test_replace_nan():
+    arr = {"test": np.array([1.0, np.nan, 3.0]), "test-2d": np.array([[1.0, np.nan], [np.nan, 4.0]])}
+    # test without mask
+    transform = bf.Adapter().replace_nan(keys="test", default_value=-1.0, encode_mask=False)
+    out = transform.forward(arr)["test"]
+    np.testing.assert_array_equal(out, np.array([1.0, -1.0, 3.0]))
+
+    # test with mask
+    transform = bf.Adapter().replace_nan(keys="test", default_value=0.0, encode_mask=True)
+    out = transform.forward(arr)["test"]
+    np.testing.assert_array_equal(out, np.array([[1.0, 1.0], [0.0, 0.0], [3.0, 1.0]]))
+
+    # test two-d array
+    transform = bf.Adapter().replace_nan(keys="test-2d", default_value=0.5, encode_mask=True, axis=0)
+    out = transform.forward(arr)["test-2d"]
+    # Original shape (2,2) -> new shape (2,2,2) when expanding at axis=0
+    # Channel 0 along axis 0 should be the filled values
+    np.testing.assert_array_equal(out[0], np.array([[1.0, 0.5], [0.5, 4.0]]))
+    # Channel 1 along axis 0 should be the mask
+    np.testing.assert_array_equal(out[1], np.array([[1, 0], [0, 1]]))
