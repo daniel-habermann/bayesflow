@@ -128,12 +128,12 @@ class SetTransformer(SummaryNetwork):
 
         self.summary_dim = summary_dim
 
-    def call(self, input_set: Tensor, training: bool = False, **kwargs) -> Tensor:
+    def call(self, input: Tensor, training: bool = False, **kwargs) -> Tensor:
         """Compresses the input sequence into a summary vector of size `summary_dim`.
 
         Parameters
         ----------
-        input_set  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
+        input  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
             Input of shape (batch_size, set_size, input_dim)
         training   : boolean, optional (default - False)
             Passed to the optional internal dropout and spectral normalization
@@ -147,7 +147,7 @@ class SetTransformer(SummaryNetwork):
         out : Tensor
             Output of shape (batch_size, set_size, output_dim)
         """
-        summary = self.attention_blocks(input_set, training=training, **kwargs)
+        summary = self.attention_blocks(input, training=training, **kwargs)
         summary = self.pooling_by_attention(summary, training=training, **kwargs)
         summary = self.output_projector(summary)
         return summary

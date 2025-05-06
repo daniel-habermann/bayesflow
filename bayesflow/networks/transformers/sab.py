@@ -18,15 +18,15 @@ class SetAttentionBlock(MultiHeadAttentionBlock):
 
     # noinspection PyMethodOverriding
     @sanitize_input_shape
-    def build(self, input_set_shape):
-        self.call(keras.ops.zeros(input_set_shape))
+    def build(self, input_shape):
+        self.call(keras.ops.zeros(input_shape))
 
-    def call(self, input_set: Tensor, training: bool = False, **kwargs) -> Tensor:
+    def call(self, input: Tensor, training: bool = False, **kwargs) -> Tensor:
         """Performs the forward pass through the self-attention layer.
 
         Parameters
         ----------
-        input_set  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
+        input  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
             Input of shape (batch_size, set_size, input_dim)
         training   : boolean, optional (default - True)
             Passed to the optional internal dropout and spectral normalization
@@ -41,9 +41,9 @@ class SetAttentionBlock(MultiHeadAttentionBlock):
             Output of shape (batch_size, set_size, output_dim)
         """
 
-        return super().call(input_set, input_set, training=training, **kwargs)
+        return super().call(input, input, training=training, **kwargs)
 
     # noinspection PyMethodOverriding
     @sanitize_input_shape
-    def compute_output_shape(self, input_set_shape):
-        return keras.ops.shape(self.call(keras.ops.zeros(input_set_shape)))
+    def compute_output_shape(self, input_shape):
+        return keras.ops.shape(self.call(keras.ops.zeros(input_shape)))

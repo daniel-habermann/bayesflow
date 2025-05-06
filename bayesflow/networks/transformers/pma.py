@@ -97,12 +97,12 @@ class PoolingByMultiHeadAttention(keras.Layer):
             dropout=dropout,
         )
 
-    def call(self, input_set: Tensor, training: bool = False, **kwargs) -> Tensor:
+    def call(self, input: Tensor, training: bool = False, **kwargs) -> Tensor:
         """Performs the forward pass through the PMA block.
 
         Parameters
         ----------
-        input_set  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
+        input  : Tensor (e.g., np.ndarray, tf.Tensor, ...)
             Input of shape (batch_size, set_size, input_dim)
             Since this is self-attention, the input set is used
             as a query (Q), key (K), and value (V)
@@ -119,8 +119,8 @@ class PoolingByMultiHeadAttention(keras.Layer):
             Output of shape (batch_size, num_seeds * summary_dim)
         """
 
-        set_x_transformed = self.feedforward(input_set, training=training)
-        batch_size = ops.shape(input_set)[0]
+        set_x_transformed = self.feedforward(input, training=training)
+        batch_size = ops.shape(input)[0]
         seed_vector_expanded = ops.expand_dims(self.seed_vector, axis=0)
         seed_tiled = ops.tile(seed_vector_expanded, [batch_size, 1, 1])
         summaries = self.mab(seed_tiled, set_x_transformed, training=training, **kwargs)

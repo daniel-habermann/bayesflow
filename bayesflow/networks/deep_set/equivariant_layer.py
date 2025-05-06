@@ -102,12 +102,12 @@ class EquivariantLayer(keras.Layer):
     def build(self, input_shape):
         self.call(keras.ops.zeros(input_shape))
 
-    def call(self, input_set: Tensor, training: bool = False, **kwargs) -> Tensor:
+    def call(self, input: Tensor, training: bool = False, **kwargs) -> Tensor:
         """Performs the forward pass of a learnable equivariant transform.
 
         Parameters
         ----------
-        input_set : Tensor
+        input : Tensor
             The input tensor representing a set, with shape
             (batch_size, ..., set_size, input_dim).
         training : bool, optional
@@ -118,29 +118,29 @@ class EquivariantLayer(keras.Layer):
         Returns
         -------
         Tensor
-            The transformed output tensor with the same shape as `input_set`, where
+            The transformed output tensor with the same shape as `input`, where
             each element is processed through the equivariant transformation.
         """
 
-        input_set = self.input_projector(input_set)
+        input = self.input_projector(input)
 
-        # Store shape of input_set, will be (batch_size, ..., set_size, some_dim)
-        shape = ops.shape(input_set)
+        # Store shape of input, will be (batch_size, ..., set_size, some_dim)
+        shape = ops.shape(input)
 
         # Example: Output dim is (batch_size, ..., set_size, representation_dim)
-        invariant_summary = self.invariant_module(input_set, training=training)
+        invariant_summary = self.invariant_module(input, training=training)
         invariant_summary = ops.expand_dims(invariant_summary, axis=-2)
         tiler = [1] * len(shape)
         tiler[-2] = shape[-2]
         invariant_summary = ops.tile(invariant_summary, tiler)
 
         # Concatenate each input entry with the repeated invariant embedding
-        output_set = ops.concatenate([input_set, invariant_summary], axis=-1)
+        output_set = ops.concatenate([input, invariant_summary], axis=-1)
 
         # Pass through final equivariant transform + residual
         out_fc = self.equivariant_fc(output_set, training=training)
         out_projected = self.out_fc_projector(out_fc)
-        output_set = input_set + out_projected
+        output_set = input + out_projected
 
         if self.layer_norm is not None:
             output_set = self.layer_norm(output_set, training=training)
