@@ -3,12 +3,147 @@ import keras
 
 from bayesflow.utils import filter_kwargs
 
+from keras.src.backend.jax.trainer import JAXEpochIterator
+from keras.src import callbacks as callbacks_module
+
 
 class JAXApproximator(keras.Model):
+    def _aggregate_logs(self, logs, step_logs):
+        if not logs:
+            return step_logs
+
+        return keras.tree.map_structure(keras.ops.add, logs, step_logs)
+
+    def _mean_logs(self, logs, total_steps):
+        if total_steps == 0:
+            return logs
+
+        def _div(x):
+            return x / total_steps
+
+        return keras.tree.map_structure(_div, logs)
+
     # noinspection PyMethodOverriding
     def compute_metrics(self, *args, **kwargs) -> dict[str, jax.Array]:
         # implemented by each respective architecture
         raise NotImplementedError
+
+    def evaluate(
+        self,
+        x=None,
+        y=None,
+        batch_size=None,
+        verbose="auto",
+        sample_weight=None,
+        steps=None,
+        callbacks=None,
+        return_dict=False,
+        **kwargs,
+    ):
+        self._assert_compile_called("evaluate")
+        # TODO: respect compiled trainable state
+        use_cached_eval_dataset = kwargs.pop("_use_cached_eval_dataset", False)
+        if kwargs:
+            raise ValueError(f"Arguments not recognized: {kwargs}")
+
+        if use_cached_eval_dataset:
+            epoch_iterator = self._eval_epoch_iterator
+        else:
+            # Create an iterator that yields batches of input/target data.
+            epoch_iterator = JAXEpochIterator(
+                x=x,
+                y=y,
+                sample_weight=sample_weight,
+                batch_size=batch_size,
+                steps_per_epoch=steps,
+                shuffle=False,
+                steps_per_execution=self.steps_per_execution,
+            )
+
+        self._symbolic_build(iterator=epoch_iterator)
+        epoch_iterator.reset()
+
+        # Container that configures and calls callbacks.
+        if not isinstance(callbacks, callbacks_module.CallbackList):
+            callbacks = callbacks_module.CallbackList(
+                callbacks,
+                add_progbar=verbose != 0,
+                verbose=verbose,
+                epochs=1,
+                steps=epoch_iterator.num_batches,
+                model=self,
+            )
+        self._record_training_state_sharding_spec()
+
+        self.make_test_function()
+        self.stop_evaluating = False
+        callbacks.on_test_begin()
+        logs = {}
+        total_steps = 0
+        self.reset_metrics()
+
+        self._jax_state_synced = True
+        with epoch_iterator.catch_stop_iteration():
+            for step, iterator in epoch_iterator:
+                total_steps += 1
+                callbacks.on_test_batch_begin(step)
+
+                if self._jax_state_synced:
+                    # The state may have been synced by a callback.
+                    state = self._get_jax_state(
+                        trainable_variables=True,
+                        non_trainable_variables=True,
+                        metrics_variables=True,
+                        purge_model_variables=True,
+                    )
+                    self._jax_state_synced = False
+
+                # BAYESFLOW: save into step_logs instead of overwriting logs
+                step_logs, state = self.test_function(state, iterator)
+                (
+                    trainable_variables,
+                    non_trainable_variables,
+                    metrics_variables,
+                ) = state
+
+                # BAYESFLOW: aggregate the metrics across all iterations
+                logs = self._aggregate_logs(logs, step_logs)
+
+                # Setting _jax_state enables callbacks to force a state sync
+                # if they need to.
+                self._jax_state = {
+                    # I wouldn't recommend modifying non-trainable model state
+                    # during evaluate(), but it's allowed.
+                    "trainable_variables": trainable_variables,
+                    "non_trainable_variables": non_trainable_variables,
+                    "metrics_variables": metrics_variables,
+                }
+
+                # Dispatch callbacks. This takes care of async dispatch.
+                callbacks.on_test_batch_end(step, logs)
+
+                if self.stop_evaluating:
+                    break
+
+        # BAYESFLOW: average the metrics across all iterations
+        logs = self._mean_logs(logs, total_steps)
+
+        # Reattach state back to model (if not already done by a callback).
+        self.jax_state_sync()
+
+        # The jax spmd_mode is need for multi-process context, since the
+        # metrics values are replicated, and we don't want to do a all
+        # gather, and only need the local copy of the value.
+        with jax.spmd_mode("allow_all"):
+            logs = self._get_metrics_result_or_logs(logs)
+        callbacks.on_test_end(logs)
+        self._jax_state = None
+        if not use_cached_eval_dataset:
+            # Only clear sharding if evaluate is not called from `fit`.
+            self._clear_jax_state_sharding()
+        if return_dict:
+            return logs
+        return self._flatten_metrics_in_order(logs)
 
     def stateless_compute_metrics(
         self,

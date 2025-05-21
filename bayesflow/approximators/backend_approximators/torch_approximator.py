@@ -3,12 +3,109 @@ import torch
 
 from bayesflow.utils import filter_kwargs
 
+from keras.src.backend.torch.trainer import TorchEpochIterator
+from keras.src import callbacks as callbacks_module
+
 
 class TorchApproximator(keras.Model):
+    def _aggregate_logs(self, logs, step_logs):
+        if not logs:
+            return step_logs
+
+        return keras.tree.map_structure(keras.ops.add, logs, step_logs)
+
+    def _mean_logs(self, logs, total_steps):
+        if total_steps == 0:
+            return logs
+
+        def _div(x):
+            return x / total_steps
+
+        return keras.tree.map_structure(_div, logs)
+
     # noinspection PyMethodOverriding
     def compute_metrics(self, *args, **kwargs) -> dict[str, torch.Tensor]:
         # implemented by each respective architecture
         raise NotImplementedError
+
+    def evaluate(
+        self,
+        x=None,
+        y=None,
+        batch_size=None,
+        verbose="auto",
+        sample_weight=None,
+        steps=None,
+        callbacks=None,
+        return_dict=False,
+        **kwargs,
+    ):
+        # TODO: respect compiled trainable state
+        use_cached_eval_dataset = kwargs.pop("_use_cached_eval_dataset", False)
+        if kwargs:
+            raise ValueError(f"Arguments not recognized: {kwargs}")
+
+        if use_cached_eval_dataset:
+            epoch_iterator = self._eval_epoch_iterator
+        else:
+            # Create an iterator that yields batches of input/target data.
+            epoch_iterator = TorchEpochIterator(
+                x=x,
+                y=y,
+                sample_weight=sample_weight,
+                batch_size=batch_size,
+                steps_per_epoch=steps,
+                shuffle=False,
+                steps_per_execution=self.steps_per_execution,
+            )
+
+        self._symbolic_build(iterator=epoch_iterator)
+        epoch_iterator.reset()
+
+        # Container that configures and calls callbacks.
+        if not isinstance(callbacks, callbacks_module.CallbackList):
+            callbacks = callbacks_module.CallbackList(
+                callbacks,
+                add_progbar=verbose != 0,
+                verbose=verbose,
+                epochs=1,
+                steps=epoch_iterator.num_batches,
+                model=self,
+            )
+
+        # Switch the torch Module back to testing mode.
+        self.eval()
+
+        self.make_test_function()
+        self.stop_evaluating = False
+        callbacks.on_test_begin()
+        logs = {}
+        total_steps = 0
+        self.reset_metrics()
+        for step, data in epoch_iterator:
+            total_steps += 1
+
+            callbacks.on_test_batch_begin(step)
+
+            # BAYESFLOW: save into step_logs instead of overwriting logs
+            step_logs = self.test_function(data)
+
+            # BAYESFLOW: aggregate the metrics across all iterations
+            logs = self._aggregate_logs(logs, step_logs)
+
+            callbacks.on_test_batch_end(step, logs)
+            if self.stop_evaluating:
+                break
+
+        # BAYESFLOW: average the metrics across all iterations
+        logs = self._mean_logs(logs, total_steps)
+
+        logs = self._get_metrics_result_or_logs(logs)
+        callbacks.on_test_end(logs)
+
+        if return_dict:
+            return logs
+        return self._flatten_metrics_in_order(logs)
 
     def test_step(self, data: dict[str, any]) -> dict[str, torch.Tensor]:
         kwargs = filter_kwargs(data | {"stage": "validation"}, self.compute_metrics)
