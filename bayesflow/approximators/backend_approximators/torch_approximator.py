@@ -23,7 +23,7 @@ class TorchApproximator(keras.Model):
         steps=None,
         callbacks=None,
         return_dict=False,
-        aggregate=False,
+        aggregate=True,
         **kwargs,
     ):
         # TODO: respect compiled trainable state

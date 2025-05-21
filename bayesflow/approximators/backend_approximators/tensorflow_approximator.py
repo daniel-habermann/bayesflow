@@ -23,7 +23,7 @@ class TensorFlowApproximator(keras.Model):
         steps=None,
         callbacks=None,
         return_dict=False,
-        aggregate=False,
+        aggregate=True,
         **kwargs,
     ):
         self._assert_compile_called("evaluate")
