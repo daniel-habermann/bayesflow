@@ -8,21 +8,6 @@ from keras.src import callbacks as callbacks_module
 
 
 class TensorFlowApproximator(keras.Model):
-    def _aggregate_logs(self, logs, step_logs):
-        if not logs:
-            return step_logs
-
-        return keras.tree.map_structure(keras.ops.add, logs, step_logs)
-
-    def _mean_logs(self, logs, total_steps):
-        if total_steps == 0:
-            return logs
-
-        def _div(x):
-            return x / total_steps
-
-        return keras.tree.map_structure(_div, logs)
-
     # noinspection PyMethodOverriding
     def compute_metrics(self, *args, **kwargs) -> dict[str, tf.Tensor]:
         # implemented by each respective architecture
@@ -38,6 +23,7 @@ class TensorFlowApproximator(keras.Model):
         steps=None,
         callbacks=None,
         return_dict=False,
+        aggregate=False,
         **kwargs,
     ):
         self._assert_compile_called("evaluate")
@@ -81,24 +67,37 @@ class TensorFlowApproximator(keras.Model):
         logs = {}
         total_steps = 0
         self.reset_metrics()
+
+        def _aggregate_fn(_logs, _step_logs):
+            if not _logs:
+                return _step_logs
+
+            return keras.tree.map_structure(keras.ops.add, _logs, _step_logs)
+
+        def _reduce_fn(_logs, _total_steps):
+            def _div(val):
+                return val / _total_steps
+
+            return keras.tree.map_structure(_div, _logs)
+
         with epoch_iterator.catch_stop_iteration():
             for step, iterator in epoch_iterator:
+                callbacks.on_test_batch_begin(step)
                 total_steps += 1
 
-                callbacks.on_test_batch_begin(step)
-
-                # BAYESFLOW: save into step_logs instead of overwriting logs
                 step_logs = self.test_function(iterator)
 
-                # BAYESFLOW: aggregate the metrics across all iterations
-                logs = self._aggregate_logs(logs, step_logs)
+                if aggregate:
+                    logs = _aggregate_fn(logs, step_logs)
+                else:
+                    logs = step_logs
 
-                callbacks.on_test_batch_end(step, logs)
+                callbacks.on_test_batch_end(step, step_logs)
                 if self.stop_evaluating:
                     break
 
-        # BAYESFLOW: average the metrics across all iterations
-        logs = self._mean_logs(logs, total_steps)
+        if aggregate:
+            logs = _reduce_fn(logs, total_steps)
 
         logs = self._get_metrics_result_or_logs(logs)
         callbacks.on_test_end(logs)

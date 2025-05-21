@@ -8,21 +8,6 @@ from keras.src import callbacks as callbacks_module
 
 
 class JAXApproximator(keras.Model):
-    def _aggregate_logs(self, logs, step_logs):
-        if not logs:
-            return step_logs
-
-        return keras.tree.map_structure(keras.ops.add, logs, step_logs)
-
-    def _mean_logs(self, logs, total_steps):
-        if total_steps == 0:
-            return logs
-
-        def _div(x):
-            return x / total_steps
-
-        return keras.tree.map_structure(_div, logs)
-
     # noinspection PyMethodOverriding
     def compute_metrics(self, *args, **kwargs) -> dict[str, jax.Array]:
         # implemented by each respective architecture
@@ -38,6 +23,7 @@ class JAXApproximator(keras.Model):
         steps=None,
         callbacks=None,
         return_dict=False,
+        aggregate=True,
         **kwargs,
     ):
         self._assert_compile_called("evaluate")
@@ -49,7 +35,8 @@ class JAXApproximator(keras.Model):
         if use_cached_eval_dataset:
             epoch_iterator = self._eval_epoch_iterator
         else:
-            # Create an iterator that yields batches of input/target data.
+            # Create an iterator that yields batches of
+            # input/target data.
             epoch_iterator = JAXEpochIterator(
                 x=x,
                 y=y,
@@ -82,11 +69,24 @@ class JAXApproximator(keras.Model):
         total_steps = 0
         self.reset_metrics()
 
+        def _aggregate_fn(_logs, _step_logs):
+            if not _logs:
+                return _step_logs
+
+            return keras.tree.map_structure(keras.ops.add, _logs, _step_logs)
+
+        def _reduce_fn(_logs, _total_steps):
+            def _div(val):
+                return val / _total_steps
+
+            return keras.tree.map_structure(_div, _logs)
+
         self._jax_state_synced = True
         with epoch_iterator.catch_stop_iteration():
             for step, iterator in epoch_iterator:
-                total_steps += 1
                 callbacks.on_test_batch_begin(step)
+
+                total_steps += 1
 
                 if self._jax_state_synced:
                     # The state may have been synced by a callback.
@@ -98,7 +98,6 @@ class JAXApproximator(keras.Model):
                     )
                     self._jax_state_synced = False
 
-                # BAYESFLOW: save into step_logs instead of overwriting logs
                 step_logs, state = self.test_function(state, iterator)
                 (
                     trainable_variables,
@@ -106,8 +105,10 @@ class JAXApproximator(keras.Model):
                     metrics_variables,
                 ) = state
 
-                # BAYESFLOW: aggregate the metrics across all iterations
-                logs = self._aggregate_logs(logs, step_logs)
+                if aggregate:
+                    logs = _aggregate_fn(logs, step_logs)
+                else:
+                    logs = step_logs
 
                 # Setting _jax_state enables callbacks to force a state sync
                 # if they need to.
@@ -120,22 +121,18 @@ class JAXApproximator(keras.Model):
                 }
 
                 # Dispatch callbacks. This takes care of async dispatch.
-                callbacks.on_test_batch_end(step, logs)
+                callbacks.on_test_batch_end(step, step_logs)
 
                 if self.stop_evaluating:
                     break
 
-        # BAYESFLOW: average the metrics across all iterations
-        logs = self._mean_logs(logs, total_steps)
+        if aggregate:
+            logs = _reduce_fn(logs, total_steps)
 
         # Reattach state back to model (if not already done by a callback).
         self.jax_state_sync()
 
-        # The jax spmd_mode is need for multi-process context, since the
-        # metrics values are replicated, and we don't want to do a all
-        # gather, and only need the local copy of the value.
-        with jax.spmd_mode("allow_all"):
-            logs = self._get_metrics_result_or_logs(logs)
+        logs = self._get_metrics_result_or_logs(logs)
         callbacks.on_test_end(logs)
         self._jax_state = None
         if not use_cached_eval_dataset:
