@@ -76,6 +76,9 @@ class TorchApproximator(keras.Model):
             return keras.tree.map_structure(keras.ops.add, _logs, _step_logs)
 
         def _reduce_fn(_logs, _total_steps):
+            if _total_steps == 0:
+                return _logs
+
             def _div(val):
                 return val / _total_steps
 
