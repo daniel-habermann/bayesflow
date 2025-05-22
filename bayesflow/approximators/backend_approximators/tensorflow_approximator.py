@@ -12,7 +12,10 @@ class TensorFlowApproximator(keras.Model):
 
     def test_step(self, data: dict[str, any]) -> dict[str, tf.Tensor]:
         kwargs = filter_kwargs(data | {"stage": "validation"}, self.compute_metrics)
-        return self.compute_metrics(**kwargs)
+        metrics = self.compute_metrics(**kwargs)
+        loss = metrics["loss"]
+        self._loss_tracker.update_state(loss)
+        return metrics
 
     def train_step(self, data: dict[str, any]) -> dict[str, tf.Tensor]:
         with tf.GradientTape() as tape:
