@@ -155,7 +155,7 @@ class ContinuousApproximator(Approximator):
         stage: str = "training",
     ) -> dict[str, Tensor]:
         # Optionally standardize optional inference conditions
-        if inference_conditions and self.inference_conditions_norm:
+        if inference_conditions is not None and self.inference_conditions_norm:
             inference_conditions = self.inference_conditions_norm(inference_conditions, stage=stage)
 
         if self.summary_network is None:
