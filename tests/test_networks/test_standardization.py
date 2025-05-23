@@ -10,7 +10,7 @@ def test_forward_standardization_training():
     layer = Standardization(momentum=0.0)  # no EMA for test stability
     layer.build(random_input.shape)
 
-    out = layer(random_input, stage="training", forward=True)
+    out = layer(random_input, stage="training")
 
     moving_mean = keras.ops.convert_to_numpy(layer.moving_mean)
     moving_std = keras.ops.convert_to_numpy(layer.moving_std)
@@ -32,7 +32,7 @@ def test_inverse_standardization_ldj():
     layer.build(random_input.shape)
 
     _ = layer(random_input, stage="training", forward=True)  # trigger moment update
-    inv_x, ldj = layer(random_input, stage="inference", forward=False)
+    inv_x, ldj = layer(random_input, stage="inference", forward=False, log_det_jac=True)
 
     assert inv_x.shape == random_input.shape
     assert ldj.shape == random_input.shape[:-1]
@@ -43,7 +43,7 @@ def test_consistency_forward_inverse():
     layer = Standardization(momentum=0.0)
     layer.build((5,))
     standardized = layer(random_input, stage="training", forward=True)
-    recovered, _ = layer(standardized, stage="inference", forward=False)
+    recovered = layer(standardized, stage="inference", forward=False)
 
     random_input = keras.ops.convert_to_numpy(random_input)
     recovered = keras.ops.convert_to_numpy(recovered)
