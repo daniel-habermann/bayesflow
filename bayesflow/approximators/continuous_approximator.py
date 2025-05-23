@@ -49,6 +49,7 @@ class ContinuousApproximator(Approximator):
         self.inference_network = inference_network
         self.summary_network = summary_network
         self.standardize = standardize
+
         self.inference_variables_norm = None
         self.summary_variables_norm = None
         self.inference_conditions_norm = None
@@ -59,7 +60,6 @@ class ContinuousApproximator(Approximator):
         inference_variables: Sequence[str],
         inference_conditions: Sequence[str] = None,
         summary_variables: Sequence[str] = None,
-        standardize: bool = True,
         sample_weight: str = None,
     ) -> Adapter:
         """Create an :py:class:`~bayesflow.adapters.Adapter` suited for the approximator.
@@ -72,8 +72,6 @@ class ContinuousApproximator(Approximator):
             Names of the inference conditions in the data
         summary_variables : Sequence of str, optional
             Names of the summary variables in the data
-        standardize : bool, optional
-            Decide whether to standardize all variables, default is True
         sample_weight : str, optional
             Name of the sample weights
         """
@@ -95,9 +93,6 @@ class ContinuousApproximator(Approximator):
 
         adapter.keep(["inference_variables", "inference_conditions", "summary_variables", "sample_weight"])
 
-        if standardize:
-            adapter.standardize(exclude="sample_weight")
-
         return adapter
 
     def compile(
@@ -118,7 +113,7 @@ class ContinuousApproximator(Approximator):
 
         return super().compile(*args, **kwargs)
 
-    def build_from_data(self, adapted_data: dict[str, any]) -> None:
+    def build_from_data(self, adapted_data: dict[str, any]):
         # Determine input standardization
         if self.standardize == "all":
             keys = ["inference_variables", "summary_variables", "inference_conditions"]
@@ -129,13 +124,15 @@ class ContinuousApproximator(Approximator):
         else:
             keys = []
 
-        if "inference_variables" in keys:
+        if "inference_variables" in adapted_data and "inference_variables" in keys:
             self.inference_variables_norm = Standardization()
             self.inference_variables_norm(adapted_data["inference_variables"])
-        if "summary_variables" in keys and self.summary_network:
+
+        if "summary_variables" in adapted_data and "summary_variables" in keys and self.summary_network:
             self.summary_variables_norm = Standardization()
             self.summary_variables_norm(adapted_data["summary_variables"])
-        if "inference_conditions" in keys:
+
+        if "inference_conditions" in adapted_data and "inference_conditions" in keys:
             self.inference_conditions_norm = Standardization()
             self.inference_conditions_norm(adapted_data["inference_conditions"])
 
@@ -394,21 +391,18 @@ class ContinuousApproximator(Approximator):
 
         # Optionally standardize conditions
         if "summary_variables" in conditions and self.summary_variables_norm:
-            conditions["summary_variables"] = self.summary_variables_norm(
-                conditions["summary_variables"], stage="inference"
-            )
+            conditions["summary_variables"] = self.summary_variables_norm(conditions["summary_variables"])
 
         if "inference_conditions" in conditions and self.inference_conditions_norm:
-            conditions["inference_conditions"] = self.inference_conditions_norm(
-                conditions["inference_conditions"], stage="inference"
-            )
+            conditions["inference_conditions"] = self.inference_conditions_norm(conditions["inference_conditions"])
+
         conditions = keras.tree.map_structure(keras.ops.convert_to_tensor, conditions)
 
         # Sample and undo optional standardization
         samples = self._sample(num_samples=num_samples, **conditions, **kwargs)
 
         if self.inference_variables_norm:
-            samples = self.inference_variables_norm(samples, stage="inference", forward=False)
+            samples = self.inference_variables_norm(samples, forward=False)
 
         samples = {"inference_variables": samples}
         samples = keras.tree.map_structure(keras.ops.convert_to_numpy, samples)
@@ -512,16 +506,14 @@ class ContinuousApproximator(Approximator):
 
         # Optionally standardize conditions and variables
         if "summary_variables" in data and self.summary_variables_norm:
-            data["summary_variables"] = self.summary_variables_norm(data["summary_variables"], stage="inference")
+            data["summary_variables"] = self.summary_variables_norm(data["summary_variables"])
 
         if "inference_conditions" in data and self.inference_conditions_norm:
-            data["inference_conditions"] = self.inference_conditions_norm(
-                data["inference_conditions"], stage="inference"
-            )
+            data["inference_conditions"] = self.inference_conditions_norm(data["inference_conditions"])
 
         if self.inference_variables_norm:
             data["inference_variables"], log_det_jac = self.summary_variables_norm(
-                data["inference_variables"], stage="inference", log_det_jac=True
+                data["inference_variables"], log_det_jac=True
             )
             log_det_jac = keras.ops.convert_to_numpy(log_det_jac)
         else:
