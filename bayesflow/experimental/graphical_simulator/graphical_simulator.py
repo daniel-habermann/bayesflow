@@ -1,4 +1,3 @@
-import inspect
 import itertools
 from collections.abc import Callable
 from typing import Any, Optional
@@ -8,6 +7,7 @@ import numpy as np
 
 from bayesflow.simulators import Simulator
 from bayesflow.types import Shape
+from bayesflow.utils.decorators import allow_batch_size
 
 
 class GraphicalSimulator(Simulator):
@@ -34,6 +34,7 @@ class GraphicalSimulator(Simulator):
     def add_edge(self, from_node: str, to_node: str):
         self.graph.add_edge(from_node, to_node)
 
+    @allow_batch_size
     def sample(self, batch_shape: Shape, **kwargs) -> dict[str, np.ndarray]:
         """
         Generates samples by topologically traversing the DAG.
@@ -49,10 +50,11 @@ class GraphicalSimulator(Simulator):
         """
         _ = kwargs  # Simulator class requires **kwargs, which are unused here
         meta_dict = self.meta_fn() if self.meta_fn else {}
+        samples_by_node = {}
 
-        # Initialize samples containers for each node
+        # Initialize samples container for each node
         for node in self.graph.nodes:
-            self.graph.nodes[node]["samples"] = np.empty(batch_shape, dtype="object")
+            samples_by_node[node] = np.empty(batch_shape, dtype="object")
 
         for batch_idx in np.ndindex(batch_shape):
             for node in nx.topological_sort(self.graph):
@@ -70,46 +72,97 @@ class GraphicalSimulator(Simulator):
                     ]
                 else:
                     # non-root node: depends on parent samples
-                    parent_samples = [self.graph.nodes[p]["samples"][batch_idx] for p in parent_nodes]
+                    parent_samples = [samples_by_node[p][batch_idx] for p in parent_nodes]
                     merged_dicts = merge_lists_of_dicts(parent_samples)
 
                     for merged in merged_dicts:
-                        index_entries = filter_indices(merged)
-                        variable_entries = filter_variables(merged)
+                        index_entries = {k: v for k, v in merged.items() if k.startswith("__")}
+                        variable_entries = {k: v for k, v in merged.items() if not k.startswith("__")}
 
                         node_samples.extend(
                             [
-                                index_entries | {f"__{node}_idx": i} | call_sampling_fn(sampling_fn, variable_entries)
+                                index_entries | {f"__{node}_idx": i} | sampling_fn(**variable_entries)
                                 for i in range(1, reps + 1)
                             ]
                         )
 
-                self.graph.nodes[node]["samples"][batch_idx] = node_samples
+                samples_by_node[node][batch_idx] = node_samples
 
-        return {"a": np.zeros(3)}
+        output_dict = {}
+        for node in nx.topological_sort(self.graph):
+            output_dict.update(self._collect_output(samples_by_node[node]))
+
+        return output_dict
+
+    def _collect_output(self, samples):
+        output_dict = {}
+
+        index_entries = [k for k in samples.flat[0][0].keys() if k.startswith("__")]
+        node = index_entries[-1].removeprefix("__").removesuffix("_idx")
+        ancestors = non_root_ancestors(self.graph, node)
+        variable_names = self._variable_names(samples)
+
+        for variable in variable_names:
+            output_shape = self._output_shape(samples, variable)
+            output_dict[variable] = np.empty(output_shape)
+
+            for batch_idx in np.ndindex(samples.shape):
+                for sample in samples[batch_idx]:
+                    idx = tuple(
+                        [*batch_idx]
+                        + [sample[f"__{a}_idx"] - 1 for a in ancestors]
+                        + [sample[f"__{node}_idx"] - 1]  # - 1 for 0-based indexing
+                    )
+                    output_dict[variable][idx] = sample[variable]
+
+        return output_dict
+
+    def _variable_names(self, samples):
+        return [k for k in samples.flat[0][0].keys() if not k.startswith("__")]
+
+    def _output_shape(self, samples, variable):
+        index_entries = [k for k in samples.flat[0][0].keys() if k.startswith("__")]
+        node = index_entries[-1].removeprefix("__").removesuffix("_idx")
+
+        # start with batch shape
+        batch_shape = samples.shape
+        output_shape = [*batch_shape]
+        ancestors = non_root_ancestors(self.graph, node)
+
+        # add reps of non root ancestors
+        for ancestor in ancestors:
+            reps = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
+            output_shape.append(reps)
+
+        # add node reps
+        if not is_root_node(self.graph, node):
+            node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
+            output_shape.append(node_reps)
+
+        # add variable shape
+        variable_shape = np.atleast_1d(samples.flat[0][0][variable]).shape
+        output_shape.extend(variable_shape)
+
+        return tuple(output_shape)
+
+
+def non_root_ancestors(graph, node):
+    return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node) and not is_root_node(graph, n)]
+
+
+def is_root_node(graph, node):
+    return len(list(graph.predecessors(node))) == 0
 
 
 def merge_lists_of_dicts(nested_list: list[list[dict]]) -> list[dict]:
     """
     Merges all combinations of dictionaries from a list of lists.
     Equivalent to a Cartesian product of dicts, then flattening.
+
+    Examples:
+        >>> merge_lists_of_dicts([[{"a": 1, "b": 2}], [{"c": 3}, {"d": 4}]])
+        [{'a': 1, 'b': 2, 'c': 3}, {'a': 1, 'b': 2, 'd': 4}]
     """
 
     all_combinations = itertools.product(*nested_list)
     return [{k: v for d in combo for k, v in d.items()} for combo in all_combinations]
-
-
-def call_sampling_fn(sampling_fn: Callable, inputs: dict) -> dict[str, Any]:
-    num_args = len(inspect.signature(sampling_fn).parameters)
-    if num_args == 0:
-        return sampling_fn()
-    else:
-        return sampling_fn(**inputs)
-
-
-def filter_indices(d: dict) -> dict[str, Any]:
-    return {k: v for k, v in d.items() if k.startswith("__")}
-
-
-def filter_variables(d: dict) -> dict[str, Any]:
-    return {k: v for k, v in d.items() if not k.startswith("__")}
