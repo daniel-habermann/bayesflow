@@ -1,15 +1,5 @@
 import numpy as np
-from .graphical_simmulator import GraphicalSimulator
-from bayesflow.utils import batched_call
-
-
-def test_batched_call():
-    return batched_call(sample_fn, (10, 2), flatten=True)
-    pass
-
-
-def sample_fn():
-    return {"a": 3, "b": 6}
+from .graphical_simulator import GraphicalSimulator
 
 
 def twolevel_simulator():
