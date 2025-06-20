@@ -10,7 +10,7 @@ def irt_simulator():
 
         # hierarchical mu/sigma for the exam difficulty standard deviation (logscale)
         mu_exam_std = np.random.normal(loc=0.5, scale=0.3)
-        sigma_exam_std = abs(np.random.normal(loc=0, scale=1))
+        sigma_exam_std = abs(np.random.normal(loc=0, scale=0.5))
 
         return dict(
             mu_exam_mean=mu_exam_mean,
@@ -37,7 +37,7 @@ def irt_simulator():
         return dict(question_difficulty=question_difficulty)
 
     # realizations of individual student abilities
-    def sample_student(**kwargs):
+    def sample_student():
         student_ability = np.random.normal(loc=0, scale=1)
 
         return dict(student_ability=student_ability)
@@ -85,6 +85,34 @@ def irt_simulator():
     simulator.add_edge("exams", "questions")
     simulator.add_edge("questions", "observations")
     simulator.add_edge("students", "observations")
+
+    return simulator
+
+
+def onelevel_simulator():
+    def prior():
+        beta = np.random.normal([2, 0], [3, 1])
+        sigma = np.random.gamma(1, 1)
+
+        return {"beta": beta, "sigma": sigma}
+
+    def likelihood(beta, sigma, N):
+        x = np.random.normal(0, 1, size=N)
+        y = np.random.normal(beta[0] + beta[1] * x, sigma, size=N)
+
+        return {"x": x, "y": y}
+
+    def meta():
+        N = np.random.randint(5, 15)
+
+        return {"N": N}
+
+    simulator = GraphicalSimulator(meta_fn=meta)
+
+    simulator.add_node("prior", sampling_fn=prior)
+    simulator.add_node("likelihood", sampling_fn=likelihood)
+
+    simulator.add_edge("prior", "likelihood")
 
     return simulator
 
