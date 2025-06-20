@@ -1,3 +1,4 @@
+import inspect
 import itertools
 from collections.abc import Callable
 from typing import Any, Optional
@@ -68,7 +69,8 @@ class GraphicalSimulator(Simulator):
                 if not parent_nodes:
                     # root node: generate independent samples
                     node_samples = [
-                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | sampling_fn() for i in range(1, reps + 1)
+                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sampling_fn(sampling_fn, {})
+                        for i in range(1, reps + 1)
                     ]
                 else:
                     # non-root node: depends on parent samples
@@ -79,9 +81,12 @@ class GraphicalSimulator(Simulator):
                         index_entries = {k: v for k, v in merged.items() if k.startswith("__")}
                         variable_entries = {k: v for k, v in merged.items() if not k.startswith("__")}
 
+                        sampling_fn_input = variable_entries | meta_dict
                         node_samples.extend(
                             [
-                                index_entries | {f"__{node}_idx": i} | sampling_fn(**variable_entries)
+                                index_entries
+                                | {f"__{node}_idx": i}
+                                | self._call_sampling_fn(sampling_fn, sampling_fn_input)
                                 for i in range(1, reps + 1)
                             ]
                         )
@@ -92,6 +97,8 @@ class GraphicalSimulator(Simulator):
         for node in nx.topological_sort(self.graph):
             output_dict.update(self._collect_output(samples_by_node[node]))
 
+        output_dict.update(meta_dict)
+
         return output_dict
 
     def _collect_output(self, samples):
@@ -99,6 +106,7 @@ class GraphicalSimulator(Simulator):
 
         index_entries = [k for k in samples.flat[0][0].keys() if k.startswith("__")]
         node = index_entries[-1].removeprefix("__").removesuffix("_idx")
+        node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
         ancestors = non_root_ancestors(self.graph, node)
         variable_names = self._variable_names(samples)
 
@@ -108,12 +116,13 @@ class GraphicalSimulator(Simulator):
 
             for batch_idx in np.ndindex(samples.shape):
                 for sample in samples[batch_idx]:
-                    idx = tuple(
-                        [*batch_idx]
-                        + [sample[f"__{a}_idx"] - 1 for a in ancestors]
-                        + [sample[f"__{node}_idx"] - 1]  # - 1 for 0-based indexing
-                    )
-                    output_dict[variable][idx] = sample[variable]
+                    idx = [*batch_idx]
+                    for ancestor in ancestors:
+                        idx.append(sample[f"__{ancestor}_idx"] - 1)
+                    if not is_root_node(self.graph, node):
+                        if node_reps != 1:
+                            idx.append(sample[f"__{node}_idx"] - 1)  # -1 for 0-based indexing
+                    output_dict[variable][tuple(idx)] = sample[variable]
 
         return output_dict
 
@@ -137,13 +146,21 @@ class GraphicalSimulator(Simulator):
         # add node reps
         if not is_root_node(self.graph, node):
             node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
-            output_shape.append(node_reps)
+            if node_reps != 1:
+                output_shape.append(node_reps)
 
         # add variable shape
         variable_shape = np.atleast_1d(samples.flat[0][0][variable]).shape
         output_shape.extend(variable_shape)
 
         return tuple(output_shape)
+
+    def _call_sampling_fn(self, sampling_fn, args):
+        signature = inspect.signature(sampling_fn)
+        fn_args = signature.parameters
+        accepted_args = {k: v for k, v in args.items() if k in fn_args}
+
+        return sampling_fn(**accepted_args)
 
 
 def non_root_ancestors(graph, node):
