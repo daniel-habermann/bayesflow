@@ -85,7 +85,15 @@ def test_expected_calibration_error(pred_models, true_models, model_names):
         out = bf.diagnostics.metrics.expected_calibration_error(pred_models, true_models.transpose)
 
 
-def test_log_gamma():
+def test_log_gamma(random_estimates, random_targets):
+    out = bf.diagnostics.metrics.log_gamma(random_estimates, random_targets)
+    assert list(out.keys()) == ["values", "metric_name", "variable_names"]
+    assert out["values"].shape == (num_variables(random_estimates),)
+    assert out["metric_name"] == "Log Gamma"
+    assert out["variable_names"] == ["beta_0", "beta_1", "sigma"]
+
+
+def test_log_gamma_end_to_end():
     # This is a function test for simulation-based calibration.
     # First, we sample from a known generative process and then run SBC.
     # If the log gamma statistic is correctly implemented, a 95% interval should exclude
