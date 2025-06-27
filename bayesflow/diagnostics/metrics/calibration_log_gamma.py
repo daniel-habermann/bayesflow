@@ -6,7 +6,7 @@ from scipy.stats import binom
 from ...utils.dict_utils import dicts_to_arrays
 
 
-def log_gamma(
+def calibration_log_gamma(
     estimates: Mapping[str, np.ndarray] | np.ndarray,
     targets: Mapping[str, np.ndarray] | np.ndarray,
     variable_keys: Sequence[str] = None,
@@ -15,7 +15,8 @@ def log_gamma(
     quantile: float = 0.05,
 ):
     """
-    Compute the log gamma discrepancy statistic, see [1] for additional information.
+    Compute the log gamma discrepancy statistic to test posterior calibration,
+    see [1] for additional information.
     Log gamma is log(gamma/gamma_null), where gamma_null is the 5th percentile of the
     null distribution under uniformity of ranks.
     That is, if adopting a hypothesis testing framework,then log_gamma < 0 implies
@@ -52,7 +53,7 @@ def log_gamma(
         - "values" : float or np.ndarray
             The log gamma values per variable
         - "metric_name" : str
-            The name of the metric ("Log Gamme").
+            The name of the metric ("Log Gamma").
         - "variable_names" : str
             The (inferred) variable names.
     """
@@ -74,13 +75,14 @@ def log_gamma(
     null_quantile = np.quantile(null_distribution, quantile)
 
     # compute log gamma for each parameter
-    log_gammas = []
+    log_gammas = np.empty(ranks.shape[-1])
+
     for i in range(ranks.shape[-1]):
         gamma = gamma_discrepancy(ranks[:, i], num_post_draws=num_post_draws)
-        log_gammas.append(np.log(gamma / null_quantile))
+        log_gammas[i] = np.log(gamma / null_quantile)
 
     output = {
-        "values": np.array(log_gammas),
+        "values": log_gammas,
         "metric_name": "Log Gamma",
         "variable_names": samples["estimates"].variable_names,
     }

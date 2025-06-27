@@ -7,6 +7,7 @@ from .metrics import (
     calibration_error,
     posterior_contraction,
     summary_space_comparison,
+    calibration_log_gamma,
 )
 
 from .plots import (
