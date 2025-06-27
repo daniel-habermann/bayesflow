@@ -43,6 +43,18 @@ def log_gamma(
     quantile : float in (0, 1), optional, default 0.05
         The quantile from the null distribution to be used as a threshold.
         A lower quantile increases sensitivity to deviations from uniformity.
+
+    Returns
+    -------
+    result : dict
+        Dictionary containing:
+
+        - "values" : float or np.ndarray
+            The log gamma values per variable
+        - "metric_name" : str
+            The name of the metric ("Log Gamme").
+        - "variable_names" : str
+            The (inferred) variable names.
     """
     samples = dicts_to_arrays(
         estimates=estimates,
