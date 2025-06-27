@@ -108,11 +108,11 @@ def test_log_gamma():
         ranks = np.sum(posterior_draws < prior_draws, axis=0)
 
         # this is the distribution of gamma under uniform ranks
-        gamma_null = bf.diagnostics.metrics.log_gamma.gamma_null_distribution(D, S, num_null_draws=100)
+        gamma_null = bf.diagnostics.metrics.gamma_null_distribution(D, S, num_null_draws=100)
         lower, upper = np.quantile(gamma_null, (0.05, 0.995))
 
         # this is the empirical gamma
-        observed_gamma = bf.diagnostics.metrics.log_gamma.gamma_discrepancy(ranks, num_post_draws=S)
+        observed_gamma = bf.diagnostics.metrics.gamma_discrepancy(ranks, num_post_draws=S)
 
         in_interval = lower <= observed_gamma < upper
 
