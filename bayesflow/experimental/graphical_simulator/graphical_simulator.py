@@ -93,6 +93,7 @@ class GraphicalSimulator(Simulator):
 
                 samples_by_node[node][batch_idx] = node_samples
 
+        # collect outputs
         output_dict = {}
         for node in nx.topological_sort(self.graph):
             output_dict.update(self._collect_output(samples_by_node[node]))
@@ -104,12 +105,20 @@ class GraphicalSimulator(Simulator):
     def _collect_output(self, samples):
         output_dict = {}
 
+        # retrieve node and ancestors from internal sample representation
         index_entries = [k for k in samples.flat[0][0].keys() if k.startswith("__")]
         node = index_entries[-1].removeprefix("__").removesuffix("_idx")
-        node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
-        ancestors = non_root_ancestors(self.graph, node)
+        ancestors = sorted_ancestors(self.graph, node)
+
+        # build dict of node repetitions
+        reps = {}
+        for ancestor in ancestors:
+            reps[ancestor] = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
+        reps[node] = max(s[f"__{node}_idx"] for s in samples.flat[0])
+
         variable_names = self._variable_names(samples)
 
+        # collect output for each variable
         for variable in variable_names:
             output_shape = self._output_shape(samples, variable)
             output_dict[variable] = np.empty(output_shape)
@@ -117,11 +126,16 @@ class GraphicalSimulator(Simulator):
             for batch_idx in np.ndindex(samples.shape):
                 for sample in samples[batch_idx]:
                     idx = [*batch_idx]
+
+                    # add index elements for ancestors
                     for ancestor in ancestors:
-                        idx.append(sample[f"__{ancestor}_idx"] - 1)
-                    if not is_root_node(self.graph, node):
-                        if node_reps != 1:
-                            idx.append(sample[f"__{node}_idx"] - 1)  # -1 for 0-based indexing
+                        if reps[ancestor] != 1:
+                            idx.append(sample[f"__{ancestor}_idx"] - 1)  # -1 for 0-based indexing
+
+                    # add index elements for node
+                    if reps[node] != 1:
+                        idx.append(sample[f"__{node}_idx"] - 1)  # -1 for 0-based indexing
+
                     output_dict[variable][tuple(idx)] = sample[variable]
 
         return output_dict
@@ -136,18 +150,18 @@ class GraphicalSimulator(Simulator):
         # start with batch shape
         batch_shape = samples.shape
         output_shape = [*batch_shape]
-        ancestors = non_root_ancestors(self.graph, node)
+        ancestors = sorted_ancestors(self.graph, node)
 
-        # add reps of non root ancestors
+        # add ancestor reps
         for ancestor in ancestors:
-            reps = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
-            output_shape.append(reps)
-
-        # add node reps
-        if not is_root_node(self.graph, node):
-            node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
+            node_reps = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
             if node_reps != 1:
                 output_shape.append(node_reps)
+
+        # add node reps
+        node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
+        if node_reps != 1:
+            output_shape.append(node_reps)
 
         # add variable shape
         variable_shape = np.atleast_1d(samples.flat[0][0][variable]).shape
@@ -163,8 +177,8 @@ class GraphicalSimulator(Simulator):
         return sampling_fn(**accepted_args)
 
 
-def non_root_ancestors(graph, node):
-    return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node) and not is_root_node(graph, n)]
+def sorted_ancestors(graph, node):
+    return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node)]
 
 
 def is_root_node(graph, node):
