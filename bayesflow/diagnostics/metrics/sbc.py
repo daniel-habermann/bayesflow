@@ -19,7 +19,7 @@ def log_gamma(
     Log gamma is log(gamma/gamma_null), where gamma_null is the 5th percentile of the
     null distribution under uniformity of ranks.
     That is, if adopting a hypothesis testing framework,then log_gamma < 0 implies
-    a rejection of the hypothesis of uniform ranks at the 5\% level.
+    a rejection of the hypothesis of uniform ranks at the 5% level.
     This diagnostic is typically more sensitive than the Kolmogorov-Smirnoff test or
     ChiSq test.
 
