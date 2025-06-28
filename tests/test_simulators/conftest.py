@@ -247,3 +247,10 @@ def fixed_mu():
 )
 def simulator(request):
     return request.getfixturevalue(request.param)
+
+
+@pytest.fixture()
+def single_level_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import single_level
+
+    return single_level()
