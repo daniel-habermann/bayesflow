@@ -254,3 +254,24 @@ def single_level_simulator():
     from bayesflow.experimental.graphical_simulator.example_simulators import single_level
 
     return single_level()
+
+
+@pytest.fixture()
+def two_level_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import two_level
+
+    return two_level()
+
+
+@pytest.fixture()
+def two_level_repeated_roots_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import two_level_repeated_roots
+
+    return two_level_repeated_roots()
+
+
+@pytest.fixture()
+def irt_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import irt
+
+    return irt()
