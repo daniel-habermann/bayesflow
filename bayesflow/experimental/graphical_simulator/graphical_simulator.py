@@ -36,7 +36,7 @@ class GraphicalSimulator(Simulator):
         self.graph.add_edge(from_node, to_node)
 
     @allow_batch_size
-    def sample(self, batch_shape: Shape, **kwargs) -> dict[str, np.ndarray]:
+    def sample(self, batch_shape: Shape | int, **kwargs) -> dict[str, np.ndarray]:
         """
         Generates samples by topologically traversing the DAG.
         For each node, the sampling function is called based on parent values.
