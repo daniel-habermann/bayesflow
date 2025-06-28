@@ -29,8 +29,8 @@ class GraphicalSimulator(Simulator):
         self.graph = nx.DiGraph()
         self.meta_fn = meta_fn
 
-    def add_node(self, node: str, sampling_fn: Callable[..., dict[str, Any]], reps: int | str = 1):
-        self.graph.add_node(node, sampling_fn=sampling_fn, reps=reps)
+    def add_node(self, node: str, sample_fn: Callable[..., dict[str, Any]], reps: int | str = 1):
+        self.graph.add_node(node, sample_fn=sample_fn, reps=reps)
 
     def add_edge(self, from_node: str, to_node: str):
         self.graph.add_edge(from_node, to_node)
@@ -62,7 +62,7 @@ class GraphicalSimulator(Simulator):
                 node_samples = []
 
                 parent_nodes = list(self.graph.predecessors(node))
-                sampling_fn = self.graph.nodes[node]["sampling_fn"]
+                sampling_fn = self.graph.nodes[node]["sample_fn"]
                 reps_field = self.graph.nodes[node]["reps"]
                 reps = reps_field if isinstance(reps_field, int) else meta_dict[reps_field]
 

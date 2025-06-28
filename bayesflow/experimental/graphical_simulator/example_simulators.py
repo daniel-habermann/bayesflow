@@ -1,4 +1,5 @@
 import numpy as np
+
 from .graphical_simulator import GraphicalSimulator
 
 
@@ -60,21 +61,21 @@ def irt_simulator():
     simulator = GraphicalSimulator(meta_fn=meta_fn)
     simulator.add_node(
         "schools",
-        sampling_fn=sample_school,
+        sample_fn=sample_school,
     )
     simulator.add_node(
         "exams",
-        sampling_fn=sample_exam,
+        sample_fn=sample_exam,
         reps="num_exams",
     )
     simulator.add_node(
         "questions",
-        sampling_fn=sample_question,
+        sample_fn=sample_question,
         reps="num_questions",
     )
     simulator.add_node(
         "students",
-        sampling_fn=sample_student,
+        sample_fn=sample_student,
         reps="num_students",
     )
 
@@ -109,8 +110,8 @@ def onelevel_simulator():
 
     simulator = GraphicalSimulator(meta_fn=meta)
 
-    simulator.add_node("prior", sampling_fn=prior)
-    simulator.add_node("likelihood", sampling_fn=likelihood)
+    simulator.add_node("prior", sample_fn=prior)
+    simulator.add_node("likelihood", sample_fn=likelihood)
 
     simulator.add_edge("prior", "likelihood")
 
@@ -140,15 +141,15 @@ def twolevel_simulator():
         return {"y": float(y)}
 
     simulator = GraphicalSimulator()
-    simulator.add_node("hypers", sampling_fn=sample_hypers, reps=1)
+    simulator.add_node("hypers", sample_fn=sample_hypers, reps=5)
 
     simulator.add_node(
         "locals",
         sampling_fn=sample_locals,
         reps=6,
     )
-    simulator.add_node("shared", sampling_fn=sample_shared, reps=1)
-    simulator.add_node("y", sampling_fn=sample_y, reps=10)
+    simulator.add_node("shared", sample_fn=sample_shared, reps=1)
+    simulator.add_node("y", sample_fn=sample_y, reps=10)
 
     simulator.add_edge("hypers", "locals")
     simulator.add_edge("locals", "y")
@@ -184,19 +185,19 @@ def threelevel_simulator():
         return {"y": y}
 
     simulator = GraphicalSimulator()
-    simulator.add_node("level1", sampling_fn=sample_level_1)
+    simulator.add_node("level1", sample_fn=sample_level_1)
     simulator.add_node(
         "level2",
-        sampling_fn=sample_level_2,
+        sample_fn=sample_level_2,
         reps=10,
     )
     simulator.add_node(
         "level3",
-        sampling_fn=sample_level_3,
+        sample_fn=sample_level_3,
         reps=20,
     )
-    simulator.add_node("shared", sampling_fn=sample_shared)
-    simulator.add_node("y", sampling_fn=sample_y, reps=10)
+    simulator.add_node("shared", sample_fn=sample_shared)
+    simulator.add_node("y", sample_fn=sample_y, reps=10)
 
     simulator.add_edge("level1", "level2")
     simulator.add_edge("level2", "level3")
