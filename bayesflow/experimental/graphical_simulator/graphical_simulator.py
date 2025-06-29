@@ -181,10 +181,6 @@ def sorted_ancestors(graph, node):
     return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node)]
 
 
-def is_root_node(graph, node):
-    return len(list(graph.predecessors(node))) == 0
-
-
 def merge_lists_of_dicts(nested_list: list[list[dict]]) -> list[dict]:
     """
     Merges all combinations of dictionaries from a list of lists.
