@@ -3,9 +3,9 @@ import numpy as np
 from ..graphical_simulator import GraphicalSimulator
 
 
-def irt():
+def crossed_design_irt_simulator():
     r"""
-    Item Response Theory (IRT) model implemented as a graphical simultor.
+    Item Response Theory (IRT) model implemented as a graphical simulator.
 
       schools
        /     \

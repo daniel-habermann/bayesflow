@@ -3,7 +3,7 @@ import numpy as np
 from ..graphical_simulator import GraphicalSimulator
 
 
-def two_level():
+def two_level_simulator(repeated_roots=False):
     r"""
     Simple hierarchical model with two levels of parameters: hyperparameters
     and local parameters, along with a shared parameter:
@@ -14,6 +14,10 @@ def two_level():
         \    /
          \  /
           y
+
+    Parameters
+    ----------
+    repeated_roots : bool, default false.
 
     """
 
@@ -39,7 +43,11 @@ def two_level():
         return {"y": y}
 
     simulator = GraphicalSimulator()
-    simulator.add_node("hypers", sample_fn=sample_hypers)
+
+    if not repeated_roots:
+        simulator.add_node("hypers", sample_fn=sample_hypers)
+    else:
+        simulator.add_node("hypers", sample_fn=sample_hypers, reps=5)
 
     simulator.add_node(
         "locals",

@@ -5,10 +5,12 @@ import bayesflow as bf
 
 def test_single_level_simulator(single_level_simulator):
     # prior -> likelihood
-    assert isinstance(single_level_simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
-    assert isinstance(single_level_simulator.sample(5), dict)
 
-    samples = single_level_simulator.sample(12)
+    simulator = single_level_simulator
+    assert isinstance(simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
+    assert isinstance(simulator.sample(5), dict)
+
+    samples = simulator.sample(12)
     expected_keys = ["N", "beta", "sigma", "x", "y"]
 
     assert set(samples.keys()) == set(expected_keys)
@@ -31,10 +33,11 @@ def test_two_level_simulator(two_level_simulator):
     #      \  /
     #       y
 
-    assert isinstance(two_level_simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
-    assert isinstance(two_level_simulator.sample(5), dict)
+    simulator = two_level_simulator
+    assert isinstance(simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
+    assert isinstance(simulator.sample(5), dict)
 
-    samples = two_level_simulator.sample(15)
+    samples = simulator.sample(15)
     expected_keys = ["hyper_mean", "hyper_std", "local_mean", "shared_std", "y"]
 
     assert set(samples.keys()) == set(expected_keys)
@@ -84,7 +87,7 @@ def test_two_level_repeated_roots_simulator(two_level_repeated_roots_simulator):
     assert np.shape(samples["y"]) == (15, 5, 6, 10, 1)
 
 
-def test_irt_simulator(irt_simulator):
+def test_crossed_design_irt_simulator(crossed_design_irt_simulator):
     #  schools
     #   /     \
     # exams  students
@@ -93,10 +96,11 @@ def test_irt_simulator(irt_simulator):
     #    \     /
     #  observations
 
-    assert isinstance(irt_simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
-    assert isinstance(irt_simulator.sample(5), dict)
+    simulator = crossed_design_irt_simulator
+    assert isinstance(simulator, bf.experimental.graphical_simulator.GraphicalSimulator)
+    assert isinstance(simulator.sample(5), dict)
 
-    samples = irt_simulator.sample(22)
+    samples = simulator.sample(22)
     expected_keys = [
         "mu_exam_mean",
         "sigma_exam_mean",

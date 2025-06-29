@@ -3,7 +3,7 @@ import numpy as np
 from ..graphical_simulator import GraphicalSimulator
 
 
-def single_level():
+def single_level_simulator():
     """
     Simple single-level simulator that implements the same model as in
     https://bayesflow.org/main/_examples/Linear_Regression_Starter.html

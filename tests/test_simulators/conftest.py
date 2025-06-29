@@ -251,27 +251,27 @@ def simulator(request):
 
 @pytest.fixture()
 def single_level_simulator():
-    from bayesflow.experimental.graphical_simulator.example_simulators import single_level
+    from bayesflow.experimental.graphical_simulator.example_simulators import single_level_simulator
 
-    return single_level()
+    return single_level_simulator()
 
 
 @pytest.fixture()
 def two_level_simulator():
-    from bayesflow.experimental.graphical_simulator.example_simulators import two_level
+    from bayesflow.experimental.graphical_simulator.example_simulators import two_level_simulator
 
-    return two_level()
+    return two_level_simulator()
 
 
 @pytest.fixture()
 def two_level_repeated_roots_simulator():
-    from bayesflow.experimental.graphical_simulator.example_simulators import two_level_repeated_roots
+    from bayesflow.experimental.graphical_simulator.example_simulators import two_level_simulator
 
-    return two_level_repeated_roots()
+    return two_level_simulator(repeated_roots=True)
 
 
 @pytest.fixture()
-def irt_simulator():
-    from bayesflow.experimental.graphical_simulator.example_simulators import irt
+def crossed_design_irt_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import crossed_design_irt_simulator
 
-    return irt()
+    return crossed_design_irt_simulator()

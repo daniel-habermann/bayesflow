@@ -1,4 +1,3 @@
-from .single_level import single_level
-from .two_level import two_level
-from .two_level_repeated_roots import two_level_repeated_roots
-from .irt import irt
+from .single_level_simulator import single_level_simulator
+from .two_level_simulator import two_level_simulator
+from .crossed_design_irt_simulator import crossed_design_irt_simulator
