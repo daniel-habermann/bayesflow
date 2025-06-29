@@ -47,7 +47,7 @@ class GraphicalSimulator(Simulator):
             The shape of the batch to sample. Typically, a tuple indicating the number of samples,
             but an int can also be passed.
         **kwargs
-            Unused
+            Currently unused
         """
         _ = kwargs  # Simulator class requires **kwargs, which are unused here
         meta_dict = self.meta_fn() if self.meta_fn else {}
