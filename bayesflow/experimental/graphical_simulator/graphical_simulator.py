@@ -69,7 +69,7 @@ class GraphicalSimulator(Simulator):
                 if not parent_nodes:
                     # root node: generate independent samples
                     node_samples = [
-                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sampling_fn(sampling_fn, {})
+                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sample_fn(sampling_fn, {})
                         for i in range(1, reps + 1)
                     ]
                 else:
@@ -86,7 +86,7 @@ class GraphicalSimulator(Simulator):
                             [
                                 index_entries
                                 | {f"__{node}_idx": i}
-                                | self._call_sampling_fn(sampling_fn, sampling_fn_input)
+                                | self._call_sample_fn(sampling_fn, sampling_fn_input)
                                 for i in range(1, reps + 1)
                             ]
                         )
@@ -169,12 +169,12 @@ class GraphicalSimulator(Simulator):
 
         return tuple(output_shape)
 
-    def _call_sampling_fn(self, sampling_fn, args):
-        signature = inspect.signature(sampling_fn)
+    def _call_sample_fn(self, sample_fn, args):
+        signature = inspect.signature(sample_fn)
         fn_args = signature.parameters
         accepted_args = {k: v for k, v in args.items() if k in fn_args}
 
-        return sampling_fn(**accepted_args)
+        return sample_fn(**accepted_args)
 
 
 def sorted_ancestors(graph, node):
