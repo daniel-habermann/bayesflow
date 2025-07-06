@@ -70,7 +70,7 @@ class GraphicalSimulator(Simulator):
                     # root node: generate independent samples
                     node_samples = [
                         {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sample_fn(sampling_fn, {})
-                        for i in range(1, reps + 1)
+                        for i in range(reps)
                     ]
                 else:
                     # non-root node: depends on parent samples
@@ -87,7 +87,7 @@ class GraphicalSimulator(Simulator):
                                 index_entries
                                 | {f"__{node}_idx": i}
                                 | self._call_sample_fn(sampling_fn, sampling_fn_input)
-                                for i in range(1, reps + 1)
+                                for i in range(reps)
                             ]
                         )
 
@@ -113,8 +113,8 @@ class GraphicalSimulator(Simulator):
         # build dict of node repetitions
         reps = {}
         for ancestor in ancestors:
-            reps[ancestor] = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
-        reps[node] = max(s[f"__{node}_idx"] for s in samples.flat[0])
+            reps[ancestor] = max(s[f"__{ancestor}_idx"] for s in samples.flat[0]) + 1
+        reps[node] = max(s[f"__{node}_idx"] for s in samples.flat[0]) + 1
 
         variable_names = self._variable_names(samples)
 
@@ -130,11 +130,11 @@ class GraphicalSimulator(Simulator):
                     # add index elements for ancestors
                     for ancestor in ancestors:
                         if reps[ancestor] != 1:
-                            idx.append(sample[f"__{ancestor}_idx"] - 1)  # -1 for 0-based indexing
+                            idx.append(sample[f"__{ancestor}_idx"])
 
                     # add index elements for node
                     if reps[node] != 1:
-                        idx.append(sample[f"__{node}_idx"] - 1)  # -1 for 0-based indexing
+                        idx.append(sample[f"__{node}_idx"])
 
                     output_dict[variable][tuple(idx)] = sample[variable]
 
@@ -154,12 +154,12 @@ class GraphicalSimulator(Simulator):
 
         # add ancestor reps
         for ancestor in ancestors:
-            node_reps = max(s[f"__{ancestor}_idx"] for s in samples.flat[0])
+            node_reps = max(s[f"__{ancestor}_idx"] for s in samples.flat[0]) + 1
             if node_reps != 1:
                 output_shape.append(node_reps)
 
         # add node reps
-        node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0])
+        node_reps = max(s[f"__{node}_idx"] for s in samples.flat[0]) + 1
         if node_reps != 1:
             output_shape.append(node_reps)
 
