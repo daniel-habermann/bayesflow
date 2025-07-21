@@ -1,8 +1,9 @@
 import re
+from typing import TypeAlias
 
 import networkx as nx
 
-from .types import Node
+Node: TypeAlias = str
 
 
 def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
