@@ -9,6 +9,7 @@ import numpy as np
 from bayesflow.simulators import Simulator
 from bayesflow.types import Shape
 from bayesflow.utils.decorators import allow_batch_size
+from bayesflow.experimental.graphs.types import SimulationGraph
 
 
 class GraphicalSimulator(Simulator):
@@ -26,7 +27,7 @@ class GraphicalSimulator(Simulator):
 
     def __init__(self, meta_fn: Optional[Callable[[], dict[str, Any]]] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.graph = nx.DiGraph()
+        self.graph = SimulationGraph()
         self.meta_fn = meta_fn
 
     def add_node(self, node: str, sample_fn: Callable[..., dict[str, Any]], reps: int | str = 1):
