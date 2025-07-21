@@ -77,24 +77,27 @@ class InvertedGraph(nx.DiGraph):
 
         return conditions
 
-    def inference_network_composition(self):
+    def network_composition(self):
         conditions = self.infer_conditions()
         processed_nodes = set(k for k, v in conditions.items() if v == [])
-        all_nodes = set(conditions.keys())
-        conditions = {k: v for k, v in conditions.items() if v}
+        conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
 
         networks = {}
-        i = 0
+        network_idx = 0
 
-        while processed_nodes != all_nodes:
-            i = i + 1
-            newly_processed_nodes = {k for k, v in conditions.items() if set(v).issubset(processed_nodes)}
+        # Build inference layers iteratively: start with all nodes that require no conditions,
+        # then repeatedly form the next layer by selecting nodes whose dependencies are
+        # entirely contained covered by previous inference networks.
+        while conditions:
+            next_nodeset = {k for k, v in conditions.items() if set(v).issubset(processed_nodes)}
 
-            if newly_processed_nodes:
-                networks[i] = list(newly_processed_nodes)
+            if next_nodeset:
+                networks[network_idx] = list(next_nodeset)
+                processed_nodes.update(next_nodeset)
 
-            processed_nodes.update(newly_processed_nodes)
-            for node in newly_processed_nodes:
+            for node in next_nodeset:
                 conditions.pop(node)
+
+            network_idx += 1
 
         return networks
