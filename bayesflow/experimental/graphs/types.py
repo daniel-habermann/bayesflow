@@ -68,3 +68,33 @@ class ExpandedGraph(nx.DiGraph):
 class InvertedGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+    def infer_conditions(self):
+        conditions = {node: [] for node in self.nodes}
+
+        for node in nx.topological_sort(self):
+            conditions[node] = list(self.predecessors(node))
+
+        return conditions
+
+    def inference_network_composition(self):
+        conditions = self.infer_conditions()
+        processed_nodes = set(k for k, v in conditions.items() if v == [])
+        all_nodes = set(conditions.keys())
+        conditions = {k: v for k, v in conditions.items() if v}
+
+        networks = {}
+        i = 0
+
+        while processed_nodes != all_nodes:
+            i = i + 1
+            newly_processed_nodes = {k for k, v in conditions.items() if set(v).issubset(processed_nodes)}
+
+            if newly_processed_nodes:
+                networks[i] = list(newly_processed_nodes)
+
+            processed_nodes.update(newly_processed_nodes)
+            for node in newly_processed_nodes:
+                conditions.pop(node)
+
+        return networks
