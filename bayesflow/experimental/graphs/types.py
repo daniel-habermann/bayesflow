@@ -1,5 +1,5 @@
 from typing import TypeAlias
-
+import copy
 import networkx as nx
 
 from .utils import merge_root_nodes, split_node, has_open_path

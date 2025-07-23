@@ -1,6 +1,6 @@
 import re
 from typing import TypeAlias
-
+import copy
 import networkx as nx
 
 Node: TypeAlias = str
@@ -129,9 +129,8 @@ def merge_nodes(graph: nx.DiGraph, nodes: list[Node]):
 
     new_name = ", ".join(map(str, nodes))
     graph = nx.relabel_nodes(graph, {nodes[0]: new_name}, copy=False)
-    for node in graph.nodes():
-        graph.nodes[node].clear()
 
+    graph.nodes[new_name].clear()
     graph.nodes[new_name]["merged_from"] = nodes
 
     return graph
