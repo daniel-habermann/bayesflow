@@ -125,7 +125,7 @@ def merge_root_nodes(graph: nx.DiGraph):
 
 def merge_nodes(graph: nx.DiGraph, nodes: list[Node]):
     for node in nodes[1::]:
-        graph = nx.contracted_nodes(graph, nodes[0], node, self_loops=False)
+        graph = nx.contracted_nodes(graph, nodes[0], node, copy=False, self_loops=False)
 
     new_name = ", ".join(map(str, nodes))
     graph = nx.relabel_nodes(graph, {nodes[0]: new_name}, copy=False)
