@@ -19,7 +19,7 @@ class SimulationGraph(nx.DiGraph):
             if interior_node and node in graph.nodes:
                 graph = split_node(graph, node)
 
-        return ExpandedGraph(graph)
+        return ExpandedGraph(graph, simulation_graph=self)
 
     def invert(self, merge_roots=True):
         expanded_graph = self.expand()
@@ -31,6 +31,7 @@ class SimulationGraph(nx.DiGraph):
 class ExpandedGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.simulation_graph = self.graph["simulation_graph"]
 
     def invert(self, merge_roots=True):
         if merge_roots:
@@ -45,7 +46,7 @@ class ExpandedGraph(nx.DiGraph):
         # amortization over exchangeable nodes in most cases.
         latent_nodes = [node for node in list(nx.topological_sort(graph)) if graph.out_degree(node) != 0]
 
-        inverse = InvertedGraph()
+        inverse = InvertedGraph(simulation_graph=self.simulation_graph, expanded_graph=self)
         inverse.add_nodes_from(leaf_nodes)
 
         for x_j in latent_nodes:
@@ -68,8 +69,10 @@ class ExpandedGraph(nx.DiGraph):
 class InvertedGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.simulation_graph = self.graph["simulation_graph"]
+        self.expanded_graph = self.graph["expanded_graph"]
 
-    def infer_conditions(self):
+    def conditions(self):
         conditions = {node: [] for node in self.nodes}
 
         for node in nx.topological_sort(self):
@@ -78,7 +81,7 @@ class InvertedGraph(nx.DiGraph):
         return conditions
 
     def network_composition(self):
-        conditions = self.infer_conditions()
+        conditions = self.conditions()
         processed_nodes = set(k for k, v in conditions.items() if v == [])
         conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
 
