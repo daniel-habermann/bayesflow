@@ -14,13 +14,13 @@ from bayesflow.utils.decorators import allow_batch_size
 class GraphicalSimulator(Simulator):
     """
     A graph-based simulator that generates samples by traversing a DAG
-    and calling user-defined sampling functions at each node.
+    and calling user-defined sample functions at each node.
 
     Parameters
     ----------
     meta_fn : Optional[Callable[[], dict[str, Any]]]
         A callable that returns a dictionary of meta data.
-        This meta data can be used to dynamically vary the number of sampling repetitions (`reps`)
+        This meta data can be used to dynamically vary the number of sample repetitions (`reps`)
         for nodes added via `add_node`.
     """
 
@@ -39,7 +39,7 @@ class GraphicalSimulator(Simulator):
     def sample(self, batch_shape: Shape | int, **kwargs) -> dict[str, np.ndarray]:
         """
         Generates samples by topologically traversing the DAG.
-        For each node, the sampling function is called based on parent values.
+        For each node, the sample function is called based on parent values.
 
         Parameters
         ----------
@@ -57,19 +57,21 @@ class GraphicalSimulator(Simulator):
         for node in self.graph.nodes:
             samples_by_node[node] = np.empty(batch_shape, dtype="object")
 
+        ordered_nodes = list(nx.topological_sort(self.graph))
+
         for batch_idx in np.ndindex(batch_shape):
-            for node in nx.topological_sort(self.graph):
+            for node in ordered_nodes:
                 node_samples = []
 
                 parent_nodes = list(self.graph.predecessors(node))
-                sampling_fn = self.graph.nodes[node]["sample_fn"]
+                sample_fn = self.graph.nodes[node]["sample_fn"]
                 reps_field = self.graph.nodes[node]["reps"]
                 reps = reps_field if isinstance(reps_field, int) else meta_dict[reps_field]
 
                 if not parent_nodes:
                     # root node: generate independent samples
                     node_samples = [
-                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sample_fn(sampling_fn, {})
+                        {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sample_fn(sample_fn, {})
                         for i in range(reps)
                     ]
                 else:
@@ -81,15 +83,12 @@ class GraphicalSimulator(Simulator):
                         index_entries = {k: v for k, v in merged.items() if k.startswith("__")}
                         variable_entries = {k: v for k, v in merged.items() if not k.startswith("__")}
 
-                        sampling_fn_input = variable_entries | meta_dict
-                        node_samples.extend(
-                            [
-                                index_entries
-                                | {f"__{node}_idx": i}
-                                | self._call_sample_fn(sampling_fn, sampling_fn_input)
-                                for i in range(reps)
-                            ]
-                        )
+                        sample_fn_input = variable_entries | meta_dict
+                        samples = [
+                            index_entries | {f"__{node}_idx": i} | self._call_sample_fn(sample_fn, sample_fn_input)
+                            for i in range(reps)
+                        ]
+                        node_samples.extend(samples)
 
                 samples_by_node[node][batch_idx] = node_samples
 
