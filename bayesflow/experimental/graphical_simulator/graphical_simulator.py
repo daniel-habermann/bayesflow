@@ -148,7 +148,7 @@ class GraphicalSimulator(Simulator):
 
         # start with batch shape
         batch_shape = samples.shape
-        output_shape = [*batch_shape]
+        output_shape = list(batch_shape)
         ancestors = sorted_ancestors(self.graph, node)
 
         # add ancestor reps
