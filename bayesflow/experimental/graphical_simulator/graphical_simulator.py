@@ -103,6 +103,27 @@ class GraphicalSimulator(Simulator):
 
         return output_dict
 
+    def variable_dict(self):
+        meta_dict = self.meta_fn() if self.meta_fn else {}
+        samples_by_node = {}
+
+        for node in nx.topological_sort(self.graph):
+            parent_nodes = list(self.graph.predecessors(node))
+            sample_fn = self.graph.nodes[node]["sample_fn"]
+
+            if not parent_nodes:
+                samples_by_node[node] = self._call_sample_fn(sample_fn, {})
+            else:
+                parent_samples = [samples_by_node[p] for p in parent_nodes]
+                merged_dict = {k: v for d in parent_samples for k, v in d.items()}
+
+                sample_fn_input = merged_dict | meta_dict
+                samples_by_node[node] = self._call_sample_fn(sample_fn, sample_fn_input)
+
+        variable_dict = {k: list(v.keys()) for k, v in samples_by_node.items()}
+
+        return variable_dict
+
     def _collect_output(self, samples):
         output_dict = {}
 
