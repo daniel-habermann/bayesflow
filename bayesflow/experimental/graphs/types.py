@@ -1,5 +1,4 @@
 from typing import TypeAlias
-import copy
 import networkx as nx
 
 from .utils import merge_root_nodes, split_node, has_open_path
@@ -16,8 +15,17 @@ class SimulationGraph(nx.DiGraph):
 
         for node in nx.topological_sort(graph):
             interior_node = graph.in_degree(node) != 0 and graph.out_degree(node) != 0
+
+            if not interior_node:
+                graph.nodes[node].clear()
+
             if interior_node and node in graph.nodes:
                 graph = split_node(graph, node)
+
+        for node in nx.topological_sort(graph):
+            for key in ["split_by", "previous_names"]:
+                if key not in graph.nodes[node]:
+                    graph.nodes[node][key] = []
 
         return ExpandedGraph(graph, simulation_graph=self)
 

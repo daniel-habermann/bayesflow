@@ -21,7 +21,6 @@ def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
 
             # add metadata
             split_graph = add_split_metadata(split_graph, subgraph, original, renamed, node)
-
             split_graph = add_previous_names_metadata(split_graph, subgraph, original, renamed)
 
         # add edges
@@ -132,5 +131,7 @@ def merge_nodes(graph: nx.DiGraph, nodes: list[Node]):
 
     graph.nodes[new_name].clear()
     graph.nodes[new_name]["merged_from"] = nodes
+    graph.nodes[new_name]["split_by"] = []
+    graph.nodes[new_name]["previous_names"] = []
 
     return graph

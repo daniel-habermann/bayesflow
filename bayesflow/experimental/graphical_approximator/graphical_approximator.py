@@ -33,3 +33,22 @@ class GraphicalApproximator(Approximator):
             self.standardize_layers = None
         else:
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
+
+    def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
+        summary_outputs_shape = [data_shapes["summary_variables"]]
+        if self.summary_networks is not None:
+            for summary_network in self.summary_networks:
+                if not summary_network.built:
+                    summary_network.build(summary_outputs_shape[-1])
+
+                summary_outputs_shape.append(summary_network.compute_output_shape(summary_outputs_shape[-1]))
+
+    # Approximator algorithm:
+
+    # function 1: updated network composition
+    # go through network composition, if nodes with same name are in different networks, combine them
+    # add annotation if nodes are amortized or not
+
+    # function 2: function that assigns each node an output shape
+
+    # function 3: function that retrieves condition for a target node, concatenates them
