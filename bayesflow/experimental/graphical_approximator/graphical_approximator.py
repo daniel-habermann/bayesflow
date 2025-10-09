@@ -13,8 +13,8 @@ class GraphicalApproximator(Approximator):
         graph: InvertedGraph,
         *,
         adapter: Adapter,
-        inference_networks: list[InferenceNetwork],
-        summary_networks: list[SummaryNetwork] | None = None,
+        inference_networks: Sequence[InferenceNetwork],
+        summary_networks: Sequence[SummaryNetwork] | None = None,
         standardize: str | Sequence[str] | None = "all",
         **kwargs,
     ):
@@ -49,5 +49,22 @@ class GraphicalApproximator(Approximator):
     # InvertedGraph also shows which output of the summary networks and which
     # parameters need to be put into which inference network
 
-    def _assign_data_to_summary_networks(self):
-        pass
+    def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
+        summary_outputs_shape = []
+
+        for summary_network in self.summary_networks or []:
+            if not summary_outputs_shape:
+                input_shape = data_shapes["summary_variables"]
+            else:
+                input_shape = summary_outputs_shape[-1]
+
+            if not summary_network.built:
+                summary_network.build(input_shape)
+
+            output_shape = summary_network.compute_output_shape(input_shape)
+            summary_outputs_shape.append(output_shape)
+
+        # TODO: build inference networks
+        # TODO: build standardize layers
+
+        print(summary_outputs_shape)
