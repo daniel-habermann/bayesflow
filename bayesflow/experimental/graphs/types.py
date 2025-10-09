@@ -1,3 +1,4 @@
+from ctypes import ArgumentError
 from typing import TypeAlias
 import networkx as nx
 
@@ -80,16 +81,8 @@ class InvertedGraph(nx.DiGraph):
         self.simulation_graph = self.graph["simulation_graph"]
         self.expanded_graph = self.graph["expanded_graph"]
 
-    def conditions(self):
-        conditions = {node: [] for node in self.nodes}
-
-        for node in nx.topological_sort(self):
-            conditions[node] = list(self.predecessors(node))
-
-        return conditions
-
     def network_composition(self):
-        conditions = self.conditions()
+        conditions = self._conditions()
         processed_nodes = set(k for k, v in conditions.items() if v == [])
         conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
 
@@ -100,15 +93,72 @@ class InvertedGraph(nx.DiGraph):
         # then repeatedly form the next layer by selecting nodes whose dependencies are
         # entirely contained covered by previous inference networks.
         while conditions:
+            networks[network_idx] = []
             next_nodeset = {k for k, v in conditions.items() if set(v).issubset(processed_nodes)}
 
             if next_nodeset:
-                networks[network_idx] = list(next_nodeset)
                 processed_nodes.update(next_nodeset)
 
-            for node in next_nodeset:
-                conditions.pop(node)
+                for node in next_nodeset:
+                    conditions.pop(node)
+                    networks[network_idx].extend(self._original_names(node))
 
             network_idx += 1
 
+        for k, v in networks.items():
+            networks[k] = list(set(v))
+
         return networks
+
+    def merged_nodes(self, orig_node):
+        if orig_node not in self.simulation_graph.nodes:
+            raise ValueError(f"Node {orig_node} not found.")
+
+        for node in self.expanded_graph.nodes:
+            expanded_node = self.expanded_graph.nodes[node]
+            if "merged_from" in expanded_node:
+                if orig_node in expanded_node["merged_from"]:
+                    return expanded_node["merged_from"]
+
+        return None
+
+    def is_merged(self, orig_node):
+        if orig_node not in self.simulation_graph.nodes:
+            raise ValueError(f"Node {orig_node} not found.")
+
+        for node in self.expanded_graph.nodes:
+            expanded_node = self.expanded_graph.nodes[node]
+            if "merged_from" in expanded_node:
+                if orig_node in expanded_node["merged_from"]:
+                    return True
+
+        return False
+
+    def allows_amortization(self, orig_node: Node):
+        if orig_node not in self.simulation_graph.nodes:
+            raise ValueError(f"Node {orig_node} not found.")
+
+        conditions = self._conditions()
+        for k, v in conditions.items():
+            if orig_node in self._original_names(k):
+                orig_condition_names = [self._original_names(x) for x in v]
+                if orig_node in orig_condition_names:
+                    return False
+
+        return True
+
+    def _conditions(self):
+        conditions = {node: [] for node in self.nodes}
+
+        for node in nx.topological_sort(self):
+            conditions[node] = list(self.predecessors(node))
+
+        return conditions
+
+    def _original_names(self, node: Node):
+        expanded_node = self.expanded_graph.nodes[node]
+
+        if "merged_from" in expanded_node:
+            return expanded_node["merged_from"]
+        else:
+            return [expanded_node["previous_names"][0]]
