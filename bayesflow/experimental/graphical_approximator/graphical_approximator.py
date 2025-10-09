@@ -21,7 +21,7 @@ class GraphicalApproximator(Approximator):
         super().__init__(**kwargs)
         self.graph = graph
         self.adapter = adapter
-        self.infertence_networks = inference_networks
+        self.inference_networks = inference_networks
         self.summary_networks = summary_networks
 
         if isinstance(standardize, str) and standardize != "all":
@@ -33,3 +33,21 @@ class GraphicalApproximator(Approximator):
             self.standardize_layers = None
         else:
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
+
+    # pass through inference networks
+    # pass through summary networks
+
+    # summary networks first, because output needed for inference networks
+
+    # output of graphical simulator must be assigned to all summary networks
+    # chain of summary networks, data dimensionality is getting reduced in each
+    # step.
+
+    # InvertedGraph shows which output needs to be put into which summary network
+    # in the chain
+
+    # InvertedGraph also shows which output of the summary networks and which
+    # parameters need to be put into which inference network
+
+    def _assign_data_to_summary_networks(self):
+        pass
