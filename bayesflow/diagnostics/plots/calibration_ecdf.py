@@ -1,8 +1,9 @@
-from collections.abc import Mapping, Sequence
+from collections.abc import Callable, Mapping, Sequence
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ...utils.dict_utils import compute_test_quantities
 from ...utils.plot_utils import prepare_plot_data, add_titles_and_labels, prettify_subplots
 from ...utils.ecdf import simultaneous_ecdf_bands
 from ...utils.ecdf.ranks import fractional_ranks, distance_ranks
@@ -13,13 +14,14 @@ def calibration_ecdf(
     targets: Mapping[str, np.ndarray] | np.ndarray,
     variable_keys: Sequence[str] = None,
     variable_names: Sequence[str] = None,
-    difference: bool = False,
+    test_quantities: dict[str, Callable] = None,
+    difference: bool = True,
     stacked: bool = False,
     rank_type: str | np.ndarray = "fractional",
     figsize: Sequence[float] = None,
     label_fontsize: int = 16,
     legend_fontsize: int = 14,
-    legend_location: str = "upper right",
+    legend_location: str = "lower right",
     title_fontsize: int = 18,
     tick_fontsize: int = 12,
     rank_ecdf_color: str = "#132a70",
@@ -57,7 +59,7 @@ def calibration_ecdf(
         The posterior draws obtained from n_data_sets
     targets     : np.ndarray of shape (n_data_sets, n_params)
         The prior draws obtained for generating n_data_sets
-    difference        : bool, optional, default: False
+    difference        : bool, optional, default: True
         If `True`, plots the ECDF difference.
         Enables a more dynamic visualization range.
     stacked           : bool, optional, default: False
@@ -78,13 +80,27 @@ def calibration_ecdf(
     variable_names    : list or None, optional, default: None
         The parameter names for nice plot titles.
         Inferred if None. Only relevant if `stacked=False`.
+    test_quantities   : dict or None, optional, default: None
+        A dict that maps plot titles to functions that compute
+        test quantities based on estimate/target draws.
+
+        The dict keys are automatically added to ``variable_keys``
+        and ``variable_names``.
+        Test quantity functions are expected to accept a dict of draws with
+        shape ``(batch_size, ...)`` as the first (typically only)
+        positional argument and return an NumPy array of shape
+        ``(batch_size,)``.
+        The functions do not have to deal with an additional
+        sample dimension, as appropriate reshaping is done internally.
     figsize           : tuple or None, optional, default: None
         The figure size passed to the matplotlib constructor.
         Inferred if None.
     label_fontsize    : int, optional, default: 16
         The font size of the y-label and y-label texts
     legend_fontsize   : int, optional, default: 14
-        The font size of the legend text
+        The font size of the legend text.
+    legend_location : str, optional, default: 'lower right
+        The location of the legend.
     title_fontsize    : int, optional, default: 18
         The font size of the title text.
         Only relevant if `stacked=False`
@@ -119,6 +135,20 @@ def calibration_ecdf(
     ValueError
         If an unknown `rank_type` is passed.
     """
+
+    # Optionally, compute and prepend test quantities from draws
+    if test_quantities is not None:
+        updated_data = compute_test_quantities(
+            targets=targets,
+            estimates=estimates,
+            variable_keys=variable_keys,
+            variable_names=variable_names,
+            test_quantities=test_quantities,
+        )
+        variable_names = updated_data["variable_names"]
+        variable_keys = updated_data["variable_keys"]
+        estimates = updated_data["estimates"]
+        targets = updated_data["targets"]
 
     plot_data = prepare_plot_data(
         estimates=estimates,
@@ -183,10 +213,12 @@ def calibration_ecdf(
     else:
         titles = ["Stacked ECDFs"]
 
-    for ax, title in zip(plot_data["axes"].flat, titles):
+    for i, (ax, title) in enumerate(zip(plot_data["axes"].flat, titles)):
         ax.fill_between(z, L, U, color=fill_color, alpha=0.2, label=rf"{int((1 - alpha) * 100)}$\%$ Confidence Bands")
-        ax.legend(fontsize=legend_fontsize, loc=legend_location)
         ax.set_title(title, fontsize=title_fontsize)
+
+        if i == 0:
+            ax.legend(fontsize=legend_fontsize, loc=legend_location)
 
     prettify_subplots(plot_data["axes"], num_subplots=plot_data["num_variables"], tick_fontsize=tick_fontsize)
 

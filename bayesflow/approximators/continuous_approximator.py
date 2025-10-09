@@ -3,7 +3,6 @@ from collections.abc import Mapping, Sequence, Callable
 import numpy as np
 
 import keras
-import warnings
 
 from bayesflow.adapters import Adapter
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
@@ -476,7 +475,7 @@ class ContinuousApproximator(Approximator):
         Handles inputs containing only conditions, only inference_variables, or both.
         Optionally tracks log-determinant Jacobian (ldj) of transformations.
         """
-        adapted = self.adapter(data, strict=False, stage="inference", log_det_jac=log_det_jac, **kwargs)
+        adapted = self.adapter(data, strict=False, log_det_jac=log_det_jac, **kwargs)
 
         if log_det_jac:
             data, ldj = adapted
@@ -536,9 +535,15 @@ class ContinuousApproximator(Approximator):
             inference_conditions = keras.ops.broadcast_to(
                 inference_conditions, (batch_size, num_samples, *keras.ops.shape(inference_conditions)[2:])
             )
-            batch_shape = keras.ops.shape(inference_conditions)[:-1]
+
+            if hasattr(self.inference_network, "base_distribution"):
+                target_shape_len = len(self.inference_network.base_distribution.dims)
+            else:
+                # point approximator has no base_distribution
+                target_shape_len = 1
+            batch_shape = keras.ops.shape(inference_conditions)[:-target_shape_len]
         else:
-            batch_shape = keras.ops.shape(inference_conditions)[1:-1]
+            batch_shape = (num_samples,)
 
         return self.inference_network.sample(
             batch_shape, conditions=inference_conditions, **filter_kwargs(kwargs, self.inference_network.sample)
@@ -565,23 +570,15 @@ class ContinuousApproximator(Approximator):
         if self.summary_network is None:
             raise ValueError("A summary network is required to compute summaries.")
 
-        data_adapted = self.adapter(data, strict=False, stage="inference", **kwargs)
+        data_adapted = self._prepare_data(data, **kwargs)
         if "summary_variables" not in data_adapted or data_adapted["summary_variables"] is None:
             raise ValueError("Summary variables are required to compute summaries.")
 
-        summary_variables = keras.tree.map_structure(keras.ops.convert_to_tensor, data_adapted["summary_variables"])
+        summary_variables = data_adapted["summary_variables"]
         summaries = self.summary_network(summary_variables, **filter_kwargs(kwargs, self.summary_network.call))
         summaries = keras.ops.convert_to_numpy(summaries)
 
         return summaries
-
-    def summaries(self, data: Mapping[str, np.ndarray], **kwargs) -> np.ndarray:
-        """
-        .. deprecated:: 2.0.4
-            `summaries` will be removed in version 2.0.5, it was renamed to `summarize` which should be used instead.
-        """
-        warnings.warn("`summaries` was renamed to `summarize` and will be removed in version 2.0.5.", FutureWarning)
-        return self.summarize(data=data, **kwargs)
 
     def log_prob(self, data: Mapping[str, np.ndarray], **kwargs) -> np.ndarray:
         """

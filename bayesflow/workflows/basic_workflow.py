@@ -349,7 +349,11 @@ class BasicWorkflow(Workflow):
         - Loss history (if training history is available).
         - Parameter recovery plots.
         - Calibration ECDF plots.
+        - Coverage plots.
         - Z-score contraction plots.
+
+        Caution: For models with many parameters, plotting all marginal diagnostics becomes unwieldy. Consider
+        providing `variables_keys` for visualizing the diagnostics for subsets of the parameter space.
 
         Parameters
         ----------
@@ -400,6 +404,7 @@ class BasicWorkflow(Workflow):
         plot_fns = {
             "recovery": bf_plots.recovery,
             "calibration_ecdf": bf_plots.calibration_ecdf,
+            "coverage": bf_plots.coverage,
             "z_score_contraction": bf_plots.z_score_contraction,
         }
 
@@ -499,9 +504,10 @@ class BasicWorkflow(Workflow):
         """
         Computes default diagnostic metrics to evaluate the quality of inference. The function computes several
         diagnostic metrics, including:
-        - Root Mean Squared Error (RMSE)
-        - Posterior contraction
-        - Calibration error
+        - (Normalized) Root Mean Squared Error ((N)RMSE): summarizes the recovery plots
+        - Log-gamma statistic - summarizes the ECDF calibration plots
+        - Expected Calibration Error (ECE) - summarizes the coverage plots
+        - Posterior contraction - partially summarizes the contraction plots
 
         Parameters
         ----------
@@ -553,12 +559,12 @@ class BasicWorkflow(Workflow):
             **kwargs.get("root_mean_squared_error_kwargs", {}),
         )
 
-        contraction = bf_metrics.posterior_contraction(
+        log_gamma = bf_metrics.calibration_log_gamma(
             estimates=samples,
             targets=test_data,
             variable_keys=variable_keys,
             variable_names=variable_names,
-            **kwargs.get("posterior_contraction_kwargs", {}),
+            **kwargs.get("log_gamma_kwargs", {}),
         )
 
         calibration_errors = bf_metrics.calibration_error(
@@ -569,17 +575,26 @@ class BasicWorkflow(Workflow):
             **kwargs.get("calibration_error_kwargs", {}),
         )
 
+        contraction = bf_metrics.posterior_contraction(
+            estimates=samples,
+            targets=test_data,
+            variable_keys=variable_keys,
+            variable_names=variable_names,
+            **kwargs.get("posterior_contraction_kwargs", {}),
+        )
+
         if as_data_frame:
             metrics = pd.DataFrame(
                 {
                     root_mean_squared_error["metric_name"]: root_mean_squared_error["values"],
-                    contraction["metric_name"]: contraction["values"],
+                    log_gamma["metric_name"]: log_gamma["values"],
                     calibration_errors["metric_name"]: calibration_errors["values"],
+                    contraction["metric_name"]: contraction["values"],
                 },
                 index=variable_keys or root_mean_squared_error["variable_names"],
             ).T
         else:
-            metrics = (root_mean_squared_error, contraction, calibration_errors)
+            metrics = (root_mean_squared_error, log_gamma, calibration_errors, contraction)
 
         return metrics
 
@@ -720,7 +735,12 @@ class BasicWorkflow(Workflow):
         dataset = OfflineDataset(data=data, batch_size=batch_size, adapter=self.adapter, augmentations=augmentations)
 
         return self._fit(
-            dataset, epochs, strategy="online", keep_optimizer=keep_optimizer, validation_data=validation_data, **kwargs
+            dataset,
+            epochs,
+            strategy="offline",
+            keep_optimizer=keep_optimizer,
+            validation_data=validation_data,
+            **kwargs,
         )
 
     def fit_online(
@@ -853,7 +873,12 @@ class BasicWorkflow(Workflow):
         )
 
         return self._fit(
-            dataset, epochs, strategy="online", keep_optimizer=keep_optimizer, validation_data=validation_data, **kwargs
+            dataset,
+            epochs,
+            strategy="offline",
+            keep_optimizer=keep_optimizer,
+            validation_data=validation_data,
+            **kwargs,
         )
 
     def build_optimizer(self, epochs: int, num_batches: int, strategy: str) -> keras.Optimizer | None:
@@ -904,6 +929,7 @@ class BasicWorkflow(Workflow):
             self.optimizer = keras.optimizers.Adam(learning_rate, clipnorm=1.5)
         else:
             self.optimizer = keras.optimizers.AdamW(learning_rate, weight_decay=5e-3, clipnorm=1.5)
+        return self.optimizer
 
     def _fit(
         self,
@@ -945,9 +971,10 @@ class BasicWorkflow(Workflow):
             else:
                 kwargs["callbacks"] = [model_checkpoint_callback]
 
-        self.build_optimizer(epochs, dataset.num_batches, strategy=strategy)
-
-        if not self.approximator.built:
+        # returns None if no new optimizer was built and assigned to self.optimizer, which indicates we do not have
+        # to (re)compile the approximator.
+        optimizer = self.build_optimizer(epochs, dataset.num_batches, strategy=strategy)
+        if optimizer is not None:
             self.approximator.compile(optimizer=self.optimizer, metrics=kwargs.pop("metrics", None))
 
         try:
@@ -979,6 +1006,8 @@ class BasicWorkflow(Workflow):
             else:
                 file_ext = self.checkpoint_name + ".keras"
 
-            logging.info(f"""Training is now finished.
+            logging.info(
+                f"""Training is now finished.
             You can find the trained approximator at '{self.checkpoint_filepath}/{self.checkpoint_name}.{file_ext}'.
-            To load it, use approximator = keras.saving.load_model(...).""")
+            To load it, use approximator = keras.saving.load_model(...)."""
+            )
