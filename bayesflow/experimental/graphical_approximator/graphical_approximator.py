@@ -21,7 +21,7 @@ class GraphicalApproximator(Approximator):
         super().__init__(**kwargs)
         self.graph = graph
         self.adapter = adapter
-        self.infertence_networks = inference_networks
+        self.inference_networks = inference_networks
         self.summary_networks = summary_networks
 
         if isinstance(standardize, str) and standardize != "all":
@@ -34,21 +34,20 @@ class GraphicalApproximator(Approximator):
         else:
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
 
-    def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
-        summary_outputs_shape = [data_shapes["summary_variables"]]
-        if self.summary_networks is not None:
-            for summary_network in self.summary_networks:
-                if not summary_network.built:
-                    summary_network.build(summary_outputs_shape[-1])
+    # pass through inference networks
+    # pass through summary networks
 
-                summary_outputs_shape.append(summary_network.compute_output_shape(summary_outputs_shape[-1]))
+    # summary networks first, because output needed for inference networks
 
-    # Approximator algorithm:
+    # output of graphical simulator must be assigned to all summary networks
+    # chain of summary networks, data dimensionality is getting reduced in each
+    # step.
 
-    # function 1: updated network composition
-    # go through network composition, if nodes with same name are in different networks, combine them
-    # add annotation if nodes are amortized or not
+    # InvertedGraph shows which output needs to be put into which summary network
+    # in the chain
 
-    # function 2: function that assigns each node an output shape
+    # InvertedGraph also shows which output of the summary networks and which
+    # parameters need to be put into which inference network
 
-    # function 3: function that retrieves condition for a target node, concatenates them
+    def _assign_data_to_summary_networks(self):
+        pass
