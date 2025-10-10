@@ -27,7 +27,7 @@ class GraphicalSimulator(Simulator):
 
     def __init__(self, meta_fn: Optional[Callable[[], dict[str, Any]]] = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.graph = SimulationGraph()
+        self.graph = SimulationGraph(meta_fn=meta_fn)
         self.meta_fn = meta_fn
 
     def add_node(self, node: str, sample_fn: Callable[..., dict[str, Any]], reps: int | str = 1):

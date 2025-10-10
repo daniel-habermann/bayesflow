@@ -1,15 +1,18 @@
-from ctypes import ArgumentError
+import copy
+import inspect
 from typing import TypeAlias
+
 import networkx as nx
 
-from .utils import merge_root_nodes, split_node, has_open_path
+from .utils import has_open_path, merge_root_nodes, split_node
 
 Node: TypeAlias = str
 
 
 class SimulationGraph(nx.DiGraph):
-    def __init___(self):
+    def __init__(self, meta_fn=None):
         super().__init__(self)
+        self.meta_fn = meta_fn
 
     def expand(self):
         graph = self.copy()
@@ -125,6 +128,36 @@ class InvertedGraph(nx.DiGraph):
             networks[k] = [n for n in node_order if n in v]
 
         return networks
+
+    def variable_names(self):
+        def _call_sample_fn(sample_fn, args):
+            signature = inspect.signature(sample_fn)
+            fn_args = signature.parameters
+            accepted_args = {k: v for k, v in args.items() if k in fn_args}
+
+            return sample_fn(**accepted_args)
+
+        simulation_graph = copy.deepcopy(self.simulation_graph)
+        meta_dict = simulation_graph.meta_fn() if simulation_graph.meta_fn else {}
+        samples_by_node = {}
+
+        for node in nx.topological_sort(simulation_graph):
+            simulation_graph.nodes[node]["reps"] = 1
+            parent_nodes = list(simulation_graph.predecessors(node))
+            sample_fn = simulation_graph.nodes[node]["sample_fn"]
+
+            if not parent_nodes:
+                samples_by_node[node] = _call_sample_fn(sample_fn, {})
+            else:
+                parent_samples = [samples_by_node[p] for p in parent_nodes]
+                merged_dict = {k: v for d in parent_samples for k, v in d.items()}
+
+                sample_fn_input = merged_dict | meta_dict
+                samples_by_node[node] = _call_sample_fn(sample_fn, sample_fn_input)
+
+        variabe_dict = {k: list(v.keys()) for k, v in samples_by_node.items()}
+
+        return variabe_dict
 
     def conditions_for_node(self, orig_node: Node):
         if orig_node not in self.simulation_graph.nodes:
