@@ -110,7 +110,38 @@ class InvertedGraph(nx.DiGraph):
 
         return networks
 
-    def merged_nodes(self, orig_node):
+    def network_conditions(self):
+        composition = self.network_composition()
+
+        networks = {}
+
+        for network_idx, orig_nodes in composition.items():
+            networks[network_idx] = []
+            for node in orig_nodes:
+                networks[network_idx].extend(self.conditions_for_node(node))
+
+        node_order = list(nx.topological_sort(self.simulation_graph))
+        for k, v in networks.items():
+            networks[k] = [n for n in node_order if n in v]
+
+        return networks
+
+    def conditions_for_node(self, orig_node: Node):
+        if orig_node not in self.simulation_graph.nodes:
+            raise ValueError(f"Node {orig_node} not found.")
+
+        node_conditions = []
+
+        raw_conditions = self._conditions()
+        for k, v in raw_conditions.items():
+            if orig_node in self._original_names(k):
+                node_conditions.extend(self._original_names(x) for x in v)
+
+        node_conditions = list({x for sublist in node_conditions for x in sublist})
+
+        return node_conditions
+
+    def merged_nodes(self, orig_node: Node):
         if orig_node not in self.simulation_graph.nodes:
             raise ValueError(f"Node {orig_node} not found.")
 
@@ -122,7 +153,7 @@ class InvertedGraph(nx.DiGraph):
 
         return None
 
-    def is_merged(self, orig_node):
+    def is_merged(self, orig_node: Node):
         if orig_node not in self.simulation_graph.nodes:
             raise ValueError(f"Node {orig_node} not found.")
 
