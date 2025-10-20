@@ -159,6 +159,23 @@ class InvertedGraph(nx.DiGraph):
 
         return variabe_dict
 
+    def data_node(self):
+        leaf_nodes = [n for n, d in self.simulation_graph.out_degree() if d == 0]
+
+        return leaf_nodes[0]
+
+    def data_layers(self):
+        data_node = self.data_node()
+        data_layers = {}
+
+        for node in self.expanded_graph.nodes:
+            expanded_node = self.expanded_graph.nodes[node]
+            if data_node in expanded_node["previous_names"]:
+                layer = len(expanded_node["previous_names"]) - 1
+                data_layers.setdefault(layer, []).append(node)
+
+        return data_layers
+
     def conditions_for_node(self, orig_node: Node):
         if orig_node not in self.simulation_graph.nodes:
             raise ValueError(f"Node {orig_node} not found.")
