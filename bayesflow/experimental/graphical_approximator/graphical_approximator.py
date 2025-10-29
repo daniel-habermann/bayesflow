@@ -5,7 +5,7 @@ from bayesflow.approximators import Approximator
 from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
-from bayesflow.utils import concatenate_valid_shapes
+from bayesflow.utils import concatenate_valid_shapes, concatenate_valid
 import keras
 
 
@@ -74,6 +74,109 @@ class GraphicalApproximator(Approximator):
         **kwargs,
     ):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
+
+    def _prepare_inference_conditions(self, data: dict, stage: str = "training"):
+        network_composition = self.graph.network_composition()
+        network_conditions = self.graph.network_conditions()
+
+        data_node = self.graph.data_node()
+        data_conditions = self._data_conditions(data)
+
+        inference_networks = self.inference_networks
+        inference_conditions = {}
+        variable_names = self.graph.variable_names()
+
+        for i, _ in enumerate(inference_networks):
+            nodes_to_condition_on = network_conditions[i]
+            conditions = []
+
+            for node in nodes_to_condition_on:
+                if node != data_node:
+                    for variable in variable_names[node]:
+                        if variable in self.standardize:
+                            conditions.append(self.standardize_layers[variable](data[variable], stage=stage))
+                        else:
+                            conditions.append(data[variable])
+                else:
+                    conditioned_data = []
+                    for conditioned_node in network_composition[i]:
+                        if data_conditions[conditioned_node] is not None:
+                            conditioned_data.append(data_conditions[conditioned_node])
+
+                    unique_conditions = list({id(t): t for t in conditioned_data}.values())
+                    conditions.extend(unique_conditions)
+
+            inference_conditions[i] = self._concatenate(conditions)
+
+        return inference_conditions
+
+    def _data_conditions(self, data: dict):
+        expanded_conditions = self.graph._conditions()
+        summary_outputs, summary_metrics = self._compute_summary_metrics(data, stage="validation")
+
+        data_layers = self.graph.data_layers()
+        data_conditions = {}
+
+        for node, conditions in expanded_conditions.items():
+            orig_node_names = self.graph._original_names(node)
+
+            for layer, keys in data_layers.items():
+                if set(keys) <= set(data_conditions):
+                    for name in orig_node_names:
+                        data_conditions[name] = summary_outputs[layer + 1]
+                elif len(set(keys) & set(conditions)) > 0:
+                    for name in orig_node_names:
+                        data_conditions[name] = summary_outputs[layer]
+
+            for name in orig_node_names:
+                if name not in data_conditions.keys():
+                    data_conditions[name] = None
+
+        return data_conditions
+
+    def _prepare_inference_variables(self, data: dict):
+        network_composition = self.graph.network_composition()
+        variable_names = self.graph.variable_names()
+
+        inference_networks = self.inference_networks
+        inference_variables = {}
+
+        for i, _ in enumerate(inference_networks):
+            variables = []
+            for node in network_composition[i]:
+                for variable in variable_names[node]:
+                    if variable in self.standardize:
+                        variables.append(self.standardize_layers[variable](data[variable], stage=stage))
+                    else:
+                        variables.append(data[variable])
+
+            inference_variables[i] = concatenate_valid(variables, axis=-1)
+
+        return inference_variables
+
+    def _compute_summary_metrics(self, data: dict, stage: str):
+        data_node = self.graph.data_node()
+        data_keys = self.graph.variable_names()[data_node]
+
+        summary_variables = []
+        for k in data_keys:
+            if k in self.standardize:
+                summary_variables.append(self.standardize_layers[k](data[k], stage=stage))
+            else:
+                summary_variables.append(data[k])
+
+        summary_input = concatenate_valid(summary_variables, axis=-1)
+        summary_metrics = {}
+        summary_outputs = {}
+
+        summary_metrics[0] = self.summary_networks[0].compute_metrics(summary_input, stage=stage)
+        summary_outputs[0] = summary_metrics[0].pop("outputs")
+
+        for i, summary_network in enumerate(self.summary_networks[1:]):
+            summary_metrics[i + 1] = summary_network.compute_metrics(summary_outputs[i])
+            summary_outputs[i + 1] = summary_metrics[i + 1].pop("outputs")
+
+        return summary_outputs, summary_metrics
 
     def _inference_variables_shapes(self, data_shapes):
         network_composition = self.graph.network_composition()
@@ -162,6 +265,27 @@ class GraphicalApproximator(Approximator):
             stacked_shape = stack_shapes(stacked_shape, tiled_shape)
 
         return stacked_shape
+
+    def _concatenate(self, tensors):
+        max_rank = max([len(keras.ops.shape(x)) for x in tensors])
+        expanded_tensors = []
+
+        for tensor in tensors:
+            target_shape = expand_shape_rank(keras.ops.shape(tensor), max_rank)
+            expanded_tensors.append(keras.ops.reshape(tensor, target_shape))
+
+        expanded_shapes = [keras.ops.shape(x) for x in expanded_tensors]
+        max_shape = [max(s) for s in zip(*expanded_shapes)]
+
+        tiled_tensors = []
+        for expanded_tensor in expanded_tensors:
+            repeats = [t // s for t, s in zip(max_shape, keras.ops.shape(expanded_tensor))]
+            repeats[-1] = 1  # do not repeat last dimension
+            tiled_tensors.append(keras.ops.tile(expanded_tensor, repeats))
+
+        concatenated_tensor = keras.ops.concatenate(tiled_tensors, axis=-1)
+
+        return concatenated_tensor
 
     def _data_conditions_shapes(self, data_shapes):
         # TODO: simplify branching
