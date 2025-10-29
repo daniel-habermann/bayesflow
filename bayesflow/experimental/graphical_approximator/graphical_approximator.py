@@ -36,6 +36,9 @@ class GraphicalApproximator(Approximator):
         else:
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
 
+    def fit(self, *args, **kwargs):
+        return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
+
     def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
         # build summary networks
         summary_networks = self.summary_networks or []
@@ -74,6 +77,39 @@ class GraphicalApproximator(Approximator):
         **kwargs,
     ):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
+
+    def compute_metrics(self, stage: str = "training", **kwargs):
+        data = kwargs
+        inference_conditions = self._prepare_inference_conditions(data, stage)
+        inference_variables = self._prepare_inference_variables(data, stage)
+        inference_metrics = {}
+
+        for idx, inference_network in enumerate(self.inference_networks):
+            inference_metrics[idx] = inference_network.compute_metrics(
+                inference_variables[idx], conditions=inference_conditions[idx], stage=stage
+            )
+
+        _, summary_metrics = self._compute_summary_metrics(data, stage)
+
+        # combine losses and metrics
+        total_loss = 0
+        combined_inference_metrics = {}
+        combined_summary_metrics = {}
+
+        for idx, metrics in inference_metrics.items():
+            total_loss += metrics["loss"]
+            for k, v in metrics.items():
+                combined_inference_metrics[f"inference_{idx}/{k}"] = v
+
+        for idx, metrics in summary_metrics.items():
+            if "loss" in metrics:
+                total_loss += metrics["loss"]
+            for k, v in metrics.items():
+                combined_summary_metrics[f"summary_{idx}/{k}"] = v
+
+        metrics = {"loss": total_loss} | combined_inference_metrics | combined_summary_metrics
+
+        return metrics
 
     def _prepare_inference_conditions(self, data: dict, stage: str = "training"):
         network_composition = self.graph.network_composition()
@@ -121,7 +157,7 @@ class GraphicalApproximator(Approximator):
             orig_node_names = self.graph._original_names(node)
 
             for layer, keys in data_layers.items():
-                if set(keys) <= set(data_conditions):
+                if set(keys) <= set(conditions):
                     for name in orig_node_names:
                         data_conditions[name] = summary_outputs[layer + 1]
                 elif len(set(keys) & set(conditions)) > 0:
@@ -134,7 +170,7 @@ class GraphicalApproximator(Approximator):
 
         return data_conditions
 
-    def _prepare_inference_variables(self, data: dict):
+    def _prepare_inference_variables(self, data: dict, stage: str = "training"):
         network_composition = self.graph.network_composition()
         variable_names = self.graph.variable_names()
 
@@ -154,7 +190,7 @@ class GraphicalApproximator(Approximator):
 
         return inference_variables
 
-    def _compute_summary_metrics(self, data: dict, stage: str):
+    def _compute_summary_metrics(self, data: dict, stage: str = "training"):
         data_node = self.graph.data_node()
         data_keys = self.graph.variable_names()[data_node]
 
@@ -311,6 +347,12 @@ class GraphicalApproximator(Approximator):
                     data_condition_shapes[name] = None
 
         return data_condition_shapes
+
+    def _batch_size_from_data(self, data):
+        data_shapes = self._data_shapes(data)
+        batch_size = next(iter(data_shapes.values()))[0]
+
+        return batch_size
 
     def _summary_input_shape(self, data_shapes):
         data_node = self.graph.data_node()
