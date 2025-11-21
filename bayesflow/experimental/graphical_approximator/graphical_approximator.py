@@ -6,6 +6,7 @@ from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
 from bayesflow.utils import concatenate_valid_shapes, concatenate_valid
+import numpy as np
 import keras
 
 
@@ -36,10 +37,58 @@ class GraphicalApproximator(Approximator):
         else:
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
 
+    def sample(self, conditions, num_samples: int):
+        summary_output, summary_metrics = self._compute_summary_metrics(conditions, stage="validation")
+        network_composition = self.graph.network_composition()
+        network_conditions = self.graph.network_conditions()
+        variable_names = self.graph.variable_names()
+        data_node = self.graph.data_node()
+        data_conditions = self._data_conditions(conditions)
+        batch_size = keras.ops.shape(summary_output[0])[0]
+
+        sample_dict = {}
+
+        for i, inference_network in enumerate(self.inference_networks):
+            nodes_to_condition_on = network_conditions[i]
+            conditions = []
+
+            for node in nodes_to_condition_on:
+                if node != data_node:
+                    for variable in variable_names[node]:
+                        conditions.append(sample_dict[variable])
+                else:
+                    conditioned_data = []
+                    for conditioned_node in network_composition[i]:
+                        if data_conditions[conditioned_node] is not None:
+                            expanded_conditions = keras.ops.expand_dims(data_conditions[conditioned_node], axis=1)
+                            expanded_conditions = keras.ops.broadcast_to(
+                                expanded_conditions,
+                                (batch_size, num_samples, *keras.ops.shape(expanded_conditions)[2:]),
+                            )
+                            conditioned_data.append(expanded_conditions)
+
+                    unique_conditions = unique_tensors(conditioned_data)
+                    conditions.extend(unique_conditions)
+
+            concatenated_conditions = self._concatenate(conditions, batch_dims=2)
+            samples = inference_network.sample((batch_size, num_samples), conditions=concatenated_conditions)
+
+            variables = []
+            for node in network_composition[i]:
+                for variable_name in variable_names[node]:
+                    variables.append(variable_name)
+
+            for variable_name, samples in zip(variables, keras.ops.unstack(samples, axis=-1)):
+                sample_dict[variable_name] = keras.ops.expand_dims(samples, axis=-1)
+
+        return sample_dict
+
     def fit(self, *args, **kwargs):
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
     def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
+        data_shapes = {k: v for k, v in data_shapes.items() if len(v) > 0}
+
         # build summary networks
         summary_networks = self.summary_networks or []
         summary_input_shape = self._summary_input_shape(data_shapes)
@@ -71,11 +120,7 @@ class GraphicalApproximator(Approximator):
 
         self.built = True
 
-    def compile(
-        self,
-        *args,
-        **kwargs,
-    ):
+    def compile(self, *args, **kwargs):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
 
     def compute_metrics(self, stage: str = "training", **kwargs):
@@ -135,38 +180,41 @@ class GraphicalApproximator(Approximator):
                             conditions.append(data[variable])
                 else:
                     conditioned_data = []
+                    conditioned_data_shapes = []
                     for conditioned_node in network_composition[i]:
                         if data_conditions[conditioned_node] is not None:
-                            conditioned_data.append(data_conditions[conditioned_node])
+                            for data_condition in data_conditions[conditioned_node]:
+                                data_shape = keras.ops.shape(data_condition)
+                                if data_shape not in conditioned_data_shapes:
+                                    conditioned_data.append(data_condition)
+                                    conditioned_data_shapes.append(data_shape)
 
-                    unique_conditions = list({id(t): t for t in conditioned_data}.values())
-                    conditions.extend(unique_conditions)
+                    conditions.extend(conditioned_data)
 
             inference_conditions[i] = self._concatenate(conditions)
 
         return inference_conditions
 
     def _data_conditions(self, data: dict):
-        expanded_conditions = self.graph._conditions()
-        summary_outputs, summary_metrics = self._compute_summary_metrics(data, stage="validation")
+        data_shapes = self._data_shapes(data)
+        network_composition = self.graph.network_composition()
+        inference_variables_shapes = self._inference_variables_shapes(data_shapes)
+        summary_outputs, _ = self._compute_summary_metrics(data)
+        variable_names = self.graph.variable_names()
 
-        data_layers = self.graph.data_layers()
         data_conditions = {}
 
-        for node, conditions in expanded_conditions.items():
-            orig_node_names = self.graph._original_names(node)
+        for network_idx, variable_shape in inference_variables_shapes.items():
+            required_data_dimension = len(variable_shape)
+            for node in network_composition[network_idx]:
+                summary_output = [
+                    v for k, v in summary_outputs.items() if len(keras.ops.shape(v)) == required_data_dimension
+                ]
+                data_conditions[node] = summary_output
 
-            for layer, keys in data_layers.items():
-                if set(keys) <= set(conditions):
-                    for name in orig_node_names:
-                        data_conditions[name] = summary_outputs[layer + 1]
-                elif len(set(keys) & set(conditions)) > 0:
-                    for name in orig_node_names:
-                        data_conditions[name] = summary_outputs[layer]
-
-            for name in orig_node_names:
-                if name not in data_conditions.keys():
-                    data_conditions[name] = None
+        for node in variable_names.keys():
+            if node not in data_conditions.keys():
+                data_conditions[node] = None
 
         return data_conditions
 
@@ -209,7 +257,7 @@ class GraphicalApproximator(Approximator):
         summary_outputs[0] = summary_metrics[0].pop("outputs")
 
         for i, summary_network in enumerate(self.summary_networks[1:]):
-            summary_metrics[i + 1] = summary_network.compute_metrics(summary_outputs[i])
+            summary_metrics[i + 1] = summary_network.compute_metrics(summary_outputs[i], stage=stage)
             summary_outputs[i + 1] = summary_metrics[i + 1].pop("outputs")
 
         return summary_outputs, summary_metrics
@@ -302,11 +350,16 @@ class GraphicalApproximator(Approximator):
 
         return stacked_shape
 
-    def _concatenate(self, tensors):
+    def _concatenate(self, tensors, batch_dims=1):
         max_rank = max([len(keras.ops.shape(x)) for x in tensors])
         expanded_tensors = []
+        reshaped_tensors = []
 
         for tensor in tensors:
+            flattened_shape = (-1, *keras.ops.shape(tensor)[batch_dims:])
+            reshaped_tensors.append(keras.ops.reshape(tensor, flattened_shape))
+
+        for tensor in reshaped_tensors:
             target_shape = expand_shape_rank(keras.ops.shape(tensor), max_rank)
             expanded_tensors.append(keras.ops.reshape(tensor, target_shape))
 
@@ -320,31 +373,62 @@ class GraphicalApproximator(Approximator):
             tiled_tensors.append(keras.ops.tile(expanded_tensor, repeats))
 
         concatenated_tensor = keras.ops.concatenate(tiled_tensors, axis=-1)
+        concatenated_tensor = keras.ops.reshape(
+            concatenated_tensor,
+            (*keras.ops.shape(tensors[0])[:batch_dims], *keras.ops.shape(concatenated_tensor)[batch_dims:]),
+        )
 
         return concatenated_tensor
 
+    # def _data_conditions_shapes_(self, data_shapes):
+    #     # TODO: simplify branching
+    #     expanded_conditions = self.graph._conditions()
+    #     summary_output_shapes = self._summary_output_shapes(data_shapes)
+    #
+    #     data_layers = self.graph.data_layers()
+    #     data_condition_shapes = {}
+    #
+    #     print(f"{data_layers=}")
+    #     print(f"{expanded_conditions=}")
+    #     for node, conditions in expanded_conditions.items():
+    #         print(f"{node=}")
+    #         print(f"{conditions=}")
+    #         orig_node_names = self.graph._original_names(node)
+    #         print(f"{orig_node_names=}")
+    #
+    #         for layer, keys in data_layers.items():
+    #             print(f"{layer=}")
+    #             print(f"{keys=}")
+    #             if set(keys) <= set(conditions):
+    #                 for name in orig_node_names:
+    #                     data_condition_shapes[name] = summary_output_shapes[layer + 1]
+    #             elif len(set(keys) & set(conditions)) > 0:
+    #                 for name in orig_node_names:
+    #                     data_condition_shapes[name] = summary_output_shapes[layer]
+    #
+    #         for name in orig_node_names:
+    #             if name not in data_condition_shapes.keys():
+    #                 data_condition_shapes[name] = None
+    #
+    #     return data_condition_shapes
+    #
     def _data_conditions_shapes(self, data_shapes):
-        # TODO: simplify branching
-        expanded_conditions = self.graph._conditions()
+        network_composition = self.graph.network_composition()
+        inference_variables_shapes = self._inference_variables_shapes(data_shapes)
         summary_output_shapes = self._summary_output_shapes(data_shapes)
+        variable_names = self.graph.variable_names()
 
-        data_layers = self.graph.data_layers()
         data_condition_shapes = {}
 
-        for node, conditions in expanded_conditions.items():
-            orig_node_names = self.graph._original_names(node)
+        for network_idx, variable_shape in inference_variables_shapes.items():
+            required_data_dimension = len(variable_shape)
+            for node in network_composition[network_idx]:
+                summary_output_shape = [s for s in summary_output_shapes if len(s) == required_data_dimension][0]
+                data_condition_shapes[node] = summary_output_shape
 
-            for layer, keys in data_layers.items():
-                if set(keys) <= set(conditions):
-                    for name in orig_node_names:
-                        data_condition_shapes[name] = summary_output_shapes[layer + 1]
-                elif len(set(keys) & set(conditions)) > 0:
-                    for name in orig_node_names:
-                        data_condition_shapes[name] = summary_output_shapes[layer]
-
-            for name in orig_node_names:
-                if name not in data_condition_shapes.keys():
-                    data_condition_shapes[name] = None
+        for node in variable_names.keys():
+            if node not in data_condition_shapes.keys():
+                data_condition_shapes[node] = None
 
         return data_condition_shapes
 
@@ -409,3 +493,20 @@ def to_tuple(shape):
         shape = shape.as_list()
 
     return tuple(shape)
+
+
+def unique_tensors(tensors):
+    seen = set()
+    unique = []
+
+    for t in tensors:
+        # Convert to a NumPy array in a backend-agnostic way
+        arr = keras.ops.convert_to_numpy(t) if hasattr(keras.ops, "convert_to_numpy") else np.array(t)
+
+        # Build a hashable key from dtype + shape + bytes
+        key = (str(arr.dtype), arr.shape, arr.tobytes())
+        if key not in seen:
+            seen.add(key)
+            unique.append(t)
+
+    return unique

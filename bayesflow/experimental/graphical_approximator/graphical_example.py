@@ -1,12 +1,12 @@
 from bayesflow.experimental.graphical_approximator.graphical_approximator import GraphicalApproximator
-from bayesflow.experimental.graphical_simulator.example_simulators import two_level_simulator
+from bayesflow.experimental.graphical_simulator.example_simulators import two_level_simulator, three_level_simulator
 
 import bayesflow as bf
 from bayesflow.adapters import Adapter
 
 
 def simulator():
-    return two_level_simulator()
+    return three_level_simulator()
 
 
 def adapter():
@@ -18,13 +18,17 @@ def adapter():
 
 
 def summary_networks():
-    summary_networks = [bf.networks.DeepSet(summary_dim=16), bf.networks.DeepSet(summary_dim=10)]
+    summary_networks = [
+        bf.networks.DeepSet(summary_dim=10),
+        bf.networks.DeepSet(summary_dim=10),
+        bf.networks.DeepSet(summary_dim=10),
+    ]
 
     return summary_networks
 
 
 def inference_networks():
-    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
+    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
 
     return inference_networks
 
