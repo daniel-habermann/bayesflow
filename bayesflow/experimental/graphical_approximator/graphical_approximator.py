@@ -10,6 +10,11 @@ import numpy as np
 import keras
 
 
+# TODO: fix single level model
+# TODO: fix integers in simulation output
+# TODO: add number of groups as conditions to correct networks
+# TODO: unit tests for GraphicalApproximator components
+# TODO: more than one data node?
 class GraphicalApproximator(Approximator):
     def __init__(
         self,
@@ -410,7 +415,7 @@ class GraphicalApproximator(Approximator):
         data_node = self.graph.data_node()
         data_keys = self.graph.variable_names()[data_node]
 
-        input_shape = concatenate_valid_shapes([data_shapes[k] for k in data_keys])
+        input_shape = concatenate_valid_shapes([data_shapes[k] for k in data_keys], axis=-1)
 
         return input_shape
 
@@ -423,7 +428,11 @@ class GraphicalApproximator(Approximator):
             else:
                 input_shape = summary_output_shapes[-1]
 
-            output_shape = summary_network.compute_output_shape(input_shape)
+            if len(input_shape) == 2:
+                output_shape = summary_network.compute_output_shape(input_shape + [1])
+            else:
+                output_shape = summary_network.compute_output_shape(input_shape)
+
             summary_output_shapes.append(output_shape)
 
         return summary_output_shapes
