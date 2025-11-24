@@ -380,38 +380,6 @@ class GraphicalApproximator(Approximator):
 
         return concatenated_tensor
 
-    # def _data_conditions_shapes_(self, data_shapes):
-    #     # TODO: simplify branching
-    #     expanded_conditions = self.graph._conditions()
-    #     summary_output_shapes = self._summary_output_shapes(data_shapes)
-    #
-    #     data_layers = self.graph.data_layers()
-    #     data_condition_shapes = {}
-    #
-    #     print(f"{data_layers=}")
-    #     print(f"{expanded_conditions=}")
-    #     for node, conditions in expanded_conditions.items():
-    #         print(f"{node=}")
-    #         print(f"{conditions=}")
-    #         orig_node_names = self.graph._original_names(node)
-    #         print(f"{orig_node_names=}")
-    #
-    #         for layer, keys in data_layers.items():
-    #             print(f"{layer=}")
-    #             print(f"{keys=}")
-    #             if set(keys) <= set(conditions):
-    #                 for name in orig_node_names:
-    #                     data_condition_shapes[name] = summary_output_shapes[layer + 1]
-    #             elif len(set(keys) & set(conditions)) > 0:
-    #                 for name in orig_node_names:
-    #                     data_condition_shapes[name] = summary_output_shapes[layer]
-    #
-    #         for name in orig_node_names:
-    #             if name not in data_condition_shapes.keys():
-    #                 data_condition_shapes[name] = None
-    #
-    #     return data_condition_shapes
-    #
     def _data_conditions_shapes(self, data_shapes):
         network_composition = self.graph.network_composition()
         inference_variables_shapes = self._inference_variables_shapes(data_shapes)
