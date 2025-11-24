@@ -483,7 +483,7 @@ def stack_shapes(shape_1, shape_2, axis=-1):
 def expand_shape_rank(shape, target_rank):
     s = list(to_tuple(shape))
     while len(s) < target_rank:
-        s.insert(1, 1)
+        s.insert(-1, 1)
 
     return tuple(s)
 
