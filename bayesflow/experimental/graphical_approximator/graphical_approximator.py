@@ -10,9 +10,9 @@ import numpy as np
 import keras
 
 
-# TODO: fix single level model
 # TODO: fix integers in simulation output
 # TODO: add number of groups as conditions to correct networks
+# TODO: allow posterior sampling with non-simulated data
 # TODO: unit tests for GraphicalApproximator components
 # TODO: more than one data node?
 class GraphicalApproximator(Approximator):

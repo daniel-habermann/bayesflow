@@ -19,7 +19,7 @@ def single_level_simulator():
         x = np.random.normal(0, 1, size=N)
         y = np.random.normal(beta[0] + beta[1] * x, sigma, size=N)
 
-        return {"x": x, "y": y}
+        return {"x": np.expand_dims(x, axis=-1), "y": np.expand_dims(y, axis=-1)}
 
     def meta():
         N = np.random.randint(5, 15)

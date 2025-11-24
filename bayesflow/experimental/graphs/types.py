@@ -241,5 +241,7 @@ class InvertedGraph(nx.DiGraph):
 
         if "merged_from" in expanded_node:
             return expanded_node["merged_from"]
+        elif expanded_node["previous_names"] == []:
+            return [node]
         else:
             return [expanded_node["previous_names"][0]]
