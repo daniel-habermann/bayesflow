@@ -27,14 +27,13 @@ def summary_networks():
     summary_networks = [
         bf.networks.DeepSet(summary_dim=10),
         bf.networks.DeepSet(summary_dim=10),
-        bf.networks.DeepSet(summary_dim=10),
     ]
 
     return summary_networks
 
 
 def inference_networks():
-    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
+    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
 
     return inference_networks
 

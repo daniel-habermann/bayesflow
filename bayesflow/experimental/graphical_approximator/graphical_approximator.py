@@ -426,24 +426,24 @@ class GraphicalApproximator(Approximator):
 
     def _summary_output_shapes(self, data_shapes):
         summary_output_shapes = []
-
+        
         for summary_network in self.summary_networks or []:
             if len(summary_output_shapes) == 0:
                 input_shape = self._summary_input_shape(data_shapes)
             else:
                 input_shape = summary_output_shapes[-1]
-
+            
             if len(input_shape) == 2:
-                output_shape = summary_network.compute_output_shape(input_shape + [1])
+                output_shape = summary_network.compute_output_shape(input_shape + (1,))
             else:
                 output_shape = summary_network.compute_output_shape(input_shape)
-
+            
             summary_output_shapes.append(output_shape)
 
         return summary_output_shapes
 
     def _data_shapes(self, adapted_data: dict):
-        return keras.tree.map_structure(keras.ops.shape, adapted_data)
+        return keras.tree.map_structure(keras.ops.shape, adapted_data.data)
 
 
 def stack_shapes(shape_1, shape_2, axis=-1):
