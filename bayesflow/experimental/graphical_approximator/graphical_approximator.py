@@ -2,6 +2,7 @@ from collections.abc import Sequence
 
 from bayesflow.adapters import Adapter
 from bayesflow.approximators import Approximator
+from bayesflow.experimental.graphical_simulator.graphical_simulator import SimulationOutput
 from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
@@ -10,11 +11,11 @@ import numpy as np
 import keras
 
 
-# TODO: fix integers in simulation output
 # TODO: add number of groups as conditions to correct networks
 # TODO: allow posterior sampling with non-simulated data
 # TODO: unit tests for GraphicalApproximator components
 # TODO: more than one data node?
+# TODO: maybe fix IRT?
 class GraphicalApproximator(Approximator):
     def __init__(
         self,
@@ -89,6 +90,10 @@ class GraphicalApproximator(Approximator):
         return sample_dict
 
     def fit(self, *args, **kwargs):
+        if "dataset" in kwargs.keys():
+            if type(kwargs["dataset"]) is SimulationOutput:
+                kwargs["dataset"] = kwargs["dataset"].data
+
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
     def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:

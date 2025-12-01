@@ -41,13 +41,15 @@ def crossed_design_irt_simulator():
         log_exam_std = np.random.normal(loc=mu_exam_std, scale=sigma_exam_std)
         exam_std = float(np.exp(log_exam_std))
 
-        return dict(exam_mean=exam_mean, exam_std=exam_std)
-
-    # realizations of individual question difficulties
-    def sample_question(exam_mean, exam_std):
         question_difficulty = np.random.normal(loc=exam_mean, scale=exam_std)
 
-        return dict(question_difficulty=question_difficulty)
+        return dict(exam_mean=exam_mean, exam_std=exam_std, question_difficulty=question_difficulty)
+
+    # # realizations of individual question difficulties
+    # def sample_question(exam_mean, exam_std):
+    #     question_difficulty = np.random.normal(loc=exam_mean, scale=exam_std)
+    #
+    #     return dict(question_difficulty=question_difficulty)
 
     # realizations of individual student abilities
     def sample_student():
@@ -74,14 +76,16 @@ def crossed_design_irt_simulator():
 
     simulator.add_node("schools", sample_fn=sample_school)
     simulator.add_node("exams", sample_fn=sample_exam, reps="num_exams")
-    simulator.add_node("questions", sample_fn=sample_question, reps="num_questions")
+    # simulator.add_node("questions", sample_fn=sample_question, reps="num_questions")
     simulator.add_node("students", sample_fn=sample_student, reps="num_students")
     simulator.add_node("observations", sample_fn=sample_observation)
 
     simulator.add_edge("schools", "exams")
     simulator.add_edge("schools", "students")
-    simulator.add_edge("exams", "questions")
-    simulator.add_edge("questions", "observations")
+    # simulator.add_edge("exams", "questions")
+    # simulator.add_edge("questions", "observations")
+    # simulator.add_edge("students", "observations")
+    simulator.add_edge("exams", "observations")
     simulator.add_edge("students", "observations")
 
     return simulator

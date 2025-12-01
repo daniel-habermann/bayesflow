@@ -12,7 +12,7 @@ from bayesflow.adapters import Adapter
 
 
 def simulator():
-    return single_level_simulator()
+    return crossed_design_irt_simulator()
 
 
 def adapter():
@@ -26,13 +26,15 @@ def adapter():
 def summary_networks():
     summary_networks = [
         bf.networks.DeepSet(summary_dim=10),
+        bf.networks.DeepSet(summary_dim=10),
+        bf.networks.DeepSet(summary_dim=10),
     ]
 
     return summary_networks
 
 
 def inference_networks():
-    inference_networks = [bf.networks.CouplingFlow()]
+    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
 
     return inference_networks
 
