@@ -1,3 +1,4 @@
+import networkx as nx
 
 # required methods
 
@@ -23,3 +24,11 @@ def original_node_names(inverted_graph):
             mapping[node] = expanded_node["previous_names"][0]
 
     return mapping
+    
+def _conditions(inverted_graph):
+    conditions = {node: [] for node in inverted_graph.nodes}
+
+    for node in nx.topological_sort(inverted_graph):
+        conditions[node] = list(inverted_graph.predecessors(node))
+
+    return conditions
