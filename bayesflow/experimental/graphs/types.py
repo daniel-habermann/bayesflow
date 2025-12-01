@@ -27,7 +27,7 @@ class SimulationGraph(nx.DiGraph):
                 graph = split_node(graph, node)
 
         for node in nx.topological_sort(graph):
-            for key in ["split_by", "previous_names"]:
+            for key in ["split_by", "previous_names", "merged_from"]:
                 if key not in graph.nodes[node]:
                     graph.nodes[node][key] = []
 
@@ -197,7 +197,7 @@ class InvertedGraph(nx.DiGraph):
 
         for node in self.expanded_graph.nodes:
             expanded_node = self.expanded_graph.nodes[node]
-            if "merged_from" in expanded_node:
+            if expanded_node["merged_from"] != []:
                 if orig_node in expanded_node["merged_from"]:
                     return expanded_node["merged_from"]
 
@@ -209,7 +209,7 @@ class InvertedGraph(nx.DiGraph):
 
         for node in self.expanded_graph.nodes:
             expanded_node = self.expanded_graph.nodes[node]
-            if "merged_from" in expanded_node:
+            if expanded_node["merged_from"] != []:
                 if orig_node in expanded_node["merged_from"]:
                     return True
 
@@ -239,7 +239,7 @@ class InvertedGraph(nx.DiGraph):
     def _original_names(self, node: Node):
         expanded_node = self.expanded_graph.nodes[node]
 
-        if "merged_from" in expanded_node:
+        if expanded_node["merged_from"] != []:
             return expanded_node["merged_from"]
         elif expanded_node["previous_names"] == []:
             return [node]
