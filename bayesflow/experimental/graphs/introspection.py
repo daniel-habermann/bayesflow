@@ -1,4 +1,12 @@
+from typing import TypeAlias
+
 import networkx as nx
+
+from .types import InvertedGraph
+
+Node: TypeAlias = str
+SimulationNode: TypeAlias = str
+ExpandedNode: TypeAlias = str
 
 # required methods
 
@@ -9,10 +17,11 @@ import networkx as nx
 # method to identify which inference network needs which conditions
 # method to identify if the conditions are group-wise or combined
 
-def network_conditions(inverted_graph):
+
+def network_conditions(inverted_graph: InvertedGraph) -> dict[int, list[SimulationNode]]:
     composition = network_composition(inverted_graph)
     conditions = conditions_by_node(inverted_graph)
-    networks = {}
+    networks: dict[int, list[SimulationNode]] = {}
 
     for network_idx, nodes in composition.items():
         networks[network_idx] = []
@@ -22,15 +31,14 @@ def network_conditions(inverted_graph):
     return networks
 
 
-# assigns neural networks to nodes to be estimated
-def network_composition(inverted_graph):
+# assigns nodes to be estimated by each inference network
+def network_composition(inverted_graph: InvertedGraph) -> dict[int, list[SimulationNode]]:
     conditions = conditions_by_node(inverted_graph)
-    node_names = original_node_names(inverted_graph)
 
     processed_nodes = set(k for k, v in conditions.items() if v == [])
     conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
 
-    networks = {}
+    networks: dict[int, list[SimulationNode]] = {}
     network_idx = 0
 
     # Build inference layers iteratively: start with all nodes that require no conditions,
@@ -39,12 +47,12 @@ def network_composition(inverted_graph):
     while conditions:
         networks[network_idx] = []
         next_nodeset = {k for k, v in conditions.items() if set(v).issubset(processed_nodes | set([k]))}
-       
+
         if next_nodeset:
             processed_nodes.update(next_nodeset)
 
             for node in next_nodeset:
-                conditions.pop(node)
+                _ = conditions.pop(node)
                 networks[network_idx].extend([node])
 
         network_idx += 1
@@ -54,10 +62,11 @@ def network_composition(inverted_graph):
 
     return networks
 
+
 # returns a list of amortizable nodes
-def amortizable_nodes(inverted_graph):
+def amortizable_nodes(inverted_graph: InvertedGraph) -> list[SimulationNode]:
     amortizable_nodes = []
-    data_nodes = inverted_graph.data_node()
+    data_nodes = inverted_graph.simulation_graph.data_node()
 
     for node in inverted_graph.simulation_graph.nodes:
         if node not in data_nodes and allows_amortization(inverted_graph, node):
@@ -65,9 +74,10 @@ def amortizable_nodes(inverted_graph):
 
     return amortizable_nodes
 
+
 # checks if a node in the simulation graph is amortizable,
 # i.e. allows independent estimation of each group
-def allows_amortization(inverted_graph, node):
+def allows_amortization(inverted_graph: InvertedGraph, node: SimulationNode) -> bool:
     if node not in inverted_graph.simulation_graph.nodes:
         raise ValueError(f"Node {node} not found.")
 
@@ -82,13 +92,14 @@ def allows_amortization(inverted_graph, node):
 
     return True
 
+
 # maps node names of inverted graph to node names in corresponding SimulationGraph
-def original_node_names(inverted_graph):
+def original_node_names(inverted_graph: InvertedGraph) -> dict[ExpandedNode, SimulationNode]:
     mapping = {}
-    
+
     for node in inverted_graph.nodes:
         expanded_node = inverted_graph.expanded_graph.nodes[node]
-        
+
         if expanded_node["merged_from"] != []:
             mapping[node] = expanded_node["merged_from"][0]
         elif expanded_node["previous_names"] == []:
@@ -98,9 +109,10 @@ def original_node_names(inverted_graph):
 
     return mapping
 
+
 # like detailed_conditions_by_node, but uses original node names instead of
 # expanded nodes
-def conditions_by_node(inverted_graph):
+def conditions_by_node(inverted_graph: InvertedGraph) -> dict[SimulationNode, list[SimulationNode]]:
     detailed_conditions = detailed_conditions_by_node(inverted_graph)
     node_names = original_node_names(inverted_graph)
     conditions = {}
@@ -115,9 +127,10 @@ def conditions_by_node(inverted_graph):
 
     return conditions
 
+
 # returns a dictionary with node names as keys and a list of that node's predecessors
 # as values
-def detailed_conditions_by_node(inverted_graph):
+def detailed_conditions_by_node(inverted_graph: InvertedGraph) -> dict[ExpandedNode, list[ExpandedNode]]:
     conditions = {node: [] for node in inverted_graph.nodes}
 
     for node in nx.topological_sort(inverted_graph):
