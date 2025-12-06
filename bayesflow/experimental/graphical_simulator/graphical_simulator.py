@@ -1,7 +1,7 @@
 import inspect
 import itertools
 from collections.abc import Callable, MutableMapping
-from typing import Any, Optional
+from typing import Any
 
 import networkx as nx
 import numpy as np
@@ -43,13 +43,13 @@ class GraphicalSimulator(Simulator):
 
     Parameters
     ----------
-    meta_fn : Optional[Callable[[], dict[str, Any]]]
+    meta_fn : Callable[[], dict[str, Any]] | None
         A callable that returns a dictionary of meta data.
         This meta data can be used to dynamically vary the number of sampling repetitions (`reps`)
         for nodes added via `add_node`.
     """
 
-    def __init__(self, meta_fn: Optional[Callable[[], dict[str, Any]]] = None, *args, **kwargs):
+    def __init__(self, meta_fn: Callable[[], dict[str, Any]] | None = None, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.graph = SimulationGraph(meta_fn=meta_fn)
         self.meta_fn = meta_fn
