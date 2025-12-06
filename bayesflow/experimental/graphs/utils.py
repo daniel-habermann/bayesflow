@@ -1,11 +1,14 @@
 import re
 from typing import TypeAlias
-import copy
+
 import networkx as nx
 
 Node: TypeAlias = str
 
 
+# Splits a node in a graph into two nodes. This is required to determine if
+# a inference network can estimate parameters group-wise or if variables
+# have to be estimated jointly.
 def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
     subgraph = extract_subgraph(graph, node)
     other_nodes = set(graph.nodes).difference(subgraph.nodes)
@@ -47,6 +50,8 @@ def extract_subgraph(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
     return nx.DiGraph(subgraph)
 
 
+# Used by the graph inversion algorithm to determine if the nodes in 'x' and 'y'
+# are conditionally independent given nodes in 'known'.
 def has_open_path(graph: nx.DiGraph, x: Node, y: Node, known: list[Node]) -> bool:
     all_paths = list(nx.all_simple_paths(graph.to_undirected(), x, y))
     is_blocked = [False for _ in all_paths]
@@ -76,6 +81,8 @@ def add_suffix(string: str, suffix: int):
         return string + "_" + str(suffix)
 
 
+# The "split_by" node annotation field contains a reference to the nodes that caused
+# a node to be split during graph expansion.
 def add_split_by_metadata(
     graph: nx.DiGraph,
     subgraph: nx.DiGraph,
@@ -99,6 +106,8 @@ def add_split_by_metadata(
     return graph
 
 
+# The "previous_names" node annotation field contains a reference to previous node names
+# during split operations of the graph expansion.
 def add_previous_names_metadata(graph: nx.DiGraph, subgraph: nx.DiGraph, original: Node, renamed: Node) -> nx.DiGraph:
     graph = graph.copy()
 
@@ -116,12 +125,15 @@ def add_previous_names_metadata(graph: nx.DiGraph, subgraph: nx.DiGraph, origina
     return graph
 
 
+# Returns a graph with merged root nodes. Reduces number of required inference networks
+# because root nodes can always be estimated jointly by a single,  top-level inference network.
 def merge_root_nodes(graph: nx.DiGraph):
     root_nodes = [node for node in graph.nodes() if graph.in_degree(node) == 0]
 
     return merge_nodes(graph, root_nodes)
 
 
+# Returns a graph with merged nodes. Used for merging root nodes.
 def merge_nodes(graph: nx.DiGraph, nodes: list[Node]):
     for node in nodes[1::]:
         graph = nx.contracted_nodes(graph, nodes[0], node, copy=False, self_loops=False)
