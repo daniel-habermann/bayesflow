@@ -1,16 +1,20 @@
 import copy
 import inspect
-from typing import TypeAlias
+from typing import Any, Callable, TypeAlias
 
 import networkx as nx
+
+import bayesflow.experimental.graphs.introspection as introspection
 
 from .utils import has_open_path, merge_root_nodes, split_node
 
 Node: TypeAlias = str
+SimulationNode: TypeAlias = str
+ExpandedNode: TypeAlias = str
 
 
 class SimulationGraph(nx.DiGraph):
-    def __init__(self, meta_fn=None):
+    def __init__(self, meta_fn: Callable | None = None):
         super().__init__(self)
         self.meta_fn = meta_fn
 
@@ -33,19 +37,54 @@ class SimulationGraph(nx.DiGraph):
 
         return ExpandedGraph(graph, simulation_graph=self)
 
-    def invert(self, merge_roots=True):
+    def invert(self, merge_roots: bool = True):
         expanded_graph = self.expand()
         inverted_graph = expanded_graph.invert(merge_roots=merge_roots)
 
         return inverted_graph
 
+    def variable_names(self) -> dict[SimulationNode, list[str]]:
+        def _call_sample_fn(sample_fn: Callable[[], dict[str, Any]], args) -> dict[str, Any]:
+            signature = inspect.signature(sample_fn)
+            fn_args = signature.parameters
+            accepted_args = {k: v for k, v in args.items() if k in fn_args}
+
+            return sample_fn(**accepted_args)
+
+        simulation_graph = copy.deepcopy(self)
+        meta_dict = simulation_graph.meta_fn() if simulation_graph.meta_fn else {}
+        samples_by_node = {}
+
+        for node in nx.topological_sort(simulation_graph):
+            simulation_graph.nodes[node]["reps"] = 1
+            parent_nodes = list(simulation_graph.predecessors(node))
+            sample_fn = simulation_graph.nodes[node]["sample_fn"]
+
+            if not parent_nodes:
+                samples_by_node[node] = _call_sample_fn(sample_fn, {})
+            else:
+                parent_samples = [samples_by_node[p] for p in parent_nodes]
+                merged_dict = {k: v for d in parent_samples for k, v in d.items()}
+
+                sample_fn_input = merged_dict | meta_dict
+                samples_by_node[node] = _call_sample_fn(sample_fn, sample_fn_input)
+
+        variabe_dict = {k: list(v.keys()) for k, v in samples_by_node.items()}
+
+        return variabe_dict
+
+    def data_node(self) -> SimulationNode:
+        leaf_nodes = [n for n, d in self.out_degree() if d == 0]
+
+        return leaf_nodes[0]
+
 
 class ExpandedGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.simulation_graph = self.graph["simulation_graph"]
+        self.simulation_graph: SimulationGraph = self.graph["simulation_graph"]
 
-    def invert(self, merge_roots=True):
+    def invert(self, merge_roots=True) -> "InvertedGraph":
         if merge_roots:
             graph = merge_root_nodes(self)
         else:
@@ -81,167 +120,26 @@ class ExpandedGraph(nx.DiGraph):
 class InvertedGraph(nx.DiGraph):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.simulation_graph = self.graph["simulation_graph"]
-        self.expanded_graph = self.graph["expanded_graph"]
+        self.simulation_graph: SimulationGraph = self.graph["simulation_graph"]
+        self.expanded_graph: ExpandedGraph = self.graph["expanded_graph"]
 
-    def network_composition(self):
-        conditions = self._conditions()
-        processed_nodes = set(k for k, v in conditions.items() if v == [])
-        conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
+    def network_conditions(self) -> dict[int, list[SimulationNode]]:
+        return introspection.network_conditions(self)
 
-        networks = {}
-        network_idx = 0
+    def network_composition(self) -> dict[int, list[SimulationNode]]:
+        return introspection.network_composition(self)
 
-        # Build inference layers iteratively: start with all nodes that require no conditions,
-        # then repeatedly form the next layer by selecting nodes whose dependencies are
-        # entirely contained covered by previous inference networks.
-        while conditions:
-            networks[network_idx] = []
-            next_nodeset = {k for k, v in conditions.items() if set(v).issubset(processed_nodes)}
+    def amortizable_nodes(self) -> list[SimulationNode]:
+        return introspection.amortizable_nodes(self)
 
-            if next_nodeset:
-                processed_nodes.update(next_nodeset)
+    def allows_amortization(self, node: SimulationNode) -> bool:
+        return introspection.allows_amortization(self, node)
 
-                for node in next_nodeset:
-                    conditions.pop(node)
-                    networks[network_idx].extend(self._original_names(node))
+    def original_node_names(self) -> dict[ExpandedNode, SimulationNode]:
+        return introspection.original_node_names(self)
 
-            network_idx += 1
+    def conditions_by_node(self) -> dict[SimulationNode, list[SimulationNode]]:
+        return introspection.conditions_by_node(self)
 
-        for k, v in networks.items():
-            networks[k] = list(set(v))
-
-        return networks
-
-    def network_conditions(self):
-        composition = self.network_composition()
-
-        networks = {}
-
-        for network_idx, orig_nodes in composition.items():
-            networks[network_idx] = []
-            for node in orig_nodes:
-                networks[network_idx].extend(self.conditions_for_node(node))
-
-        node_order = list(nx.topological_sort(self.simulation_graph))
-        for k, v in networks.items():
-            networks[k] = [n for n in node_order if n in v]
-
-        return networks
-
-    def variable_names(self):
-        def _call_sample_fn(sample_fn, args):
-            signature = inspect.signature(sample_fn)
-            fn_args = signature.parameters
-            accepted_args = {k: v for k, v in args.items() if k in fn_args}
-
-            return sample_fn(**accepted_args)
-
-        simulation_graph = copy.deepcopy(self.simulation_graph)
-        meta_dict = simulation_graph.meta_fn() if simulation_graph.meta_fn else {}
-        samples_by_node = {}
-
-        for node in nx.topological_sort(simulation_graph):
-            simulation_graph.nodes[node]["reps"] = 1
-            parent_nodes = list(simulation_graph.predecessors(node))
-            sample_fn = simulation_graph.nodes[node]["sample_fn"]
-
-            if not parent_nodes:
-                samples_by_node[node] = _call_sample_fn(sample_fn, {})
-            else:
-                parent_samples = [samples_by_node[p] for p in parent_nodes]
-                merged_dict = {k: v for d in parent_samples for k, v in d.items()}
-
-                sample_fn_input = merged_dict | meta_dict
-                samples_by_node[node] = _call_sample_fn(sample_fn, sample_fn_input)
-
-        variabe_dict = {k: list(v.keys()) for k, v in samples_by_node.items()}
-
-        return variabe_dict
-
-    def data_node(self):
-        leaf_nodes = [n for n, d in self.simulation_graph.out_degree() if d == 0]
-
-        return leaf_nodes[0]
-
-    def data_layers(self):
-        data_node = self.data_node()
-        data_layers = {}
-
-        for node in self.expanded_graph.nodes:
-            expanded_node = self.expanded_graph.nodes[node]
-            if data_node in expanded_node["previous_names"]:
-                layer = len(expanded_node["previous_names"]) - 1
-                data_layers.setdefault(layer, []).append(node)
-
-        return data_layers
-
-    def conditions_for_node(self, orig_node: Node):
-        if orig_node not in self.simulation_graph.nodes:
-            raise ValueError(f"Node {orig_node} not found.")
-
-        node_conditions = []
-
-        raw_conditions = self._conditions()
-        for k, v in raw_conditions.items():
-            if orig_node in self._original_names(k):
-                node_conditions.extend(self._original_names(x) for x in v)
-
-        node_conditions = list({x for sublist in node_conditions for x in sublist})
-
-        return node_conditions
-
-    def merged_nodes(self, orig_node: Node):
-        if orig_node not in self.simulation_graph.nodes:
-            raise ValueError(f"Node {orig_node} not found.")
-
-        for node in self.expanded_graph.nodes:
-            expanded_node = self.expanded_graph.nodes[node]
-            if expanded_node["merged_from"] != []:
-                if orig_node in expanded_node["merged_from"]:
-                    return expanded_node["merged_from"]
-
-        return None
-
-    def is_merged(self, orig_node: Node):
-        if orig_node not in self.simulation_graph.nodes:
-            raise ValueError(f"Node {orig_node} not found.")
-
-        for node in self.expanded_graph.nodes:
-            expanded_node = self.expanded_graph.nodes[node]
-            if expanded_node["merged_from"] != []:
-                if orig_node in expanded_node["merged_from"]:
-                    return True
-
-        return False
-
-    def allows_amortization(self, orig_node: Node):
-        if orig_node not in self.simulation_graph.nodes:
-            raise ValueError(f"Node {orig_node} not found.")
-
-        conditions = self._conditions()
-        for k, v in conditions.items():
-            if orig_node in self._original_names(k):
-                orig_condition_names = [self._original_names(x) for x in v]
-                if orig_node in orig_condition_names:
-                    return False
-
-        return True
-
-    def _conditions(self):
-        conditions = {node: [] for node in self.nodes}
-
-        for node in nx.topological_sort(self):
-            conditions[node] = list(self.predecessors(node))
-
-        return conditions
-
-    def _original_names(self, node: Node):
-        expanded_node = self.expanded_graph.nodes[node]
-
-        if expanded_node["merged_from"] != []:
-            return expanded_node["merged_from"]
-        elif expanded_node["previous_names"] == []:
-            return [node]
-        else:
-            return [expanded_node["previous_names"][0]]
+    def detailed_conditions_by_node(self) -> dict[ExpandedNode, list[ExpandedNode]]:
+        return introspection.detailed_conditions_by_node(self)

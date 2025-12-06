@@ -8,15 +8,6 @@ Node: TypeAlias = str
 SimulationNode: TypeAlias = str
 ExpandedNode: TypeAlias = str
 
-# required methods
-
-# method to distribute inference variables to individual networks
-# method to identify the number of required inference networks
-# method to identify the number of required summary networks
-# method to identify if a node is able to be amortized
-# method to identify which inference network needs which conditions
-# method to identify if the conditions are group-wise or combined
-
 
 def network_conditions(inverted_graph: InvertedGraph) -> dict[int, list[SimulationNode]]:
     composition = network_composition(inverted_graph)
