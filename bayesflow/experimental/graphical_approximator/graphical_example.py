@@ -33,7 +33,7 @@ def summary_networks():
 
 
 def inference_networks():
-    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
+    inference_networks = [bf.networks.CouplingFlow(), bf.networks.CouplingFlow(), bf.networks.CouplingFlow()]
 
     return inference_networks
 

@@ -17,23 +17,24 @@ def summary_input_shape(approximator: GraphicalApproximator, data_shapes: dict[s
 
 
 # output shape of each summary network
-def summary_output_shapes(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
+def summary_output_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
     input_shape = summary_input_shape(approximator, data_shapes)
-    output_shapes = []
 
-    for summary_network in approximator.summary_networks or []:
+    result = {}
+
+    for i, summary_network in enumerate(approximator.summary_networks or []):
         shape = input_shape + (1,) if len(input_shape) == 2 else input_shape
         output_shape = summary_network.compute_output_shape(shape)
-        output_shapes.append(output_shape)
+        result[i] = output_shape
 
         # next summary network uses previous output as input
-        input_shape = output_shapes[-1]
+        input_shape = output_shape
 
-    return output_shapes
+    return result
 
 
 # compute shapes of variables estimated by the inference networks
-def inference_variables_shapes(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
+def inference_variable_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
     network_composition = approximator.graph.network_composition()
     variable_names = approximator.graph.simulation_graph.variable_names()
 
