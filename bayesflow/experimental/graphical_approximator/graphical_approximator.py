@@ -57,4 +57,7 @@ class GraphicalApproximator(Approximator):
         pass
 
     def data_shapes(self, adapted_data: SimulationOutput | dict):
-        return keras.tree.map_structure(keras.ops.shape, adapted_data.data)
+        if isinstance(adapted_data, dict):
+            return keras.tree.map_structure(keras.ops.shape, adapted_data)
+        else:
+            return keras.tree.map_structure(keras.ops.shape, adapted_data.data)
