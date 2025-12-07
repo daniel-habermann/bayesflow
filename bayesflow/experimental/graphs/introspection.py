@@ -1,15 +1,18 @@
-from typing import TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 import networkx as nx
 
-from .types import InvertedGraph
+if TYPE_CHECKING:
+    from .types import InvertedGraph
+
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
 ExpandedNode: TypeAlias = str
 
 
-def network_conditions(inverted_graph: InvertedGraph) -> dict[int, list[SimulationNode]]:
+# returns required conditions for each inference network
+def network_conditions(inverted_graph: "InvertedGraph") -> dict[int, list[SimulationNode]]:
     composition = network_composition(inverted_graph)
     conditions = conditions_by_node(inverted_graph)
     networks: dict[int, list[SimulationNode]] = {}
@@ -23,7 +26,7 @@ def network_conditions(inverted_graph: InvertedGraph) -> dict[int, list[Simulati
 
 
 # assigns nodes to be estimated by each inference network
-def network_composition(inverted_graph: InvertedGraph) -> dict[int, list[SimulationNode]]:
+def network_composition(inverted_graph: "InvertedGraph") -> dict[int, list[SimulationNode]]:
     conditions = conditions_by_node(inverted_graph)
 
     processed_nodes = set(k for k, v in conditions.items() if v == [])
@@ -55,7 +58,7 @@ def network_composition(inverted_graph: InvertedGraph) -> dict[int, list[Simulat
 
 
 # returns a list of amortizable nodes
-def amortizable_nodes(inverted_graph: InvertedGraph) -> list[SimulationNode]:
+def amortizable_nodes(inverted_graph: "InvertedGraph") -> list[SimulationNode]:
     amortizable_nodes = []
     data_nodes = inverted_graph.simulation_graph.data_node()
 
@@ -68,7 +71,7 @@ def amortizable_nodes(inverted_graph: InvertedGraph) -> list[SimulationNode]:
 
 # checks if a node in the simulation graph is amortizable,
 # i.e. allows independent estimation of each group
-def allows_amortization(inverted_graph: InvertedGraph, node: SimulationNode) -> bool:
+def allows_amortization(inverted_graph: "InvertedGraph", node: SimulationNode) -> bool:
     if node not in inverted_graph.simulation_graph.nodes:
         raise ValueError(f"Node {node} not found.")
 
@@ -85,7 +88,7 @@ def allows_amortization(inverted_graph: InvertedGraph, node: SimulationNode) -> 
 
 
 # maps node names of inverted graph to node names in corresponding SimulationGraph
-def original_node_names(inverted_graph: InvertedGraph) -> dict[ExpandedNode, SimulationNode]:
+def original_node_names(inverted_graph: "InvertedGraph") -> dict[ExpandedNode, SimulationNode]:
     mapping = {}
 
     for node in inverted_graph.nodes:
@@ -103,7 +106,7 @@ def original_node_names(inverted_graph: InvertedGraph) -> dict[ExpandedNode, Sim
 
 # like detailed_conditions_by_node, but uses original node names instead of
 # expanded nodes
-def conditions_by_node(inverted_graph: InvertedGraph) -> dict[SimulationNode, list[SimulationNode]]:
+def conditions_by_node(inverted_graph: "InvertedGraph") -> dict[SimulationNode, list[SimulationNode]]:
     detailed_conditions = detailed_conditions_by_node(inverted_graph)
     node_names = original_node_names(inverted_graph)
     conditions = {}
@@ -121,7 +124,7 @@ def conditions_by_node(inverted_graph: InvertedGraph) -> dict[SimulationNode, li
 
 # returns a dictionary with node names as keys and a list of that node's predecessors
 # as values
-def detailed_conditions_by_node(inverted_graph: InvertedGraph) -> dict[ExpandedNode, list[ExpandedNode]]:
+def detailed_conditions_by_node(inverted_graph: "InvertedGraph") -> dict[ExpandedNode, list[ExpandedNode]]:
     conditions = {node: [] for node in inverted_graph.nodes}
 
     for node in nx.topological_sort(inverted_graph):
