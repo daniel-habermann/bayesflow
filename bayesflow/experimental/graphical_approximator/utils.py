@@ -1,6 +1,6 @@
 from functools import reduce
 
-from bayesflow.experimental.graphical_approximator.graphical_approximator import GraphicalApproximator
+from bayesflow.experimental.graphical_approximator import GraphicalApproximator
 from bayesflow.types import Shape
 from bayesflow.utils import concatenate_valid_shapes
 

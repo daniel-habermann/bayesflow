@@ -5,6 +5,7 @@ import numpy as np
 
 from bayesflow.adapters import Adapter
 from bayesflow.approximators import Approximator
+from bayesflow.experimental.graphical_simulator import SimulationOutput
 from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
@@ -54,3 +55,6 @@ class GraphicalApproximator(Approximator):
 
     def predict(self):
         pass
+
+    def data_shapes(self, adapted_data: SimulationOutput | dict):
+        return keras.tree.map_structure(keras.ops.shape, adapted_data.data)
