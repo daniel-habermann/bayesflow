@@ -35,6 +35,9 @@ def summary_output_shapes_by_network(approximator: GraphicalApproximator, data_s
 
 def data_condition_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
     inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
+    conditions = approximator.graph.network_conditions()
+    data_node = approximator.graph.simulation_graph.data_node()
+
     summary_shapes = summary_output_shapes_by_network(approximator, data_shapes)
     summary_by_dim = {len(s): s for s in summary_shapes.values()}
 
@@ -43,7 +46,12 @@ def data_condition_shapes_by_network(approximator: GraphicalApproximator, data_s
     for i, variable_shape in inference_shapes.items():
         # data dimension must be identical to inference variable dimension
         dim = len(variable_shape)
-        result[i] = summary_by_dim[dim]
+
+        # only add data conditions if data node is network conditions
+        if data_node in conditions[i]:
+            result[i] = summary_by_dim[dim]
+        else:
+            result[i] = None
 
     return result
 
