@@ -74,6 +74,30 @@ def inference_variable_shapes_by_network(approximator: GraphicalApproximator, da
     return result
 
 
+def inference_condition_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
+    data_conditions = data_condition_shapes_by_network(approximator, data_shapes)
+    network_conditions = approximator.graph.network_conditions()
+    variable_names = approximator.graph.simulation_graph.variable_names()
+    data_node = approximator.graph.simulation_graph.data_node()
+
+    result = {}
+
+    for i, _ in enumerate(approximator.inference_networks):
+        # collect shapes from all variables in the nodes
+        condition_shapes = []
+        for node in network_conditions[i]:
+            if node != data_node:
+                condition_shapes.extend([data_shapes[var] for var in variable_names[node]])
+
+        # add data conditions if necessary
+        if data_conditions[i] is not None:
+            condition_shapes.append(data_conditions[i])
+
+        result[i] = concatenate_shapes(condition_shapes)
+
+    return result
+
+
 # concatenate shapes by expanding them to the same rank
 # and then summing sizes along the last axis
 def concatenate_shapes(shapes):
