@@ -13,7 +13,7 @@ def summary_input_shape(approximator: GraphicalApproximator, data_shapes: dict[s
     input_shape = concatenate_valid_shapes([data_shapes[k] for k in data_keys], axis=-1)
     assert input_shape is not None
 
-    return input_shape
+    return to_tuple(input_shape)
 
 
 # output shape of each summary network
@@ -26,6 +26,23 @@ def summary_output_shapes_by_network(approximator: GraphicalApproximator, data_s
         shape = input_shape + (1,) if len(input_shape) == 2 else input_shape
         output_shape = summary_network.compute_output_shape(shape)
         result[i] = output_shape
+
+        # next summary network uses previous output as input
+        input_shape = output_shape
+
+    return result
+
+
+def summary_input_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
+    input_shape = summary_input_shape(approximator, data_shapes)
+
+    result = {}
+
+    for i, summary_network in enumerate(approximator.summary_networks or []):
+        shape = input_shape + (1,) if len(input_shape) == 2 else input_shape
+        result[i] = input_shape
+
+        output_shape = summary_network.compute_output_shape(shape)
 
         # next summary network uses previous output as input
         input_shape = output_shape
