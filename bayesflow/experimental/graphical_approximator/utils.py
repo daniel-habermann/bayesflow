@@ -33,6 +33,21 @@ def summary_output_shapes_by_network(approximator: GraphicalApproximator, data_s
     return result
 
 
+def data_condition_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
+    inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
+    summary_shapes = summary_output_shapes_by_network(approximator, data_shapes)
+    summary_by_dim = {len(s): s for s in summary_shapes.values()}
+
+    result = {}
+
+    for i, variable_shape in inference_shapes.items():
+        # data dimension must be identical to inference variable dimension
+        dim = len(variable_shape)
+        result[i] = summary_by_dim[dim]
+
+    return result
+
+
 # compute shapes of variables estimated by the inference networks
 def inference_variable_shapes_by_network(approximator: GraphicalApproximator, data_shapes: dict[str, Shape]):
     network_composition = approximator.graph.network_composition()
