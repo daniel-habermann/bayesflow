@@ -1,6 +1,7 @@
 from typing import TYPE_CHECKING, TypeAlias
 
 import networkx as nx
+from numpy import invert
 
 if TYPE_CHECKING:
     from .types import InvertedGraph
@@ -55,6 +56,29 @@ def network_composition(inverted_graph: "InvertedGraph") -> dict[int, list[Simul
         networks[k] = list(set(v))
 
     return networks
+
+
+def permutated_data_shape_order(inverted_graph: "InvertedGraph") -> list[SimulationNode]:
+    shape_order = data_shape_order(inverted_graph)
+    amortizable = [n for n in shape_order if allows_amortization(inverted_graph, n)]
+    non_amortizable = [n for n in shape_order if not allows_amortization(inverted_graph, n)]
+
+    # put non amortizable nodes at the end
+    return amortizable + non_amortizable
+
+
+# determines ordering of the data shape as defined by the user-defined simulation graph
+def data_shape_order(inverted_graph: "InvertedGraph") -> list[SimulationNode]:
+    # retrieve current ordering of data shape
+    shape_order = []
+    expanded_graph = inverted_graph.expanded_graph
+    data_nodes = inverted_graph.simulation_graph.data_node()
+
+    for node in expanded_graph.nodes:
+        if data_nodes in expanded_graph.nodes[node]["previous_names"]:
+            shape_order = expanded_graph.nodes[node]["split_by"]
+
+    return shape_order
 
 
 # returns a list of amortizable nodes
