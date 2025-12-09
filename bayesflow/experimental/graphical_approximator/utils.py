@@ -146,6 +146,37 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
     return result
 
 
+def concatenate(tensors, batch_dims=1):
+    max_rank = max([len(keras.ops.shape(t)) for t in tensors])
+
+    # expand tensors so each tensor has rank max_rank
+    expanded = []
+
+    for t in tensors:
+        flat_shape = (-1, *keras.ops.shape(t)[batch_dims:])
+        flat = keras.ops.reshape(t, flat_shape)
+
+        expanded_shape = expand_shape_rank(keras.ops.shape(flat), max_rank)
+        expanded.append(keras.ops.reshape(flat, expanded_shape))
+
+    # compute max size along each dimension
+    expanded_shapes = [keras.ops.shape(t) for t in expanded]
+    max_shape_per_dim = [max(s) for s in zip(*expanded_shapes)]
+
+    # broadcast tensors to match max_shape
+    target_shapes = [(*max_shape_per_dim[:-1], keras.ops.shape(t)[-1]) for t in expanded]
+    broadcasted = [keras.ops.broadcast_to(t, s) for t, s in zip(expanded, target_shapes)]
+
+    # concatenate along last dimension
+    concatenated = keras.ops.concatenate(broadcasted, axis=-1)
+
+    # restore original batch dimensions
+    original_batch_shape = keras.ops.shape(tensors[0])[:batch_dims]
+    final_shape = (*original_batch_shape, *keras.ops.shape(concatenated)[1:])
+
+    return keras.ops.reshape(concatenated, final_shape)
+
+
 # concatenate shapes by expanding them to the same rank
 # and then summing sizes along the last axis
 def concatenate_shapes(shapes):
