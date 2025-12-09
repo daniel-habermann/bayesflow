@@ -11,6 +11,24 @@ from bayesflow.types import Shape
 from bayesflow.utils import concatenate_valid_shapes
 
 
+def summary_input(approximator: "GraphicalApproximator", data: dict):
+    data_node = approximator.graph.simulation_graph.data_node()
+    data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
+
+    summary_input = concatenate([data[k] for k in data_keys])
+    assert summary_input
+
+    # permutate input so dimensions are put into summary networks in the required order
+    shape_order = data_shape_order(approximator.graph)
+    permutated_shape_order = permutated_data_shape_order(approximator.graph)
+    indices = [shape_order.index(x) for x in permutated_shape_order]
+
+    # indices does not refer to batch and data dimensions, so we have to add these manually
+    indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
+
+    return keras.ops.transpose(input, axes=indices)
+
+
 # data input shape for first summary network
 def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]) -> Shape:
     data_node = approximator.graph.simulation_graph.data_node()
@@ -24,7 +42,10 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict
     permutated_shape_order = permutated_data_shape_order(approximator.graph)
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
-    input_shape = (input_shape[0],) + tuple(input_shape[1:-1][idx] for idx in indices) + (input_shape[-1],)
+    # indices does not refer to batch and data dimensions, so we have to add these manually
+    indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
+
+    input_shape = tuple(input_shape[idx] for idx in indices)
 
     return input_shape
 
