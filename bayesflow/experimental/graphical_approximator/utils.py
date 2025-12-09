@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .graphical_approximator import GraphicalApproximator
 
+import keras
 import numpy as np
 
 from bayesflow.experimental.graphs.introspection import data_shape_order, permutated_data_shape_order
@@ -16,17 +17,47 @@ def summary_input(approximator: "GraphicalApproximator", data: dict):
     data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
 
     summary_input = concatenate([data[k] for k in data_keys])
-    assert summary_input
+    assert summary_input is not None
 
     # permutate input so dimensions are put into summary networks in the required order
     shape_order = data_shape_order(approximator.graph)
     permutated_shape_order = permutated_data_shape_order(approximator.graph)
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
-    # indices does not refer to batch and data dimensions, so we have to add these manually
+    # indices does not refer to batch and data dimensions, so they have to be added
     indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
 
-    return keras.ops.transpose(input, axes=indices)
+    return keras.ops.transpose(summary_input, axes=indices)
+
+
+def summary_output_by_network(approximator: "GraphicalApproximator", data: dict):
+    input_tensor = summary_input(approximator, data)
+
+    result = {}
+
+    for i, summary_network in enumerate(approximator.summary_networks or []):
+        output_tensor = summary_network(input_tensor, training=False)
+        result[i] = output_tensor
+
+        input_tensor = output_tensor
+
+    return result
+
+
+# input shape of each summary network
+def summary_input_by_network(approximator: "GraphicalApproximator", data: dict):
+    input_tensor = summary_input(approximator, data)
+
+    result = {}
+
+    for i, summary_network in enumerate(approximator.summary_networks or []):
+        result[i] = input_tensor
+        output_tensor = summary_network(input_tensor, training=False)
+
+        # next summary network uses previous output as input
+        input_tensor = output_tensor
+
+    return result
 
 
 # data input shape for first summary network
@@ -42,7 +73,7 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict
     permutated_shape_order = permutated_data_shape_order(approximator.graph)
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
-    # indices does not refer to batch and data dimensions, so we have to add these manually
+    # indices does not refer to batch and data dimensions, so they have to be added
     indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
 
     input_shape = tuple(input_shape[idx] for idx in indices)
