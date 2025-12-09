@@ -10,6 +10,13 @@ from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
 from bayesflow.simulators import Simulator
+from bayesflow.types import Shape
+
+from .utils import (
+    inference_condition_shapes_by_network,
+    inference_variable_shapes_by_network,
+    summary_input_shapes_by_network,
+)
 
 
 class GraphicalApproximator(Approximator):
@@ -38,8 +45,36 @@ class GraphicalApproximator(Approximator):
             None if standardize == "all" else {var: Standardization(trainable=False) for var in self.standardize}
         )
 
-    def build(self, data_shapes: dict[str, tuple[int] | dict[str, dict]]) -> None:
-        pass
+    def build(self, data_shapes: dict[str, Shape]) -> None:
+        data_shapes = {k: v for k, v in data_shapes.items() if len(v) > 0}
+
+        # build summary networks
+        input_shapes = summary_input_shapes_by_network(self, data_shapes)
+        for i, summary_network in enumerate(self.summary_networks or []):
+            if not summary_network.built:
+                summary_network.build(input_shapes[i])
+
+        # build inference networks
+        variable_shapes = inference_variable_shapes_by_network(self, data_shapes)
+        condition_shapes = inference_condition_shapes_by_network(self, data_shapes)
+
+        for i, inference_network in enumerate(self.inference_networks or []):
+            if not inference_network.built:
+                inference_network.build(variable_shapes[i], condition_shapes[i])
+
+        # build standardization layers
+        if self.standardize == "all":
+            # Only include variables present in data_shapes
+            self.standardize = list(data_shapes.keys())
+            self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
+
+        # Build all standardization layers
+        assert self.standardize_layers is not None  # for proper type hinting
+
+        for var in self.standardize:
+            self.standardize_layers[var].build(data_shapes[var])
+
+        self.built = True
 
     def compile(self, *args, **kwargs):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
