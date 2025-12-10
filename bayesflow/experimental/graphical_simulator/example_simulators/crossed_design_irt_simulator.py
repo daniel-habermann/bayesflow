@@ -61,7 +61,7 @@ def crossed_design_irt_simulator():
 
     def meta_fn():
         return {
-            "num_questions": np.random.randint(10, 21),
+            "num_questions": 15,
             "num_students": np.random.randint(100, 201),
         }
 
