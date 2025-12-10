@@ -247,7 +247,7 @@ def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", 
 
                 # flatten group dimension if node is not amortizable
                 if not approximator.graph.allows_amortization(node):
-                    shape = shape[:-2] + (np.sum(shape[-2:]),)
+                    shape = shape[:-2] + (np.prod(shape[-2:]),)
 
                 variable_shapes.append(to_tuple(shape))
 
@@ -275,7 +275,7 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
 
                     # flatten group dimension if node is not amortizable
                     if not approximator.graph.allows_amortization(node):
-                        shape = shape[:-2] + (np.sum(shape[-2:]),)
+                        shape = shape[:-2] + (np.prod(shape[-2:]),)
 
                     condition_shapes.append(to_tuple(shape))
 
