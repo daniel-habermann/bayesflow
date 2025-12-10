@@ -7,7 +7,7 @@ if TYPE_CHECKING:
 import keras
 import numpy as np
 
-from bayesflow.experimental.graphs.introspection import amortizable_nodes, data_shape_order, permutated_data_shape_order
+from bayesflow.experimental.graphs.introspection import data_shape_order, permutated_data_shape_order
 from bayesflow.types import Shape
 from bayesflow.utils import concatenate_valid_shapes
 
@@ -47,7 +47,7 @@ def summary_outputs_by_network(approximator: "GraphicalApproximator", data: dict
 
 
 # inputs of each summary network
-def summary_input_by_network(approximator: "GraphicalApproximator", data: dict):
+def summary_inputs_by_network(approximator: "GraphicalApproximator", data: dict):
     input_tensor = summary_input(approximator, data)
 
     result = {}
@@ -166,7 +166,7 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
     # indices does not refer to batch and data dimensions, so they have to be added
-    indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
+    indices = [0, *[idx + 1 for idx in indices], len(input_shape) - 1]
 
     input_shape = tuple(input_shape[idx] for idx in indices)
 
