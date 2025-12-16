@@ -26,7 +26,7 @@ def summary_input(approximator: "GraphicalApproximator", data: dict):
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
     # indices does not refer to batch and data dimensions, so they have to be added
-    indices = [0, *[idx + 1 for idx in indices], len(keras.ops.shape(summary_input)) - 1]
+    indices = [0] + [idx + 1 for idx in indices] + list(range(len(indices) + 1, len(keras.ops.shape(summary_input))))
 
     return keras.ops.transpose(summary_input, axes=indices)
 
@@ -38,7 +38,7 @@ def summary_outputs_by_network(approximator: "GraphicalApproximator", data: dict
     result = {}
 
     for i, summary_network in enumerate(approximator.summary_networks or []):
-        output_tensor = summary_network(input_tensor, training=False)
+        output_tensor = summary_network(input_tensor, training=True)
         result[i] = output_tensor
 
         input_tensor = output_tensor
@@ -54,7 +54,7 @@ def summary_inputs_by_network(approximator: "GraphicalApproximator", data: dict)
 
     for i, summary_network in enumerate(approximator.summary_networks or []):
         result[i] = input_tensor
-        output_tensor = summary_network(input_tensor, training=False)
+        output_tensor = summary_network(input_tensor, training=True)
 
         # next summary network uses previous output as input
         input_tensor = output_tensor
@@ -103,7 +103,7 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
                 # standardize inference variables if required
                 if name in approximator.standardize:
                     assert approximator.standardize_layers
-                    var = approximator.standardize_layers[name](var, stage="validation")
+                    var = approximator.standardize_layers[name](var, stage="training")
 
                 # flatten group dimension if node is not amortizable
                 if not approximator.graph.allows_amortization(node):
@@ -135,7 +135,7 @@ def inference_conditions_by_network(approximator: "GraphicalApproximator", data:
                     # standardize conditions if required
                     if name in approximator.standardize:
                         assert approximator.standardize_layers
-                        var = approximator.standardize_layers[name](var, staging="validation")
+                        var = approximator.standardize_layers[name](var, staging="training")
 
                     # flatten group dimension if node is not amortizable
                     if not approximator.graph.allows_amortization(node):
@@ -166,8 +166,7 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
     # indices does not refer to batch and data dimensions, so they have to be added
-    indices = [0, *[idx + 1 for idx in indices], len(input_shape) - 1]
-
+    indices = [0] + [idx + 1 for idx in indices] + list(range(len(indices) + 1, len(input_shape)))
     input_shape = tuple(input_shape[idx] for idx in indices)
 
     return input_shape
@@ -247,7 +246,7 @@ def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", 
 
                 # flatten group dimension if node is not amortizable
                 if not approximator.graph.allows_amortization(node):
-                    shape = shape[:-2] + (np.prod(shape[-2:]),)
+                    shape = shape[:-2] + (keras.ops.prod(shape[-2:]),)
 
                 variable_shapes.append(to_tuple(shape))
 
@@ -275,7 +274,7 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
 
                     # flatten group dimension if node is not amortizable
                     if not approximator.graph.allows_amortization(node):
-                        shape = shape[:-2] + (np.prod(shape[-2:]),)
+                        shape = shape[:-2] + (keras.ops.prod(shape[-2:]),)
 
                     condition_shapes.append(to_tuple(shape))
 
