@@ -1,6 +1,6 @@
 from collections.abc import Mapping, Sequence
 
-import keras.utils
+import keras
 import numpy as np
 
 from bayesflow.adapters import Adapter
@@ -9,13 +9,15 @@ from bayesflow.experimental.graphical_simulator import SimulationOutput
 from bayesflow.experimental.graphs.types import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
-from bayesflow.simulators import Simulator
 from bayesflow.types import Shape
 
 from .utils import (
     inference_condition_shapes_by_network,
     inference_variable_shapes_by_network,
     summary_input_shapes_by_network,
+    inference_conditions_by_network,
+    inference_variables_by_network,
+    summary_inputs_by_network,
 )
 
 
@@ -80,16 +82,69 @@ class GraphicalApproximator(Approximator):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
 
     def compute_metrics(self, stage: str = "training", **kwargs):
-        pass
+        data = kwargs
+        summary_inputs = summary_inputs_by_network(self, data)
+        inference_conditions = inference_conditions_by_network(self, data)
+        inference_variables = inference_variables_by_network(self, data)
 
-    def fit(self, *, dataset: keras.utils.PyDataset | None = None, simulator: Simulator | None = None, **kwargs):
-        pass
+        # compute summary metrics
+        summary_metrics = {}
+
+        for i, summary_network in enumerate(self.summary_networks or []):
+            summary_metrics[i] = summary_network.compute_metrics(summary_inputs[i], stage=stage)
+            summary_metrics[i].pop("outputs")
+
+        # compute inference metrics
+        inference_metrics = {}
+        for i, inference_network in enumerate(self.inference_networks):
+            inference_metrics[i] = inference_network.compute_metrics(
+                inference_variables[i], conditions=inference_conditions[i], stage=stage
+            )
+
+        # combine losses and metrics
+        total_loss = 0
+        combined_inference_metrics = {}
+        combined_summary_metrics = {}
+
+        for i, metrics in inference_metrics.items():
+            total_loss += metrics["loss"]
+            for k, v in metrics.items():
+                if k == "loss":
+                    combined_inference_metrics[f"inference_{i}/{k}"] = v
+                else:
+                    combined_inference_metrics[f"inference_{i}/{k}"] = v
+
+        for i, metrics in summary_metrics.items():
+            if "loss" in metrics.keys():
+                total_loss += metrics["loss"]
+            for k, v in metrics.items():
+                if k == "loss":
+                    combined_summary_metrics[f"summary_{i}/{k}"] = v
+                else:
+                    combined_summary_metrics[f"summary_{i}/{k}"] = v
+
+        metrics = {"loss": total_loss} | combined_inference_metrics
+
+        return metrics
+
+    def fit(self, *args, **kwargs):
+        if "dataset" in kwargs.keys():
+            if type(kwargs["dataset"]) is SimulationOutput:
+                kwargs["dataset"] = kwargs["dataset"].data
+
+        return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
     def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> dict[str, np.ndarray]:
         return {}
 
     def predict(self):
         pass
+
+    def _batch_size_from_data(self, data):
+        data_shapes = self.data_shapes(data)
+        batch_size = next(iter(data_shapes.values()))[0]
+
+        return batch_size
 
     def data_shapes(self, adapted_data: SimulationOutput | dict):
         if isinstance(adapted_data, dict):
