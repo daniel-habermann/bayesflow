@@ -12,12 +12,15 @@ from bayesflow.networks.standardization import Standardization
 from bayesflow.types import Shape
 
 from .utils import (
+    concatenate,
     inference_condition_shapes_by_network,
-    inference_variable_shapes_by_network,
-    summary_input_shapes_by_network,
     inference_conditions_by_network,
+    inference_variable_shapes_by_network,
     inference_variables_by_network,
+    summary_input,
+    summary_input_shapes_by_network,
     summary_inputs_by_network,
+    summary_outputs_by_network,
 )
 
 
@@ -134,7 +137,31 @@ class GraphicalApproximator(Approximator):
 
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
-    def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> dict[str, np.ndarray]:
+    def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
+        summary_outputs = summary_outputs_by_network(self, summary_input(self, conditions))
+        batch_size = keras.ops.shape(summary_outputs[0])[0]
+        data_node = self.graph.simulation_graph.data_node()
+        variable_names = self.graph.simulation_graph.variable_names()
+        network_conditions = self.graph.network_conditions()
+
+        sample_dict = {}
+
+        for i, inference_network in enumerate(self.inference_networks):
+            inference_conditions = []
+            nodes_to_condition_on = set(network_conditions[i]) - set(data_node)
+
+            for node in nodes_to_condition_on:
+                for name in variable_names[node]:
+                    inference_conditions.append(conditions[name])
+
+            if data_node in nodes_to_condition_on:
+                inference_conditions.append(summary_outputs[i])
+
+            inference_conditions = concatenate(inference_conditions)
+            samples = inference_network.samples((batch_size, num_samples), conditions=inference_conditions)
+
+            print(samples)
+
         return {}
 
     def predict(self):
@@ -146,8 +173,10 @@ class GraphicalApproximator(Approximator):
 
         return batch_size
 
-    def data_shapes(self, adapted_data: SimulationOutput | dict):
+    def data_shapes(self, adapted_data: SimulationOutput | Mapping) -> Mapping:
         if isinstance(adapted_data, dict):
             return keras.tree.map_structure(keras.ops.shape, adapted_data)
-        else:
+        elif isinstance(adapted_data, SimulationOutput):
             return keras.tree.map_structure(keras.ops.shape, adapted_data.data)
+
+        return {}
