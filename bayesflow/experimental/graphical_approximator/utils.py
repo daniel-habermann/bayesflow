@@ -1,5 +1,6 @@
 from functools import reduce
 from typing import TYPE_CHECKING
+from typing import Mapping
 
 if TYPE_CHECKING:
     from .graphical_approximator import GraphicalApproximator
@@ -13,7 +14,7 @@ from bayesflow.utils import concatenate_valid_shapes
 
 
 # data input for first summary network
-def summary_input(approximator: "GraphicalApproximator", data: dict):
+def summary_input(approximator: "GraphicalApproximator", data: Mapping):
     data_node = approximator.graph.simulation_graph.data_node()
     data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
 
@@ -32,7 +33,7 @@ def summary_input(approximator: "GraphicalApproximator", data: dict):
 
 
 # outputs of each summary network
-def summary_outputs_by_network(approximator: "GraphicalApproximator", data: dict):
+def summary_outputs_by_network(approximator: "GraphicalApproximator", data: Mapping):
     input_tensor = summary_input(approximator, data)
 
     result = {}
@@ -47,7 +48,7 @@ def summary_outputs_by_network(approximator: "GraphicalApproximator", data: dict
 
 
 # inputs of each summary network
-def summary_inputs_by_network(approximator: "GraphicalApproximator", data: dict):
+def summary_inputs_by_network(approximator: "GraphicalApproximator", data: Mapping):
     input_tensor = summary_input(approximator, data)
 
     result = {}
@@ -63,7 +64,7 @@ def summary_inputs_by_network(approximator: "GraphicalApproximator", data: dict)
 
 
 # data conditions for each inference network
-def data_conditions_by_network(approximator: "GraphicalApproximator", data: dict):
+def data_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
     data_shapes = approximator.data_shapes(data)
     inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
     conditions = approximator.graph.network_conditions()
@@ -88,7 +89,7 @@ def data_conditions_by_network(approximator: "GraphicalApproximator", data: dict
 
 
 # return inference variables estimated by each inference networks
-def inference_variables_by_network(approximator: "GraphicalApproximator", data: dict):
+def inference_variables_by_network(approximator: "GraphicalApproximator", data: Mapping):
     network_composition = approximator.graph.network_composition()
     variable_names = approximator.graph.simulation_graph.variable_names()
 
@@ -116,7 +117,7 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
     return result
 
 
-def inference_conditions_by_network(approximator: "GraphicalApproximator", data: dict):
+def inference_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
     data_conditions = data_conditions_by_network(approximator, data)
     network_conditions = approximator.graph.network_conditions()
     variable_names = approximator.graph.simulation_graph.variable_names()
@@ -153,7 +154,7 @@ def inference_conditions_by_network(approximator: "GraphicalApproximator", data:
 
 
 # data input shape for first summary network
-def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]) -> Shape:
+def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]) -> Shape:
     data_node = approximator.graph.simulation_graph.data_node()
     data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
 
@@ -173,7 +174,7 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: dict
 
 
 # output shape of each summary network
-def summary_output_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]):
+def summary_output_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     input_shape = summary_input_shape(approximator, data_shapes)
 
     result = {}
@@ -190,7 +191,7 @@ def summary_output_shapes_by_network(approximator: "GraphicalApproximator", data
 
 
 # input shape of each summary network
-def summary_input_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]):
+def summary_input_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     input_shape = summary_input_shape(approximator, data_shapes)
 
     result = {}
@@ -208,7 +209,7 @@ def summary_input_shapes_by_network(approximator: "GraphicalApproximator", data_
 
 
 # computes shape of data conditions for each inference network
-def data_condition_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]):
+def data_condition_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
     conditions = approximator.graph.network_conditions()
     data_node = approximator.graph.simulation_graph.data_node()
@@ -232,7 +233,7 @@ def data_condition_shapes_by_network(approximator: "GraphicalApproximator", data
 
 
 # compute shapes of variables estimated by the inference networks
-def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]):
+def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     network_composition = approximator.graph.network_composition()
     variable_names = approximator.graph.simulation_graph.variable_names()
 
@@ -256,7 +257,7 @@ def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", 
 
 
 # computes shapes of inference conditions for each network
-def inference_condition_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: dict[str, Shape]):
+def inference_condition_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     data_conditions = data_condition_shapes_by_network(approximator, data_shapes)
     network_conditions = approximator.graph.network_conditions()
     variable_names = approximator.graph.simulation_graph.variable_names()
