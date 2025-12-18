@@ -100,7 +100,6 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
                 var = data[name]
 
                 # standardize inference variables if required
-                # TODO: use comments to suppress type hint warnings
                 if name in approximator.standardize:
                     var = approximator.standardize_layers[name](var, stage="training")
 
@@ -134,7 +133,6 @@ def inference_conditions_by_network(approximator: "GraphicalApproximator", data:
 
                     # standardize conditions if required
                     if name in approximator.standardize:
-                        assert approximator.standardize_layers
                         var = approximator.standardize_layers[name](var, staging="training")
 
                     # flatten group dimension if node is not amortizable
@@ -158,7 +156,6 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapp
     data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
 
     input_shape = concatenate_valid_shapes([data_shapes[k] for k in data_keys], axis=-1)
-    assert input_shape
 
     # permutate input_shape so inputs are put into summary networks in the required order
     shape_order = data_shape_order(approximator.graph)

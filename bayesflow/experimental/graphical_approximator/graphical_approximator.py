@@ -4,16 +4,14 @@ from collections.abc import Mapping, Sequence
 import keras
 import numpy as np
 
-# TODO: use relative imports when possible
 # TODO: add log_prob method to approximator
 from ...adapters import Adapter
 from ...approximators import Approximator
-from ..graphical_simulator import SimulationOutput
-from ..graphs import InvertedGraph
 from ...networks import InferenceNetwork, SummaryNetwork
 from ...networks.standardization import Standardization
 from ...types import Shape
-
+from ..graphical_simulator import SimulationOutput
+from ..graphs import InvertedGraph
 from .utils import (
     concatenate,
     inference_condition_shapes_by_network,
@@ -75,9 +73,6 @@ class GraphicalApproximator(Approximator):
             # Only include variables present in data_shapes
             self.standardize = list(data_shapes.keys())
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
-
-        # Build all standardization layers
-        assert self.standardize_layers is not None  # for proper type hinting
 
         for var in self.standardize:
             self.standardize_layers[var].build(data_shapes[var])
