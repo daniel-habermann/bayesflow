@@ -7,7 +7,7 @@ Node: TypeAlias = str
 
 
 # Splits a node in a graph into two nodes. This is required to determine if
-# a inference network can estimate parameters group-wise or if variables
+# an inference network can estimate parameters group-wise or if variables
 # have to be estimated jointly.
 def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
     subgraph = extract_subgraph(graph, node)

@@ -1,0 +1,154 @@
+from typing import TYPE_CHECKING, TypeAlias
+
+import networkx as nx
+
+if TYPE_CHECKING:
+    from .expanded_graph import ExpandedGraph
+    from .simulation_graph import SimulationGraph
+
+
+Node: TypeAlias = str
+SimulationNode: TypeAlias = str
+ExpandedNode: TypeAlias = str
+
+
+class InvertedGraph(nx.DiGraph):
+    def __init__(self, *, simulation_graph: "SimulationGraph", expanded_graph: "ExpandedGraph", **kwargs):
+        super().__init__(**kwargs)
+        self.simulation_graph = simulation_graph
+        self.expanded_graph = expanded_graph
+
+    def network_conditions(self) -> dict[int, list[SimulationNode]]:
+        composition = self.network_composition()
+        conditions = self.conditions_by_node()
+        networks: dict[int, list[SimulationNode]] = {}
+
+        for network_idx, nodes in composition.items():
+            networks[network_idx] = []
+            for node in nodes:
+                networks[network_idx].extend(conditions[node])
+
+        return networks
+
+    # assigns nodes to be estimated by each inference network
+    def network_composition(self) -> dict[int, list[SimulationNode]]:
+        conditions = self.conditions_by_node()
+
+        processed_nodes = set(k for k, v in conditions.items() if v == [])
+        conditions = {k: v for k, v in conditions.items() if k not in processed_nodes}
+
+        networks: dict[int, list[SimulationNode]] = {}
+        network_idx = 0
+
+        # Build inference layers iteratively: start with all nodes that require no conditions,
+        # then repeatedly form the next layer by selecting nodes whose dependencies are entirely
+        # covered by previous inference networks
+        while conditions:
+            networks[network_idx] = []
+            next_nodeset = {k for k, v in conditions.items() if set(v).issubset(processed_nodes | set([k]))}
+
+            if next_nodeset:
+                processed_nodes.update(next_nodeset)
+
+                for node in next_nodeset:
+                    _ = conditions.pop(node)
+                    networks[network_idx].extend([node])
+
+            network_idx += 1
+
+        for k, v in networks.items():
+            networks[k] = list(set(v))
+
+        return networks
+
+    def permutated_data_shape_order(self) -> list[SimulationNode]:
+        shape_order = self.data_shape_order()
+        amortizable = [n for n in shape_order if self.allows_amortization(n)]
+        non_amortizable = [n for n in shape_order if not self.allows_amortization(n)]
+
+        # put non amortizable nodes at the end
+        return amortizable + non_amortizable
+
+    # determines ordering of the data shape as defined by the user-defined simulation graph
+    def data_shape_order(self) -> list[SimulationNode]:
+        # retrieve current ordering of data shape
+        shape_order = []
+        expanded_graph = self.expanded_graph
+        data_nodes = self.simulation_graph.data_node()
+
+        for node in expanded_graph.nodes:
+            if data_nodes in expanded_graph.nodes[node]["previous_names"]:
+                shape_order = expanded_graph.nodes[node]["split_by"]
+
+        return shape_order
+
+    # returns a list of amortizable nodes
+    def amortizable_nodes(self) -> list[SimulationNode]:
+        amortizable_nodes = []
+        data_nodes = self.simulation_graph.data_node()
+
+        for node in self.simulation_graph.nodes:
+            if node not in data_nodes and self.allows_amortization(node):
+                amortizable_nodes.append(node)
+
+        return amortizable_nodes
+
+    # checks if a node in the simulation graph is amortizable,
+    # i.e. allows independent estimation of each group
+    def allows_amortization(self, node: Node) -> bool:
+        if node not in self.simulation_graph.nodes:
+            raise ValueError(f"Node {node} not found.")
+
+        conditions = self.detailed_conditions_by_node()
+        node_names = self.original_node_names()
+
+        for k, v in conditions.items():
+            if node_names[k] == node:
+                condition_names = [node_names[x] for x in v]
+                if node in condition_names:
+                    return False
+
+        return True
+
+    # maps node names of inverted graph to node names in corresponding SimulationGraph
+    def original_node_names(self) -> dict[ExpandedNode, SimulationNode]:
+        mapping = {}
+
+        for node in self.nodes:
+            expanded_node = self.expanded_graph.nodes[node]
+
+            if expanded_node["merged_from"] != []:
+                mapping[node] = expanded_node["merged_from"][0]
+            elif expanded_node["previous_names"] == []:
+                mapping[node] = node
+            else:
+                mapping[node] = expanded_node["previous_names"][0]
+
+        return mapping
+
+    # like detailed_conditions_by_node, but uses original node names instead of
+    # expanded nodes
+    def conditions_by_node(self) -> dict[SimulationNode, list[SimulationNode]]:
+        detailed_conditions = self.detailed_conditions_by_node()
+        node_names = self.original_node_names()
+        conditions = {}
+
+        for node in self.simulation_graph.nodes:
+            conditions[node] = []
+            for k, v in detailed_conditions.items():
+                if node_names[k] == node:
+                    conditions[node].extend([node_names[c] for c in v])
+
+            conditions[node] = list(set(conditions[node]))
+
+        return conditions
+
+    # returns a dictionary with node names as keys and a list of that node's predecessors
+    # as values
+    def detailed_conditions_by_node(self) -> dict[ExpandedNode, list[ExpandedNode]]:
+        conditions = {node: [] for node in self.nodes}
+
+        for node in nx.topological_sort(self):
+            conditions[node] = list(self.predecessors(node))
+
+        return conditions
