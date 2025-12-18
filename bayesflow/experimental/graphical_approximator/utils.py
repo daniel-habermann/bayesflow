@@ -8,7 +8,10 @@ if TYPE_CHECKING:
 import keras
 import numpy as np
 
-from bayesflow.experimental.graphs.introspection import data_shape_order, permutated_data_shape_order
+from bayesflow.experimental.graphs.introspection import (
+    data_shape_order,
+    permutated_data_shape_order,
+)
 from bayesflow.types import Shape
 from bayesflow.utils import concatenate_valid_shapes
 
@@ -119,6 +122,7 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
 
 def inference_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
     data_conditions = data_conditions_by_network(approximator, data)
+    network_composition = approximator.graph.network_composition()
     network_conditions = approximator.graph.network_conditions()
     variable_names = approximator.graph.simulation_graph.variable_names()
     data_node = approximator.graph.simulation_graph.data_node()
@@ -129,7 +133,7 @@ def inference_conditions_by_network(approximator: "GraphicalApproximator", data:
         # collect conditions for all variables
         conditions = []
         for node in network_conditions[i]:
-            if node != data_node:
+            if node != data_node and node not in network_composition[i]:
                 for name in variable_names[node]:
                     var = data[name]
 
@@ -259,6 +263,7 @@ def inference_variable_shapes_by_network(approximator: "GraphicalApproximator", 
 # computes shapes of inference conditions for each network
 def inference_condition_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     data_conditions = data_condition_shapes_by_network(approximator, data_shapes)
+    network_composition = approximator.graph.network_composition()
     network_conditions = approximator.graph.network_conditions()
     variable_names = approximator.graph.simulation_graph.variable_names()
     data_node = approximator.graph.simulation_graph.data_node()
@@ -269,13 +274,13 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
         # collect shapes from all variables in the nodes
         condition_shapes = []
         for node in network_conditions[i]:
-            if node != data_node:
+            if node != data_node and node not in network_composition[i]:
                 for variable in variable_names[node]:
                     shape = data_shapes[variable]
 
                     # flatten group dimension if node is not amortizable
                     if not approximator.graph.allows_amortization(node):
-                        shape = shape[:-2] + (keras.ops.prod(shape[-2:]),)
+                        shape = shape[:-2] + (int(keras.ops.prod(shape[-2:])),)
 
                     condition_shapes.append(to_tuple(shape))
 
