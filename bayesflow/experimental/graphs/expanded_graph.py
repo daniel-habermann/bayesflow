@@ -18,7 +18,7 @@ class ExpandedGraph(nx.DiGraph):
         super().__init__(**kwargs)
         self.simulation_graph = simulation_graph
 
-    def invert(self, merge_roots=True) -> "InvertedGraph":
+    def invert(self, merge_roots: bool = True) -> "InvertedGraph":
         if merge_roots:
             graph = merge_root_nodes(self)
         else:

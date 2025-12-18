@@ -22,7 +22,7 @@ class SimulationGraph(nx.DiGraph):
         super().__init__(self, **kwargs)
         self.meta_fn = meta_fn
 
-    def expand(self):
+    def expand(self) -> "ExpandedGraph":
         graph = self.copy()
 
         for node in nx.topological_sort(graph):
