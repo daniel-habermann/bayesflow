@@ -1,12 +1,9 @@
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TypeAlias
 
 import networkx as nx
 
+from .simulation_graph import SimulationGraph
 from .utils import has_open_path, merge_root_nodes
-
-if TYPE_CHECKING:
-    from .inverted_graph import InvertedGraph
-    from .simulation_graph import SimulationGraph
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -14,11 +11,13 @@ ExpandedNode: TypeAlias = str
 
 
 class ExpandedGraph(nx.DiGraph):
-    def __init__(self, *, simulation_graph: "SimulationGraph", **kwargs):
+    def __init__(self, *, simulation_graph: SimulationGraph, **kwargs):
         super().__init__(**kwargs)
         self.simulation_graph = simulation_graph
 
-    def invert(self, merge_roots: bool = True) -> "InvertedGraph":
+    def invert(self, merge_roots: bool = True):
+        from .inverted_graph import InvertedGraph
+
         if merge_roots:
             graph = merge_root_nodes(self)
         else:

@@ -1,11 +1,9 @@
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TypeAlias
 
 import networkx as nx
 
-if TYPE_CHECKING:
-    from .expanded_graph import ExpandedGraph
-    from .simulation_graph import SimulationGraph
-
+from .expanded_graph import ExpandedGraph
+from .simulation_graph import SimulationGraph
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -13,7 +11,7 @@ ExpandedNode: TypeAlias = str
 
 
 class InvertedGraph(nx.DiGraph):
-    def __init__(self, *, simulation_graph: "SimulationGraph", expanded_graph: "ExpandedGraph", **kwargs):
+    def __init__(self, *, simulation_graph: SimulationGraph, expanded_graph: ExpandedGraph, **kwargs):
         super().__init__(**kwargs)
         self.simulation_graph = simulation_graph
         self.expanded_graph = expanded_graph

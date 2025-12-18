@@ -158,8 +158,8 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapp
     input_shape = concatenate_valid_shapes([data_shapes[k] for k in data_keys], axis=-1)
 
     # permutate input_shape so inputs are put into summary networks in the required order
-    shape_order = data_shape_order(approximator.graph)
-    permutated_shape_order = permutated_data_shape_order(approximator.graph)
+    shape_order = approximator.graph.data_shape_order()
+    permutated_shape_order = approximator.graph.permutated_data_shape_order()
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
     # indices does not refer to batch and data dimensions, so they have to be added

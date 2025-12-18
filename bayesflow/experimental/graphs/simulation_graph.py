@@ -1,16 +1,9 @@
-from typing import TYPE_CHECKING, TypeAlias
-
-import networkx as nx
-
-# TODO: remove TYPE_CHECKING?
 # TODO: add group size as conditions
-if TYPE_CHECKING:
-    from .expanded_graph import ExpandedGraph
-
-
 import copy
 import inspect
-from typing import Any, Callable
+from typing import Any, Callable, TypeAlias
+
+import networkx as nx
 
 from .utils import split_node
 
@@ -24,7 +17,9 @@ class SimulationGraph(nx.DiGraph):
         super().__init__(self, **kwargs)
         self.meta_fn = meta_fn
 
-    def expand(self) -> "ExpandedGraph":
+    def expand(self):
+        from .expanded_graph import ExpandedGraph
+
         graph = self.copy()
 
         for node in nx.topological_sort(graph):

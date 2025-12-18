@@ -12,6 +12,7 @@ from ...networks.standardization import Standardization
 from ...types import Shape
 from ..graphical_simulator import SimulationOutput
 from ..graphs import InvertedGraph
+
 from .utils import (
     concatenate,
     inference_condition_shapes_by_network,
@@ -46,23 +47,23 @@ class GraphicalApproximator(Approximator):
         else:
             self.standardize = standardize or []
 
-        # TODO: expanded if else, match case
-        self.standardize_layers = (
-            None if standardize == "all" else {var: Standardization(trainable=False) for var in self.standardize}
-        )
+        if standardize == "all":
+            self.standardize_layers = None
+        else:
+            self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
 
     def build(self, data_shapes: dict[str, Shape]) -> None:
         data_shapes = {k: v for k, v in data_shapes.items() if len(v) > 0}
 
         # build summary networks
-        input_shapes = summary_input_shapes_by_network(self, data_shapes)
+        input_shapes = utils.summary_input_shapes_by_network(self, data_shapes)
         for i, summary_network in enumerate(self.summary_networks or []):
             if not summary_network.built:
                 summary_network.build(input_shapes[i])
 
         # build inference networks
-        variable_shapes = inference_variable_shapes_by_network(self, data_shapes)
-        condition_shapes = inference_condition_shapes_by_network(self, data_shapes)
+        variable_shapes = utils.inference_variable_shapes_by_network(self, data_shapes)
+        condition_shapes = utils.inference_condition_shapes_by_network(self, data_shapes)
 
         for i, inference_network in enumerate(self.inference_networks or []):
             if not inference_network.built:
@@ -81,9 +82,9 @@ class GraphicalApproximator(Approximator):
 
     def compute_metrics(self, stage: str = "training", **kwargs):
         data = kwargs
-        summary_inputs = summary_inputs_by_network(self, data)
-        inference_conditions = inference_conditions_by_network(self, data)
-        inference_variables = inference_variables_by_network(self, data)
+        summary_inputs = utils.summary_inputs_by_network(self, data)
+        inference_conditions = utils.inference_conditions_by_network(self, data)
+        inference_variables = utils.inference_variables_by_network(self, data)
 
         # compute summary metrics
         summary_metrics = {}
@@ -134,7 +135,7 @@ class GraphicalApproximator(Approximator):
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
     def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
-        summary_outputs = summary_outputs_by_network(self, conditions)
+        summary_outputs = utils.summary_outputs_by_network(self, conditions)
         batch_size = keras.ops.shape(summary_outputs[0])[0]
         data_node = self.graph.simulation_graph.data_node()
         variable_names = self.graph.simulation_graph.variable_names()
@@ -169,7 +170,7 @@ class GraphicalApproximator(Approximator):
                 )
                 inference_conditions.append(data_condition)
 
-            inference_conditions = concatenate(inference_conditions)
+            inference_conditions = utils.concatenate(inference_conditions)
             samples = inference_network.sample((batch_size, num_samples), conditions=inference_conditions)
 
             variables = []
