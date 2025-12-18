@@ -1,14 +1,15 @@
-from csv import DictWriter
 import copy
 from collections.abc import Mapping, Sequence
 
 import keras
 import numpy as np
 
+# TODO: use relative imports when possible
+# TODO: add log_prob method to approximator
 from bayesflow.adapters import Adapter
 from bayesflow.approximators import Approximator
 from bayesflow.experimental.graphical_simulator import SimulationOutput
-from bayesflow.experimental.graphs.types import InvertedGraph
+from bayesflow.experimental.graphs import InvertedGraph
 from bayesflow.networks import InferenceNetwork, SummaryNetwork
 from bayesflow.networks.standardization import Standardization
 from bayesflow.types import Shape
@@ -19,7 +20,6 @@ from .utils import (
     inference_conditions_by_network,
     inference_variable_shapes_by_network,
     inference_variables_by_network,
-    summary_input,
     summary_input_shapes_by_network,
     summary_inputs_by_network,
     summary_outputs_by_network,
@@ -48,6 +48,7 @@ class GraphicalApproximator(Approximator):
         else:
             self.standardize = standardize or []
 
+        # TODO: expanded if else, match case
         self.standardize_layers = (
             None if standardize == "all" else {var: Standardization(trainable=False) for var in self.standardize}
         )
@@ -83,6 +84,7 @@ class GraphicalApproximator(Approximator):
 
         self.built = True
 
+    # TODO: remove
     def compile(self, *args, **kwargs):
         return super(GraphicalApproximator, self).compile(*args, **kwargs)
 
@@ -132,6 +134,7 @@ class GraphicalApproximator(Approximator):
 
         return metrics
 
+    # TODO: SimulationOutput als arbitrary iterable, keras.Dataset
     def fit(self, *args, **kwargs):
         if "dataset" in kwargs.keys():
             if type(kwargs["dataset"]) is SimulationOutput:
@@ -198,6 +201,7 @@ class GraphicalApproximator(Approximator):
 
         return sample_dict
 
+    # TODO: remove
     def predict(self):
         pass
 

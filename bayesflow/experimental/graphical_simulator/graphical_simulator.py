@@ -6,10 +6,10 @@ from typing import Any
 import networkx as nx
 import numpy as np
 
+from bayesflow.experimental.graphs import SimulationGraph
 from bayesflow.simulators import Simulator
 from bayesflow.types import Shape
 from bayesflow.utils.decorators import allow_batch_size
-from bayesflow.experimental.graphs.types import SimulationGraph
 
 
 class SimulationOutput(MutableMapping):
@@ -93,6 +93,8 @@ class GraphicalSimulator(Simulator):
 
                 if not parent_nodes:
                     # root node: generate independent samples
+                    # TODO: check if _call_sample_fn returns something with reserved name
+                    # TODO: maybe remove double underscore reservation?
                     node_samples = [
                         {"__batch_idx": batch_idx, f"__{node}_idx": i} | self._call_sample_fn(sampling_fn, {})
                         for i in range(reps)
@@ -142,10 +144,9 @@ class GraphicalSimulator(Simulator):
                 sample_fn_input = merged_dict | meta_dict
                 samples_by_node[node] = self._call_sample_fn(sample_fn, sample_fn_input)
 
-        variable_dict = {k: list(v.keys()) for k, v in samples_by_node.items()}
+        return {k: list(v.keys()) for k, v in samples_by_node.items()}
 
-        return variable_dict
-
+    # TODO: add docstring
     def _collect_output(self, samples):
         output_dict = {}
 

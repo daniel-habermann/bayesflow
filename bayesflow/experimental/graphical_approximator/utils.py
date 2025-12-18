@@ -1,19 +1,15 @@
 from functools import reduce
-from typing import TYPE_CHECKING
-from typing import Mapping
+from typing import TYPE_CHECKING, Mapping
 
 if TYPE_CHECKING:
     from .graphical_approximator import GraphicalApproximator
 
 import keras
-import numpy as np
 
-from bayesflow.experimental.graphs.introspection import (
-    data_shape_order,
-    permutated_data_shape_order,
-)
-from bayesflow.types import Shape
+from bayesflow.types import Shape, Tensor
 from bayesflow.utils import concatenate_valid_shapes
+
+# TODO: test code for no summary network
 
 
 # data input for first summary network
@@ -22,11 +18,10 @@ def summary_input(approximator: "GraphicalApproximator", data: Mapping):
     data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
 
     summary_input = concatenate([data[k] for k in data_keys])
-    assert summary_input is not None
 
     # permutate input so dimensions are put into summary networks in the required order
-    shape_order = data_shape_order(approximator.graph)
-    permutated_shape_order = permutated_data_shape_order(approximator.graph)
+    shape_order = approximator.graph.data_shape_order()
+    permutated_shape_order = approximator.graph.permutated_data_shape_order()
     indices = [shape_order.index(x) for x in permutated_shape_order]
 
     # indices does not refer to batch and data dimensions, so they have to be added
@@ -105,8 +100,8 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
                 var = data[name]
 
                 # standardize inference variables if required
+                # TODO: use comments to suppress type hint warnings
                 if name in approximator.standardize:
-                    assert approximator.standardize_layers
                     var = approximator.standardize_layers[name](var, stage="training")
 
                 # flatten group dimension if node is not amortizable
@@ -352,6 +347,7 @@ def stack_shapes(a, b, axis=-1):
     return stacked_shape
 
 
+# TODO: comments to doc strings
 # insert 1's before last dimension until reaching target rank
 def expand_shape_rank(shape, target_rank):
     s = list(to_tuple(shape))
@@ -362,6 +358,7 @@ def expand_shape_rank(shape, target_rank):
 
 
 # convert tensorflow/torch/numpy shapes to tuples
+# TODO: check if necessary
 def to_tuple(shape):
     if hasattr(shape, "as_list"):
         shape = shape.as_list()

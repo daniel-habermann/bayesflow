@@ -2,6 +2,8 @@ from typing import TYPE_CHECKING, TypeAlias
 
 import networkx as nx
 
+# TODO: remove TYPE_CHECKING?
+# TODO: add group size as conditions
 if TYPE_CHECKING:
     from .expanded_graph import ExpandedGraph
 

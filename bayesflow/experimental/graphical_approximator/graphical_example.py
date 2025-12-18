@@ -40,6 +40,7 @@ def inference_networks():
 
 def approximator():
     inverted_graph = simulator().graph.invert()
+    # TODO: check if number of inference and summary networks is correct in __init__
     approximator = GraphicalApproximator(
         inverted_graph, adapter=adapter(), inference_networks=inference_networks(), summary_networks=summary_networks()
     )
