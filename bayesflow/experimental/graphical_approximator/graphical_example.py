@@ -1,14 +1,13 @@
-from numpy import cross
-from bayesflow.experimental.graphical_approximator.graphical_approximator import GraphicalApproximator
-from bayesflow.experimental.graphical_simulator.example_simulators import (
-    single_level_simulator,
-    two_level_simulator,
-    three_level_simulator,
-    crossed_design_irt_simulator,
-)
-
 import bayesflow as bf
 from bayesflow.adapters import Adapter
+
+from ..graphical_approximator.graphical_approximator import GraphicalApproximator
+from ..graphical_simulator.example_simulators import (
+    crossed_design_irt_simulator,
+    single_level_simulator,
+    three_level_simulator,
+    two_level_simulator,
+)
 
 
 def simulator():

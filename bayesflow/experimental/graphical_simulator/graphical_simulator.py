@@ -6,10 +6,10 @@ from typing import Any
 import networkx as nx
 import numpy as np
 
-from bayesflow.experimental.graphs import SimulationGraph
-from bayesflow.simulators import Simulator
-from bayesflow.types import Shape
-from bayesflow.utils.decorators import allow_batch_size
+from ...simulators import Simulator
+from ...types import Shape
+from ...utils.decorators import allow_batch_size
+from ..graphs import SimulationGraph
 
 
 class SimulationOutput(MutableMapping):

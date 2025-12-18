@@ -6,13 +6,13 @@ import numpy as np
 
 # TODO: use relative imports when possible
 # TODO: add log_prob method to approximator
-from bayesflow.adapters import Adapter
-from bayesflow.approximators import Approximator
-from bayesflow.experimental.graphical_simulator import SimulationOutput
-from bayesflow.experimental.graphs import InvertedGraph
-from bayesflow.networks import InferenceNetwork, SummaryNetwork
-from bayesflow.networks.standardization import Standardization
-from bayesflow.types import Shape
+from ...adapters import Adapter
+from ...approximators import Approximator
+from ..graphical_simulator import SimulationOutput
+from ..graphs import InvertedGraph
+from ...networks import InferenceNetwork, SummaryNetwork
+from ...networks.standardization import Standardization
+from ...types import Shape
 
 from .utils import (
     concatenate,
@@ -83,10 +83,6 @@ class GraphicalApproximator(Approximator):
             self.standardize_layers[var].build(data_shapes[var])
 
         self.built = True
-
-    # TODO: remove
-    def compile(self, *args, **kwargs):
-        return super(GraphicalApproximator, self).compile(*args, **kwargs)
 
     def compute_metrics(self, stage: str = "training", **kwargs):
         data = kwargs
@@ -200,10 +196,6 @@ class GraphicalApproximator(Approximator):
                     sample_dict[variable_name] = keras.ops.expand_dims(samples, axis=-1)
 
         return sample_dict
-
-    # TODO: remove
-    def predict(self):
-        pass
 
     def _batch_size_from_data(self, data):
         data_shapes = self.data_shapes(data)

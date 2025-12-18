@@ -6,8 +6,8 @@ if TYPE_CHECKING:
 
 import keras
 
-from bayesflow.types import Shape, Tensor
-from bayesflow.utils import concatenate_valid_shapes
+from ...types import Shape
+from ...utils import concatenate_valid_shapes
 
 # TODO: test code for no summary network
 
