@@ -19,7 +19,7 @@ class ExpandedGraph(nx.DiGraph):
         from .inverted_graph import InvertedGraph
 
         if merge_roots:
-            graph = merge_root_nodes(self)
+            graph = merge_root_nodes(self.simulation_graph)
         else:
             graph = self.copy()
 
