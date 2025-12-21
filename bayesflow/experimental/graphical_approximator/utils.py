@@ -90,7 +90,7 @@ def summary_inputs_by_network(approximator: "GraphicalApproximator", data: Mappi
 
 # data conditions for each inference network
 def data_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
-    data_shapes = approximator.data_shapes(data)
+    data_shapes = approximator._data_shapes(data)
     inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
     conditions = approximator.graph.network_conditions()
     data_node = approximator.graph.simulation_graph.data_node()
@@ -115,78 +115,87 @@ def data_conditions_by_network(approximator: "GraphicalApproximator", data: Mapp
 
 # return inference variables estimated by each inference networks
 def inference_variables_by_network(approximator: "GraphicalApproximator", data: Mapping):
-    network_composition = approximator.graph.network_composition()
-    variable_names = approximator.graph.simulation_graph.variable_names()
-
     result = {}
 
     for i, _ in enumerate(approximator.inference_networks):
-        vars = []
-        for node in network_composition[i]:
-            for name in variable_names[node]:
-                var = data[name]
-
-                # standardize inference variables if required
-                if name in approximator.standardize:
-                    var = approximator.standardize_layers[name](var, stage="training")
-
-                # flatten group dimension if node is not amortizable
-                if not approximator.graph.allows_amortization(node):
-                    # transpose last two dimensions before flattening
-                    # so unpacking in split_network_output becomes easier
-                    rank = keras.ops.ndim(var)
-                    perm = (*range(rank - 2), rank - 1, rank - 2)
-                    transpose = keras.ops.transpose(var, axes=tuple(perm))
-
-                    var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
-
-                vars.append(var)
-
-        result[i] = concatenate(vars)
+        result[i] = prepare_inference_variables(approximator, data, i)
 
     return result
 
 
-def inference_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
-    data_conditions = data_conditions_by_network(approximator, data)
+def prepare_inference_variables(approximator: "GraphicalApproximator", data: Mapping, network_idx: int):
     network_composition = approximator.graph.network_composition()
-    network_conditions = approximator.graph.network_conditions()
+    variable_names = approximator.graph.simulation_graph.variable_names()
+
+    vars = []
+    for node in network_composition[network_idx]:
+        for name in variable_names[node]:
+            var = data[name]
+
+            # standardize inference variables if required
+            if name in approximator.standardize:
+                var = approximator.standardize_layers[name](var, stage="training")
+
+            # flatten group dimension if node is not amortizable
+            if not approximator.graph.allows_amortization(node):
+                # transpose last two dimensions before flattening
+                # so unpacking in split_network_output becomes easier
+                rank = keras.ops.ndim(var)
+                perm = (*range(rank - 2), rank - 1, rank - 2)
+                transpose = keras.ops.transpose(var, axes=tuple(perm))
+
+                var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
+
+            vars.append(var)
+
+    return concatenate(vars)
+
+
+# return inference conditions estimated by each inference networks
+def inference_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
+    result = {}
+
+    for i, _ in enumerate(approximator.inference_networks):
+        result[i] = prepare_inference_conditions(approximator, data, i)
+
+    return result
+
+
+def prepare_inference_conditions(approximator: "GraphicalApproximator", data: Mapping, network_idx: int):
+    data_conditions = data_conditions_by_network(approximator, data)  # TODO: this is a bit wasteful
+    network_composition = approximator.graph.network_composition()[network_idx]
+    network_conditions = approximator.graph.network_conditions()[network_idx]
     variable_names = approximator.graph.simulation_graph.variable_names()
     data_node = approximator.graph.simulation_graph.data_node()
 
-    result = {}
+    conditions = []
+    nodes_to_condition_on = set(network_conditions) - {data_node} - set(network_composition)
 
-    for i, _ in enumerate(approximator.inference_networks):
-        # collect conditions for all variables
-        conditions = []
-        nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
-        for node in nodes_to_condition_on:
-            for name in variable_names[node]:
-                var = data[name]
+    for node in nodes_to_condition_on:
+        for name in variable_names[node]:
+            var = data[name]
 
-                # standardize conditions if required
-                if name in approximator.standardize:
-                    var = approximator.standardize_layers[name](var, staging="training")
+            # standardize conditions if required
+            if name in approximator.standardize:
+                var = approximator.standardize_layers[name](var, staging="training")
 
-                # flatten group dimension if node is not amortizable
-                if not approximator.graph.allows_amortization(node):
-                    # transpose last two dimensions before flattening
-                    # so unpacking in split_network_output becomes easier
-                    rank = keras.ops.ndim(var)
-                    perm = (*range(rank - 2), rank - 1, rank - 2)
-                    transpose = keras.ops.transpose(var, axes=perm)
+            # flatten group dimension if node is not amortizable
+            if not approximator.graph.allows_amortization(node):
+                # transpose last two dimensions before flattening
+                # so unpacking in split_network_output becomes easier
+                rank = keras.ops.ndim(var)
+                perm = (*range(rank - 2), rank - 1, rank - 2)
+                transpose = keras.ops.transpose(var, axes=perm)
 
-                    var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
+                var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
 
-                conditions.append(var)
+            conditions.append(var)
 
-        # add data conditions if necessary
-        if data_conditions[i] is not None:
-            conditions.append(data_conditions[i])
+    # add data conditions if necessary
+    if data_conditions[network_idx] is not None:
+        conditions.append(data_conditions[network_idx])
 
-        result[i] = concatenate(conditions)
-
-    return result
+    return concatenate(conditions)
 
 
 # data input shape for first summary network

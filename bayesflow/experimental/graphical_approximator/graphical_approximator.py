@@ -1,6 +1,5 @@
-from pandas.core.window.doc import kwargs_numeric_only
-import copy
 from collections.abc import Mapping, Sequence
+from copy import copy
 
 import keras
 import numpy as np
@@ -13,7 +12,6 @@ from ...networks.standardization import Standardization
 from ...types import Shape
 from ..graphical_simulator import SimulationOutput
 from ..graphs import InvertedGraph
-
 from .utils import (
     concatenate,
     inference_condition_shapes_by_network,
@@ -23,6 +21,8 @@ from .utils import (
     summary_input_shapes_by_network,
     summary_inputs_by_network,
     summary_outputs_by_network,
+    add_sample_dimension,
+    data_condition_shapes_by_network,
 )
 
 
@@ -42,6 +42,7 @@ class GraphicalApproximator(Approximator):
         self.adapter = adapter
         self.inference_networks = inference_networks
         self.summary_networks = summary_networks
+        self.data_shapes = None
 
         if isinstance(standardize, str) and standardize != "all":
             self.standardize = [standardize]
@@ -77,6 +78,7 @@ class GraphicalApproximator(Approximator):
         for var in self.standardize:
             self.standardize_layers[var].build(data_shapes[var])
 
+        self.data_shapes = data_shapes
         self.built = True
 
     def compute_metrics(self, stage: str = "training", **kwargs):
@@ -120,7 +122,36 @@ class GraphicalApproximator(Approximator):
 
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
-    def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
+    def sample(self, *, num_samples: int, data: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
+        summary_outputs = summary_outputs_by_network(self, data)
+        batch_size = keras.ops.shape(summary_outputs[0])[0]
+        data_node = self.graph.simulation_graph.data_node()
+        variable_names = self.graph.simulation_graph.variable_names()
+        network_conditions = self.graph.network_conditions()
+        network_composition = self.graph.network_composition()
+
+        sample_dict = {}
+        conditions = {}
+
+        for name in variable_names[data_node]:
+            conditions[name] = add_sample_dimension(data[name], num_samples)
+
+        for i, inference_network in enumerate(self.inference_networks):
+            inference_conditions = []
+            nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
+
+            for node in nodes_to_condition_on:
+                for name in variable_names[node]:
+                    inference_conditions.append(conditions[name])
+
+            if data_node in network_conditions[i]:
+                required_dim = len(inference_network.base_distribution.dims) + 1
+                summary_by_dim = {len(keras.ops.shape(s)): s for s in summary_outputs.values()}
+
+                data_condition = add_sample_dimension(summary_by_dim[required_dim], num_samples)
+                inference_conditions.append(data_condition)
+
+    def _sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
         summary_outputs = summary_outputs_by_network(self, conditions)
         batch_size = keras.ops.shape(summary_outputs[0])[0]
         data_node = self.graph.simulation_graph.data_node()
@@ -132,6 +163,7 @@ class GraphicalApproximator(Approximator):
         computed_conditions = copy.copy(conditions)
 
         for name in variable_names[data_node]:
+            # TODO: add add_sample_dim(x, num_samples) helper
             computed_conditions[name] = keras.ops.expand_dims(computed_conditions[name], axis=1)
             computed_conditions[name] = keras.ops.broadcast_to(
                 computed_conditions[name], (batch_size, num_samples, *keras.ops.shape(computed_conditions[name])[2:])
@@ -159,6 +191,8 @@ class GraphicalApproximator(Approximator):
             inference_conditions = utils.concatenate(inference_conditions)
             samples = inference_network.sample((batch_size, num_samples), conditions=inference_conditions)
 
+            # TODO: refactor this into own method
+            # variable names
             variables = []
             for node in network_composition[i]:
                 for variable_name in variable_names[node]:
@@ -185,7 +219,7 @@ class GraphicalApproximator(Approximator):
 
         return batch_size
 
-    def data_shapes(self, adapted_data: SimulationOutput | Mapping) -> Mapping:
+    def _data_shapes(self, adapted_data: SimulationOutput | Mapping) -> Mapping:
         if isinstance(adapted_data, dict):
             return keras.tree.map_structure(keras.ops.shape, adapted_data)
         elif isinstance(adapted_data, SimulationOutput):
