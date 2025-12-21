@@ -1,3 +1,4 @@
+from keras.src.legacy.backend import variable
 from functools import reduce
 from typing import TYPE_CHECKING, Mapping
 
@@ -64,7 +65,7 @@ def summary_outputs_by_network(approximator: "GraphicalApproximator", data: Mapp
     result = {}
 
     for i, summary_network in enumerate(approximator.summary_networks or []):
-        output_tensor = summary_network(input_tensor, training=True)
+        output_tensor = summary_network(input_tensor, training=False)
         result[i] = output_tensor
 
         input_tensor = output_tensor
@@ -80,7 +81,7 @@ def summary_inputs_by_network(approximator: "GraphicalApproximator", data: Mappi
 
     for i, summary_network in enumerate(approximator.summary_networks or []):
         result[i] = input_tensor
-        output_tensor = summary_network(input_tensor, training=True)
+        output_tensor = summary_network(input_tensor, training=False)
 
         # next summary network uses previous output as input
         input_tensor = output_tensor
@@ -90,27 +91,26 @@ def summary_inputs_by_network(approximator: "GraphicalApproximator", data: Mappi
 
 # data conditions for each inference network
 def data_conditions_by_network(approximator: "GraphicalApproximator", data: Mapping):
-    data_shapes = approximator._data_shapes(data)
-    inference_shapes = inference_variable_shapes_by_network(approximator, data_shapes)
-    conditions = approximator.graph.network_conditions()
-    data_node = approximator.graph.simulation_graph.data_node()
-
-    summary_outputs = summary_outputs_by_network(approximator, data)
-    summary_by_dim = {len(keras.ops.shape(s)): s for s in summary_outputs.values()}
-
     result = {}
 
-    for i, variable_shape in inference_shapes.items():
-        # data dimension must be identical to inference variable dimension
-        dim = len(variable_shape)
-
-        # only add data conditions if data node is in network conditions
-        if data_node in conditions[i]:
-            result[i] = summary_by_dim[dim]
-        else:
-            result[i] = None
+    for i, _ in enumerate(approximator.inference_networks):
+        result[i] = prepare_data_conditions(approximator, data, i)
 
     return result
+
+
+def prepare_data_conditions(approximator: "GraphicalApproximator", data: Mapping, network_idx: int):
+    conditions = approximator.graph.network_conditions()[network_idx]
+    data_node = approximator.graph.simulation_graph.data_node()
+
+    if data_node not in conditions:
+        return None
+
+    summary_outputs = summary_outputs_by_network(approximator, data)
+    required_dim = len(approximator.inference_networks[network_idx].base_distribution.dims) + 1
+    summary_by_dim = {len(keras.ops.shape(s)): s for s in summary_outputs.values()}
+
+    return summary_by_dim[required_dim]
 
 
 # return inference variables estimated by each inference networks
@@ -134,7 +134,7 @@ def prepare_inference_variables(approximator: "GraphicalApproximator", data: Map
 
             # standardize inference variables if required
             if name in approximator.standardize:
-                var = approximator.standardize_layers[name](var, stage="training")
+                var = approximator.standardize_layers[name](var, stage="validation")
 
             # flatten group dimension if node is not amortizable
             if not approximator.graph.allows_amortization(node):
@@ -177,7 +177,7 @@ def prepare_inference_conditions(approximator: "GraphicalApproximator", data: Ma
 
             # standardize conditions if required
             if name in approximator.standardize:
-                var = approximator.standardize_layers[name](var, staging="training")
+                var = approximator.standardize_layers[name](var, staging="validation")
 
             # flatten group dimension if node is not amortizable
             if not approximator.graph.allows_amortization(node):

@@ -1,5 +1,4 @@
 from collections.abc import Mapping, Sequence
-from copy import copy
 
 import keras
 import numpy as np
@@ -13,16 +12,15 @@ from ...types import Shape
 from ..graphical_simulator import SimulationOutput
 from ..graphs import InvertedGraph
 from .utils import (
-    concatenate,
     inference_condition_shapes_by_network,
     inference_conditions_by_network,
     inference_variable_shapes_by_network,
     inference_variables_by_network,
+    prepare_inference_conditions,
+    split_network_output,
     summary_input_shapes_by_network,
     summary_inputs_by_network,
     summary_outputs_by_network,
-    add_sample_dimension,
-    data_condition_shapes_by_network,
 )
 
 
@@ -114,7 +112,6 @@ class GraphicalApproximator(Approximator):
 
         return total_loss, combined_metrics
 
-    # TODO: SimulationOutput als arbitrary iterable, keras.Dataset
     def fit(self, *args, **kwargs):
         if "dataset" in kwargs.keys():
             if type(kwargs["dataset"]) is SimulationOutput:
@@ -122,94 +119,32 @@ class GraphicalApproximator(Approximator):
 
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
-    def sample(self, *, num_samples: int, data: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
-        summary_outputs = summary_outputs_by_network(self, data)
-        batch_size = keras.ops.shape(summary_outputs[0])[0]
-        data_node = self.graph.simulation_graph.data_node()
-        variable_names = self.graph.simulation_graph.variable_names()
-        network_conditions = self.graph.network_conditions()
-        network_composition = self.graph.network_composition()
-
-        sample_dict = {}
-        conditions = {}
-
-        for name in variable_names[data_node]:
-            conditions[name] = add_sample_dimension(data[name], num_samples)
-
-        for i, inference_network in enumerate(self.inference_networks):
-            inference_conditions = []
-            nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
-
-            for node in nodes_to_condition_on:
-                for name in variable_names[node]:
-                    inference_conditions.append(conditions[name])
-
-            if data_node in network_conditions[i]:
-                required_dim = len(inference_network.base_distribution.dims) + 1
-                summary_by_dim = {len(keras.ops.shape(s)): s for s in summary_outputs.values()}
-
-                data_condition = add_sample_dimension(summary_by_dim[required_dim], num_samples)
-                inference_conditions.append(data_condition)
-
-    def _sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
+    def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
         summary_outputs = summary_outputs_by_network(self, conditions)
         batch_size = keras.ops.shape(summary_outputs[0])[0]
         data_node = self.graph.simulation_graph.data_node()
         variable_names = self.graph.simulation_graph.variable_names()
-        network_conditions = self.graph.network_conditions()
-        network_composition = self.graph.network_composition()
 
-        sample_dict = {}
-        computed_conditions = copy.copy(conditions)
+        inference_conditions = {}
 
+        # add num_samples as repeats across the batch dimension
         for name in variable_names[data_node]:
-            # TODO: add add_sample_dim(x, num_samples) helper
-            computed_conditions[name] = keras.ops.expand_dims(computed_conditions[name], axis=1)
-            computed_conditions[name] = keras.ops.broadcast_to(
-                computed_conditions[name], (batch_size, num_samples, *keras.ops.shape(computed_conditions[name])[2:])
-            )
+            inference_conditions[name] = keras.ops.repeat(conditions[name], num_samples, axis=0)
 
         for i, inference_network in enumerate(self.inference_networks):
-            inference_conditions = []
-            nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
+            cond = prepare_inference_conditions(self, inference_conditions, i)
+            samples = inference_network.sample((batch_size * num_samples,), conditions=cond)
+            split_output = split_network_output(self, samples, i)
 
-            for node in nodes_to_condition_on:
-                for name in variable_names[node]:
-                    inference_conditions.append(computed_conditions[name])
+            for k, v in split_output.items():
+                inference_conditions[k] = v
 
-            if data_node in network_conditions[i]:
-                required_dim = len(inference_network.base_distribution.dims) + 1
-                summary_by_dim = {len(keras.ops.shape(s)): s for s in summary_outputs.values()}
-
-                data_condition = summary_by_dim[required_dim]
-                data_condition = keras.ops.expand_dims(data_condition, axis=1)
-                data_condition = keras.ops.broadcast_to(
-                    data_condition, (batch_size, num_samples, *keras.ops.shape(data_condition)[2:])
-                )
-                inference_conditions.append(data_condition)
-
-            inference_conditions = utils.concatenate(inference_conditions)
-            samples = inference_network.sample((batch_size, num_samples), conditions=inference_conditions)
-
-            # TODO: refactor this into own method
-            # variable names
-            variables = []
-            for node in network_composition[i]:
-                for variable_name in variable_names[node]:
-                    variables.append(variable_name)
-
-            if len(variables) == keras.ops.shape(samples)[-1]:
-                for variable_name, samples in zip(variables, keras.ops.unstack(samples, axis=-1)):
-                    computed_conditions[variable_name] = keras.ops.expand_dims(samples, axis=-1)
-                    sample_dict[variable_name] = keras.ops.expand_dims(samples, axis=-1)
-            else:
-                reshaped_samples = keras.ops.reshape(
-                    samples,
-                    (*keras.ops.shape(samples)[:-1], keras.ops.shape(samples)[-1] // len(variables), len(variables)),
-                )
-                for variable_name, samples in zip(variables, keras.ops.unstack(reshaped_samples, axis=-1)):
-                    computed_conditions[variable_name] = samples
-                    sample_dict[variable_name] = keras.ops.expand_dims(samples, axis=-1)
+        # build sample dict with introduced num_samples dimension at axis 1
+        sample_dict = {}
+        for k, v in inference_conditions.items():
+            if k not in variable_names[data_node]:
+                target_shape = (batch_size, num_samples, *keras.ops.shape(v)[1:])
+                sample_dict[k] = keras.ops.convert_to_numpy(keras.ops.reshape(v, target_shape))
 
         return sample_dict
 
