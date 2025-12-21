@@ -6,10 +6,37 @@ if TYPE_CHECKING:
 
 import keras
 
-from ...types import Shape
+from ...types import Shape, Tensor
 from ...utils import concatenate_valid_shapes
 
-# TODO: test code for no summary network
+
+def split_network_output(approximator: "GraphicalApproximator", output: Tensor, network_idx: int):
+    network_composition = approximator.graph.network_composition()
+    variable_names = approximator.graph.simulation_graph.variable_names()
+
+    samples = {}
+
+    i = 0
+    for node in network_composition[network_idx]:
+        if approximator.graph.allows_amortization(node):
+            # network already outputs a group dimension if there is one
+            for variable in variable_names[node]:
+                variable_dim = approximator.data_shapes[variable][-1]
+
+                sample = output[..., i : (i + variable_dim)]
+                samples[variable] = sample
+                i += variable_dim
+        else:
+            # need to reshape so output has a group dimension
+            for variable in variable_names[node]:
+                variable_dim = approximator.data_shapes[variable][-1]
+                group_dim = approximator.data_shapes[variable][-2]
+
+                sample = output[..., i : (i + group_dim * variable_dim)]
+                samples[variable] = keras.ops.expand_dims(sample, axis=-1)
+                i += group_dim * variable_dim
+
+    return samples
 
 
 # data input for first summary network
@@ -105,7 +132,13 @@ def inference_variables_by_network(approximator: "GraphicalApproximator", data: 
 
                 # flatten group dimension if node is not amortizable
                 if not approximator.graph.allows_amortization(node):
-                    var = keras.ops.reshape(var, (*keras.ops.shape(var)[:-2], -1))
+                    # transpose last two dimensions before flattening
+                    # so unpacking in split_network_output becomes easier
+                    rank = keras.ops.ndim(var)
+                    perm = (*range(rank - 2), rank - 1, rank - 2)
+                    transpose = keras.ops.transpose(var, axes=tuple(perm))
+
+                    var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
 
                 vars.append(var)
 
@@ -126,20 +159,26 @@ def inference_conditions_by_network(approximator: "GraphicalApproximator", data:
     for i, _ in enumerate(approximator.inference_networks):
         # collect conditions for all variables
         conditions = []
-        for node in network_conditions[i]:
-            if node != data_node and node not in network_composition[i]:
-                for name in variable_names[node]:
-                    var = data[name]
+        nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
+        for node in nodes_to_condition_on:
+            for name in variable_names[node]:
+                var = data[name]
 
-                    # standardize conditions if required
-                    if name in approximator.standardize:
-                        var = approximator.standardize_layers[name](var, staging="training")
+                # standardize conditions if required
+                if name in approximator.standardize:
+                    var = approximator.standardize_layers[name](var, staging="training")
 
-                    # flatten group dimension if node is not amortizable
-                    if not approximator.graph.allows_amortization(node):
-                        var = keras.ops.reshape(var, (*keras.ops.shape(var)[:-2], -1))
+                # flatten group dimension if node is not amortizable
+                if not approximator.graph.allows_amortization(node):
+                    # transpose last two dimensions before flattening
+                    # so unpacking in split_network_output becomes easier
+                    rank = keras.ops.ndim(var)
+                    perm = (*range(rank - 2), rank - 1, rank - 2)
+                    transpose = keras.ops.transpose(var, axes=perm)
 
-                    conditions.append(var)
+                    var = keras.ops.reshape(transpose, (*keras.ops.shape(transpose)[:-2], -1))
+
+                conditions.append(var)
 
         # add data conditions if necessary
         if data_conditions[i] is not None:
@@ -265,16 +304,17 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
     for i, _ in enumerate(approximator.inference_networks):
         # collect shapes from all variables in the nodes
         condition_shapes = []
-        for node in network_conditions[i]:
-            if node != data_node and node not in network_composition[i]:
-                for variable in variable_names[node]:
-                    shape = data_shapes[variable]
+        nodes_to_condition_on = set(network_conditions[i]) - {data_node} - set(network_composition[i])
 
-                    # flatten group dimension if node is not amortizable
-                    if not approximator.graph.allows_amortization(node):
-                        shape = shape[:-2] + (int(keras.ops.prod(shape[-2:])),)
+        for node in nodes_to_condition_on:
+            for variable in variable_names[node]:
+                shape = data_shapes[variable]
 
-                    condition_shapes.append(to_tuple(shape))
+                # flatten group dimension if node is not amortizable
+                if not approximator.graph.allows_amortization(node):
+                    shape = shape[:-2] + (int(keras.ops.prod(shape[-2:])),)
+
+                condition_shapes.append(to_tuple(shape))
 
         # add data conditions if necessary
         if data_conditions[i] is not None:
@@ -314,6 +354,16 @@ def concatenate(tensors, batch_dims=1):
     final_shape = (*original_batch_shape, *keras.ops.shape(concatenated)[1:])
 
     return keras.ops.reshape(concatenated, final_shape)
+
+
+def add_sample_dimension(tensor, num_samples, batch_dims=1):
+    shape = keras.ops.shape(tensor)
+    target_shape = (*shape[:batch_dims], num_samples, *shape[batch_dims:])
+
+    expanded = keras.ops.expand_dims(tensor, axis=batch_dims)
+    stacked = keras.ops.broadcast_to(expanded, target_shape)
+
+    return stacked
 
 
 # concatenate shapes by expanding them to the same rank
