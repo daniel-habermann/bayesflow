@@ -13,8 +13,8 @@ ExpandedNode: TypeAlias = str
 
 
 class SimulationGraph(nx.DiGraph):
-    def __init__(self, *, meta_fn: Callable | None = None, **kwargs):
-        super().__init__(self, **kwargs)
+    def __init__(self, meta_fn: Callable | None = None):
+        super().__init__()  # optionally initializing with existing data
         self.meta_fn = meta_fn
 
     def expand(self):
@@ -36,7 +36,7 @@ class SimulationGraph(nx.DiGraph):
                 if key not in graph.nodes[node]:
                     graph.nodes[node][key] = []
 
-        return ExpandedGraph(simulation_graph=self)
+        return ExpandedGraph(graph, simulation_graph=self)
 
     def invert(self, merge_roots: bool = True):
         expanded_graph = self.expand()

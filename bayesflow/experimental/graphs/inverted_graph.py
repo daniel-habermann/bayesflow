@@ -1,3 +1,4 @@
+from copy import copy
 from typing import TypeAlias
 
 import networkx as nx
@@ -11,10 +12,11 @@ ExpandedNode: TypeAlias = str
 
 
 class InvertedGraph(nx.DiGraph):
-    def __init__(self, *, simulation_graph: SimulationGraph, expanded_graph: ExpandedGraph, **kwargs):
-        super().__init__(**kwargs)
-        self.simulation_graph = simulation_graph
-        self.expanded_graph = expanded_graph
+    def __init__(self, graph_data=None, *, expanded_graph: ExpandedGraph):
+        super().__init__(graph_data=None)  # optionally initializing with existing data
+
+        self.simulation_graph = copy(expanded_graph.simulation_graph)
+        self.expanded_graph = copy(expanded_graph)
 
     def network_conditions(self) -> dict[int, list[SimulationNode]]:
         composition = self.network_composition()

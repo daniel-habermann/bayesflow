@@ -5,23 +5,24 @@ import networkx as nx
 from .simulation_graph import SimulationGraph
 from .utils import has_open_path, merge_root_nodes
 
+from copy import copy
+
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
 ExpandedNode: TypeAlias = str
 
 
 class ExpandedGraph(nx.DiGraph):
-    def __init__(self, *, simulation_graph: SimulationGraph, **kwargs):
-        super().__init__(**kwargs)
-        self.simulation_graph = simulation_graph
+    def __init__(self, graph_data=None, *, simulation_graph: SimulationGraph):
+        super().__init__(graph_data)  # optionally initializing with existing data
+        self.simulation_graph = copy(simulation_graph)
 
     def invert(self, merge_roots: bool = True):
         from .inverted_graph import InvertedGraph
 
+        graph = copy(self)
         if merge_roots:
-            graph = merge_root_nodes(self.simulation_graph)
-        else:
-            graph = self.copy()
+            graph = merge_root_nodes(graph)
 
         undirected = graph.to_undirected()
         leaf_nodes = [node for node in graph.nodes() if graph.out_degree(node) == 0]
@@ -30,7 +31,7 @@ class ExpandedGraph(nx.DiGraph):
         # amortization over exchangeable nodes in most cases.
         latent_nodes = [node for node in list(nx.topological_sort(graph)) if graph.out_degree(node) != 0]
 
-        inverse = InvertedGraph(simulation_graph=self.simulation_graph, expanded_graph=self)
+        inverse = InvertedGraph(expanded_graph=self)
         inverse.add_nodes_from(leaf_nodes)
 
         for x_j in latent_nodes:
