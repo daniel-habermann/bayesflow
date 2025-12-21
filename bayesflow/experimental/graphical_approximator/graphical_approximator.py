@@ -1,3 +1,4 @@
+from pandas.core.window.doc import kwargs_numeric_only
 import copy
 from collections.abc import Mapping, Sequence
 
@@ -53,17 +54,15 @@ class GraphicalApproximator(Approximator):
             self.standardize_layers = {var: Standardization(trainable=False) for var in self.standardize}
 
     def build(self, data_shapes: dict[str, Shape]) -> None:
-        data_shapes = {k: v for k, v in data_shapes.items() if len(v) > 0}
-
         # build summary networks
-        input_shapes = utils.summary_input_shapes_by_network(self, data_shapes)
+        input_shapes = summary_input_shapes_by_network(self, data_shapes)
         for i, summary_network in enumerate(self.summary_networks or []):
             if not summary_network.built:
                 summary_network.build(input_shapes[i])
 
         # build inference networks
-        variable_shapes = utils.inference_variable_shapes_by_network(self, data_shapes)
-        condition_shapes = utils.inference_condition_shapes_by_network(self, data_shapes)
+        variable_shapes = inference_variable_shapes_by_network(self, data_shapes)
+        condition_shapes = inference_condition_shapes_by_network(self, data_shapes)
 
         for i, inference_network in enumerate(self.inference_networks or []):
             if not inference_network.built:
@@ -81,12 +80,8 @@ class GraphicalApproximator(Approximator):
         self.built = True
 
     def compute_metrics(self, stage: str = "training", **kwargs):
-        data = kwargs
-        summary_inputs = utils.summary_inputs_by_network(self, data)
-        inference_conditions = utils.inference_conditions_by_network(self, data)
-        inference_variables = utils.inference_variables_by_network(self, data)
-
         # compute summary metrics
+        summary_inputs = summary_inputs_by_network(self, kwargs)
         summary_metrics = {}
 
         for i, summary_network in enumerate(self.summary_networks or []):
@@ -94,37 +89,28 @@ class GraphicalApproximator(Approximator):
             summary_metrics[i].pop("outputs")
 
         # compute inference metrics
+        inference_conditions = inference_conditions_by_network(self, kwargs)
+        inference_variables = inference_variables_by_network(self, kwargs)
+
         inference_metrics = {}
         for i, inference_network in enumerate(self.inference_networks):
             inference_metrics[i] = inference_network.compute_metrics(
                 inference_variables[i], conditions=inference_conditions[i], stage=stage
             )
 
-        # combine losses and metrics
+        # combine metrics
         total_loss = 0
-        combined_inference_metrics = {}
-        combined_summary_metrics = {}
+        combined_metrics = {}
 
-        for i, metrics in inference_metrics.items():
-            total_loss += metrics["loss"]
-            for k, v in metrics.items():
-                if k == "loss":
-                    combined_inference_metrics[f"inference_{i}/{k}"] = v
-                else:
-                    combined_inference_metrics[f"inference_{i}/{k}"] = v
+        for i, metric_type in enumerate([summary_metrics, inference_metrics]):
+            prefix = "summary_metrics" if i == 0 else "infrence_metrics"
+            for val, metrics in metric_type.items():
+                if "loss" in metrics:
+                    total_loss += metrics["loss"]
+                for k, v in metrics.items():
+                    combined_metrics[f"{prefix}_{val}/{k}"] = v
 
-        for i, metrics in summary_metrics.items():
-            if "loss" in metrics.keys():
-                total_loss += metrics["loss"]
-            for k, v in metrics.items():
-                if k == "loss":
-                    combined_summary_metrics[f"summary_{i}/{k}"] = v
-                else:
-                    combined_summary_metrics[f"summary_{i}/{k}"] = v
-
-        metrics = {"loss": total_loss} | combined_inference_metrics
-
-        return metrics
+        return total_loss, combined_metrics
 
     # TODO: SimulationOutput als arbitrary iterable, keras.Dataset
     def fit(self, *args, **kwargs):
@@ -135,7 +121,7 @@ class GraphicalApproximator(Approximator):
         return super(GraphicalApproximator, self).fit(*args, **kwargs, adapter=self.adapter)
 
     def sample(self, *, num_samples: int, conditions: Mapping[str, np.ndarray]) -> Mapping[str, np.ndarray]:
-        summary_outputs = utils.summary_outputs_by_network(self, conditions)
+        summary_outputs = summary_outputs_by_network(self, conditions)
         batch_size = keras.ops.shape(summary_outputs[0])[0]
         data_node = self.graph.simulation_graph.data_node()
         variable_names = self.graph.simulation_graph.variable_names()

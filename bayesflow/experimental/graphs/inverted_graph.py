@@ -4,7 +4,6 @@ from typing import TypeAlias
 import networkx as nx
 
 from .expanded_graph import ExpandedGraph
-from .simulation_graph import SimulationGraph
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
