@@ -18,6 +18,13 @@ class ExpandedGraph(nx.DiGraph):
         self.simulation_graph = copy(simulation_graph)
 
     def invert(self, merge_roots: bool = True):
+        """
+        Inverts a graph by following the algorithm described by [1], but sorting
+        latent nodes by outer nodes first.
+
+        [1] Stuhlmüller, A., Taylor, J., & Goodman, N. D. (2013). Learning stochastic inverses.
+        In Advances in Neural Information Processing Systems (pp. 3048–3056).
+        """
         from .inverted_graph import InvertedGraph
 
         graph = copy(self)
@@ -27,8 +34,8 @@ class ExpandedGraph(nx.DiGraph):
         undirected = graph.to_undirected()
         leaf_nodes = [node for node in graph.nodes() if graph.out_degree(node) == 0]
 
-        # Sort nodes by outer nodes first. We assume that this ordering preserves
-        # amortization over exchangeable nodes in most cases.
+        # Sort nodes by outer nodes first (instead of last as in Stuhlmüller2013).
+        # We assume that this ordering preserves amortization over exchangeable nodes in most cases.
         latent_nodes = [node for node in list(nx.topological_sort(graph)) if graph.out_degree(node) != 0]
 
         inverse = InvertedGraph(expanded_graph=self)
