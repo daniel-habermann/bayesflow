@@ -55,9 +55,33 @@ class GraphicalSimulator(Simulator):
         self.meta_fn = meta_fn
 
     def add_node(self, node: str, sample_fn: Callable[..., dict[str, Any]], reps: int | str = 1):
+        """
+        Adds a graph node with its sampling function and repetition count.
+
+        Parameters
+        ----------
+        node : str
+            Name of the node.
+        sample_fn : callable
+            Function that generates samples for this node and returns a dict mapping variable
+            names to values. The function may accept arguments whose names correspond to
+            variables sampled in ancestors nodes.
+        reps : int
+            Number of repetitions for this node, or a string matching a key in the output of `meta_fn`.
+        """
         self.graph.add_node(node, sample_fn=sample_fn, reps=reps)
 
     def add_edge(self, from_node: str, to_node: str):
+        """
+        Adds a directed edge indicating a dependency between two nodes.
+
+        Parameters
+        ----------
+        from_node: str
+            Parent node providing inputs.
+        to_node : str
+            Child node whose sampling depends on the parent.
+        """
         self.graph.add_edge(from_node, to_node)
 
     @allow_batch_size
@@ -73,6 +97,12 @@ class GraphicalSimulator(Simulator):
             but an int can also be passed.
         **kwargs
             Currently unused
+
+        Returns
+        _______
+        SimulationOutput
+            Contains sampled data and meta data. Acts like a dictionary,
+            allowing variable access via indexing and `keys()`.
         """
         _ = kwargs  # Simulator class requires **kwargs, which are unused here
         meta_dict = self.meta_fn() if self.meta_fn else {}
@@ -127,7 +157,13 @@ class GraphicalSimulator(Simulator):
 
         return SimulationOutput(output_dict, meta_dict)  # type: ignore
 
-    def variable_dict(self):
+    def variable_names(self):
+        """
+        Returns a mapping frm each node to the list of variable names it produces.
+
+        The graph is evaluated once in topological order o collect sample outputs.
+        This may be expensive; results are cached in `GraphicalApproximator`.
+        """
         meta_dict = self.meta_fn() if self.meta_fn else {}
         samples_by_node = {}
 
@@ -146,8 +182,15 @@ class GraphicalSimulator(Simulator):
 
         return {k: list(v.keys()) for k, v in samples_by_node.items()}
 
-    # TODO: add docstring
     def _collect_output(self, samples):
+        """
+        Collect outputs from a batched array of samples.
+
+        `samples` is a NumPy array of arbitrary batch shape, where each element is a
+        list of sample dictionaries.
+        The method returns a dictionary where the keys are variable names and the
+        values are samples aggregated into NumPy arrays with batch and repetition dimensions.
+        """
         output_dict = {}
 
         # retrieve node and ancestors from internal sample representation
@@ -186,9 +229,16 @@ class GraphicalSimulator(Simulator):
         return output_dict
 
     def _variable_names(self, samples):
+        """
+        Given samples for a specific node, returns a list of variable names.
+        """
         return [k for k in samples.flat[0][0].keys() if not k.startswith("__")]
 
     def _output_shape(self, samples, variable):
+        """
+        Given samples for a specific node, returns the stacked shape of a given `variable`.
+        Used as a helper function in `_collect_output`.
+        """
         index_entries = [k for k in samples.flat[0][0].keys() if k.startswith("__")]
         node = index_entries[-1].removeprefix("__").removesuffix("_idx")
 
@@ -215,6 +265,9 @@ class GraphicalSimulator(Simulator):
         return tuple(output_shape)
 
     def _call_sample_fn(self, sample_fn, args):
+        """
+        Helper function used to call the user-defined sample functions in a SimulationGraph.
+        """
         signature = inspect.signature(sample_fn)
         fn_args = signature.parameters
         accepted_args = {k: v for k, v in args.items() if k in fn_args}
@@ -223,6 +276,9 @@ class GraphicalSimulator(Simulator):
 
 
 def sorted_ancestors(graph, node):
+    """
+    Returns a topologically sorted list of ancestors for a given `node`.
+    """
     return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node)]
 
 
