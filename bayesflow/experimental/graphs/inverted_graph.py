@@ -18,6 +18,10 @@ class InvertedGraph(nx.DiGraph):
         self.expanded_graph = copy(expanded_graph)
 
     def network_conditions(self) -> dict[int, list[SimulationNode]]:
+        """
+        Returns a dictionary where the keys are integer network indices and the values
+        are lists of nodes that are required as conditions by that inference network.
+        """
         composition = self.network_composition()
         conditions = self.conditions_by_node()
         networks: dict[int, list[SimulationNode]] = {}
@@ -29,8 +33,11 @@ class InvertedGraph(nx.DiGraph):
 
         return networks
 
-    # assigns nodes to be estimated by each inference network
     def network_composition(self) -> dict[int, list[SimulationNode]]:
+        """
+        Returns a dictionary where the keys are integer network indices and the values
+        are lists of nodes that are estimated by that inference network.
+        """
         conditions = self.conditions_by_node()
 
         processed_nodes = set(k for k, v in conditions.items() if v == [])
@@ -61,6 +68,12 @@ class InvertedGraph(nx.DiGraph):
         return networks
 
     def permutated_data_shape_order(self) -> list[SimulationNode]:
+        """
+        Return a permutation of `data_shape_order` suitable for summary network input.
+
+        The returned list is reordered such that amortizable nodes appear first, followed
+        by non-amortizable nodes, while preserving their relative order within each group.
+        """
         shape_order = self.data_shape_order()
         amortizable = [n for n in shape_order if self.allows_amortization(n)]
         non_amortizable = [n for n in shape_order if not self.allows_amortization(n)]
@@ -68,8 +81,20 @@ class InvertedGraph(nx.DiGraph):
         # put non amortizable nodes at the end
         return amortizable + non_amortizable
 
-    # determines ordering of the data shape as defined by the user-defined simulation graph
     def data_shape_order(self) -> list[SimulationNode]:
+        """
+        Determines the ordering of the data shape defined by the user-defined simulation graph.
+
+        Returns a list of node names corresponding to the simulation dimensions of the data.
+        Specifically, if the data shape is:
+
+            (B, N_node_a, N_node_b, N_node_c, D)
+
+        where `N_node_x` is the number of repetitions of that node during simulation, and
+        `B` and `D` are the batch and data dimensions respectively, then this method returns:
+
+            ['node_a', 'node_b', 'node_c']
+        """
         # retrieve current ordering of data shape
         shape_order = []
         expanded_graph = self.expanded_graph
@@ -81,7 +106,6 @@ class InvertedGraph(nx.DiGraph):
 
         return shape_order
 
-    # returns a list of amortizable nodes
     def amortizable_nodes(self) -> list[SimulationNode]:
         amortizable_nodes = []
         data_nodes = self.simulation_graph.data_node()
@@ -92,9 +116,11 @@ class InvertedGraph(nx.DiGraph):
 
         return amortizable_nodes
 
-    # checks if a node in the simulation graph is amortizable,
-    # i.e. allows independent estimation of each group
     def allows_amortization(self, node: Node) -> bool:
+        """
+        Checks if a node in the simulation graph is amortizable,
+        i.e., allows independent estimation of each group.
+        """
         if node not in self.simulation_graph.nodes:
             raise ValueError(f"Node {node} not found.")
 
@@ -109,8 +135,11 @@ class InvertedGraph(nx.DiGraph):
 
         return True
 
-    # maps node names of inverted graph to node names in corresponding SimulationGraph
     def original_node_names(self) -> dict[ExpandedNode, SimulationNode]:
+        """
+        Maps node names of the inverted graph to node names in the corresponding
+        SimulationGraph.
+        """
         mapping = {}
 
         for node in self.nodes:
@@ -125,9 +154,11 @@ class InvertedGraph(nx.DiGraph):
 
         return mapping
 
-    # like detailed_conditions_by_node, but uses original node names instead of
-    # expanded nodes
     def conditions_by_node(self) -> dict[SimulationNode, list[SimulationNode]]:
+        """
+        Same output as `detailed_conditions_by_node`, but uses original node
+        names instead of names altered by graph expansion.
+        """
         detailed_conditions = self.detailed_conditions_by_node()
         node_names = self.original_node_names()
         conditions = {}
@@ -142,9 +173,11 @@ class InvertedGraph(nx.DiGraph):
 
         return conditions
 
-    # returns a dictionary with node names as keys and a list of that node's predecessors
-    # as values
     def detailed_conditions_by_node(self) -> dict[ExpandedNode, list[ExpandedNode]]:
+        """
+        Returns a dictionary with nodes as keys and a list of nodes that directly precede
+        it as values.
+        """
         conditions = {node: [] for node in self.nodes}
 
         for node in nx.topological_sort(self):

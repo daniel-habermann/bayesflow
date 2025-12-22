@@ -14,7 +14,7 @@ ExpandedNode: TypeAlias = str
 
 class SimulationGraph(nx.DiGraph):
     def __init__(self, meta_fn: Callable | None = None):
-        super().__init__()  # optionally initializing with existing data
+        super().__init__()
         self.meta_fn = meta_fn
 
     def expand(self):

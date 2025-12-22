@@ -44,6 +44,10 @@ def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
 
 
 def extract_subgraph(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
+    """
+    Extracts a subgraph from a larger graph, consisting of a given node and
+    all its downstream nodes.
+    """
     included_nodes = set([node])
     included_nodes.update(nx.descendants(graph, node))
 
@@ -78,7 +82,18 @@ def has_open_path(graph: nx.DiGraph, x: Node, y: Node, known: list[Node]) -> boo
         return True
 
 
+# TODO: Test node names with underscore
 def add_suffix(string: str, suffix: int):
+    """
+    Adds a suffix to a string, optionally prepending an underscore if one not
+    already exists.
+
+    >>> add_suffix("nodename", 1)
+    nodename_1
+
+    >>> add_suffix("nodename_12", 3)
+    nodename_123
+    """
     if bool(re.search(r"_\d+$", string)):
         return string + str(suffix)
     else:
