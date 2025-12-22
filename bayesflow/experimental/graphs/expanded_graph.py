@@ -13,6 +13,14 @@ ExpandedNode: TypeAlias = str
 
 
 class ExpandedGraph(nx.DiGraph):
+    """
+    Directed graph with a similar structure as the graph defined in `SimulationGraph`,
+    but in which interior nodes are split into two subgraphs.
+
+    This is necessary to determine if variables from a node can be estimated
+    group-wise (enabling amortization over groups).
+    """
+
     def __init__(self, graph_data=None, *, simulation_graph: SimulationGraph):
         super().__init__(graph_data)  # optionally initializing with existing data
         self.simulation_graph = copy(simulation_graph)

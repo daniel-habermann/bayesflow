@@ -44,7 +44,7 @@ class GraphicalSimulator(Simulator):
     Parameters
     ----------
     meta_fn : Callable[[], dict[str, Any]] | None
-        A callable that returns a dictionary of meta data.
+        Function returning a dict of meta data.
         This meta data can be used to dynamically vary the number of sampling repetitions (`reps`)
         for nodes added via `add_node`.
     """
@@ -159,7 +159,7 @@ class GraphicalSimulator(Simulator):
 
     def variable_names(self):
         """
-        Returns a mapping frm each node to the list of variable names it produces.
+        Returns a mapping from each node to the list of variable names it produces.
 
         The graph is evaluated once in topological order o collect sample outputs.
         This may be expensive; results are cached in `GraphicalApproximator`.

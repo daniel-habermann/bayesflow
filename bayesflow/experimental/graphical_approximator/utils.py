@@ -229,7 +229,6 @@ def prepare_inference_conditions(approximator: "GraphicalApproximator", data: Ma
     return concatenate(conditions)
 
 
-# data input shape for first summary network
 def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]) -> Shape:
     """
     Returns the shape of the input tensor for the first summary network.
@@ -251,7 +250,6 @@ def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapp
     return input_shape
 
 
-# output shape of each summary network
 def summary_output_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     """
     Returns a dictionary where the keys are integers denoting network indices
@@ -272,7 +270,6 @@ def summary_output_shapes_by_network(approximator: "GraphicalApproximator", data
     return result
 
 
-# input shape of each summary network
 def summary_input_shapes_by_network(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
     """
     Returns a dictionary where the keys are integers denoting network indices

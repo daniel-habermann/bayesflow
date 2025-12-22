@@ -11,6 +11,14 @@ ExpandedNode: TypeAlias = str
 
 
 class InvertedGraph(nx.DiGraph):
+    """
+    Directed graph representing the factorization of the joint posterior of a
+    forward model defined by `SimulationGraph`.
+
+    An `InvertedGraph` is derived from an `ExpandedGraph` and encodes the
+    dependency structure between variables.
+    """
+
     def __init__(self, graph_data=None, *, expanded_graph: ExpandedGraph):
         super().__init__(graph_data=None)  # optionally initializing with existing data
 
