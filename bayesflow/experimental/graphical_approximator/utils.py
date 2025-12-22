@@ -1,8 +1,6 @@
 from functools import reduce
 from typing import TYPE_CHECKING, Mapping
 
-from torch.nn.utils.parametrize import remove_parametrizations
-
 # TODO REVIEW: This type checking direction seems to be required.
 # Any way around this?
 if TYPE_CHECKING:
