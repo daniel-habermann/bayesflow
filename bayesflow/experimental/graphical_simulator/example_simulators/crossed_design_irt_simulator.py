@@ -61,7 +61,7 @@ def crossed_design_irt_simulator():
 
     def meta_fn():
         return {
-            "num_questions": 15,
+            "num_questions": 15,  # must be constant because node is not amortizable.
             "num_students": np.random.randint(100, 201),
         }
 

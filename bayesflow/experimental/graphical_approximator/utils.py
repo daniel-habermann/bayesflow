@@ -1,6 +1,8 @@
 from functools import reduce
 from typing import TYPE_CHECKING, Mapping
 
+from torch.nn.utils.parametrize import remove_parametrizations
+
 # TODO REVIEW: This type checking direction seems to be required.
 # Any way around this?
 if TYPE_CHECKING:
@@ -226,7 +228,24 @@ def prepare_inference_conditions(approximator: "GraphicalApproximator", data: Ma
     if data_conditions[network_idx] is not None:
         conditions.append(data_conditions[network_idx])
 
-    return concatenate(conditions)
+    conditions = concatenate(conditions)
+
+    # add node repetitions
+    repetitions = repetitions_from_data_shape(approximator, approximator._data_shapes(data))
+    conditions = add_node_reps_to_conditions(conditions, repetitions)
+
+    return conditions
+
+
+def add_node_reps_to_conditions(conditions, repetitions: Mapping[str, int]):
+    """
+    Appends node repetition features to a conditions tensor.
+    """
+    rep_values = keras.ops.convert_to_tensor(list(repetitions.values()))
+    squared = keras.ops.sqrt(rep_values)
+    expanded = keras.ops.expand_dims(squared, axis=0)
+
+    return concatenate([conditions, expanded])
 
 
 def summary_input_shape(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]) -> Shape:
@@ -354,6 +373,7 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
     network_conditions = approximator.graph.network_conditions()
     variable_names = approximator.graph.simulation_graph.variable_names()
     data_node = approximator.graph.simulation_graph.data_node()
+    repetitions = repetitions_from_data_shape(approximator, data_shapes)
 
     result = {}
 
@@ -376,9 +396,34 @@ def inference_condition_shapes_by_network(approximator: "GraphicalApproximator",
         if data_conditions[i] is not None:
             condition_shapes.append(data_conditions[i])
 
-        result[i] = concatenate_shapes(condition_shapes)
+        concatenated = list(concatenate_shapes(condition_shapes))
+
+        # add all node repetition to all conditions.
+        # For some nodes, the number of conditions could be further reduced, but this would
+        # require additional logic.
+        concatenated[-1] += len(repetitions)
+        result[i] = tuple(concatenated)
 
     return result
+
+
+def repetitions_from_data_shape(approximator: "GraphicalApproximator", data_shapes: Mapping[str, Shape]):
+    """
+    Infers repetition counts for each node from data shapes.
+    """
+    data_node = approximator.graph.simulation_graph.data_node()
+    data_keys = approximator.graph.simulation_graph.variable_names()[data_node]
+
+    summary_input_shape = concatenate_shapes([data_shapes[k] for k in data_keys])
+    shape_order = approximator.graph.data_shape_order()
+
+    repetitions = {}
+
+    # looping in reverse for easier indexing
+    for i, variable in enumerate(shape_order):
+        repetitions[variable] = summary_input_shape[i - len(shape_order) - 1]
+
+    return repetitions
 
 
 def concatenate(tensors, batch_dims=1):
