@@ -43,7 +43,7 @@ def crossed_design_irt_simulator():
 
         question_difficulty = np.random.normal(loc=question_mean, scale=question_std)
 
-        return dict(question_mean=question_mean, exam_std=question_std, question_difficulty=question_difficulty)
+        return dict(question_mean=question_mean, question_std=question_std, question_difficulty=question_difficulty)
 
     # realizations of individual student abilities
     def sample_student():
