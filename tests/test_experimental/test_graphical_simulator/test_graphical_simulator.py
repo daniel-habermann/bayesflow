@@ -1,6 +1,5 @@
 import numpy as np
 
-import bayesflow as bf
 from bayesflow.experimental.graphical_simulator import GraphicalSimulator, SimulationOutput
 
 
@@ -86,6 +85,63 @@ def test_two_level_repeated_roots_simulator(two_level_repeated_roots_simulator):
 
     # y node
     assert np.shape(samples["y"]) == (15, 5, 6, 10, 1)
+
+
+def test_three_level_simulator(three_level_simulator):
+    #  schools
+    #     |
+    #     |
+    # classrooms
+    #     |
+    #     |     shared
+    # students    /
+    #      \     /
+    #       \   /
+    #      scores
+
+    simulator = three_level_simulator
+    assert isinstance(simulator, GraphicalSimulator)
+    assert isinstance(simulator.sample(5), SimulationOutput)
+
+    samples = simulator.sample(15)
+    expected_keys = [
+        "school_mu",
+        "school_sigma",
+        "classroom_mu",
+        "classroom_sigma",
+        "student_mu",
+        "student_sigma",
+        "shared_sigma",
+        "y",
+    ]
+    expected_meta_keys = ["N_classrooms", "N_students", "N_scores"]
+
+    assert set(samples.keys()) == set(expected_keys)
+    assert set(samples.meta.keys()) == set(expected_meta_keys)
+
+    # schools node
+    assert np.shape(samples["school_mu"]) == (15, 1)
+    assert np.shape(samples["school_sigma"]) == (15, 1)
+
+    # classrooms node
+    assert np.shape(samples["classroom_mu"]) == (15, samples.meta["N_classrooms"], 1)
+    assert np.shape(samples["classroom_sigma"]) == (15, samples.meta["N_classrooms"], 1)
+
+    # students node
+    assert np.shape(samples["student_mu"]) == (15, samples.meta["N_classrooms"], samples.meta["N_students"], 1)
+    assert np.shape(samples["student_sigma"]) == (15, samples.meta["N_classrooms"], samples.meta["N_students"], 1)
+
+    # shared node
+    assert np.shape(samples["shared_sigma"]) == (15, 1)
+
+    # y node
+    assert np.shape(samples["y"]) == (
+        15,
+        samples.meta["N_classrooms"],
+        samples.meta["N_students"],
+        samples.meta["N_scores"],
+        1,
+    )
 
 
 def test_crossed_design_irt_simulator(crossed_design_irt_simulator):
