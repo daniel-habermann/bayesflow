@@ -23,6 +23,13 @@ def two_level_repeated_roots_simulator():
 
 
 @pytest.fixture()
+def three_level_simulator():
+    from bayesflow.experimental.graphical_simulator.example_simulators import three_level_simulator
+
+    return three_level_simulator()
+
+
+@pytest.fixture()
 def crossed_design_irt_simulator():
     from bayesflow.experimental.graphical_simulator.example_simulators import crossed_design_irt_simulator
 
