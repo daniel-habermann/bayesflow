@@ -17,7 +17,7 @@ def split_node(graph: nx.DiGraph, node: Node) -> nx.DiGraph:
     split_graph = nx.DiGraph(graph.subgraph(other_nodes))
 
     for i in [1, 2]:
-        sorted_nodes = list(nx.topological_sort(subgraph))
+        sorted_nodes = list(nx.lexicographical_topological_sort(subgraph))
         renamed_nodes = [add_suffix(n, suffix=i) for n in sorted_nodes]
 
         # add nodes from subgraph to new graph
@@ -127,8 +127,6 @@ def add_split_by_metadata(
     return graph
 
 
-# The "previous_names" node annotation field contains a reference to previous node names
-# during split operations of the graph expansion.
 def add_previous_names_metadata(graph: nx.DiGraph, subgraph: nx.DiGraph, original: Node, renamed: Node) -> nx.DiGraph:
     """
     Adds a "previous_names" node annotation field, which contains a reference

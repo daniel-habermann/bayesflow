@@ -1,11 +1,10 @@
-# TODO: add group size as conditions
-import copy
+from copy import deepcopy
 import inspect
 from typing import Any, Callable, TypeAlias
 
 import networkx as nx
 
-from .utils import split_node
+from .utils import split_node, merge_root_nodes
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -37,7 +36,7 @@ class SimulationGraph(nx.DiGraph):
         super().__init__()
         self.meta_fn = meta_fn
 
-    def expand(self):
+    def expand(self, merge_roots: bool = True):
         """
         Expands the graph by splitting interior nodes into explicit subgraphs.
 
@@ -48,18 +47,17 @@ class SimulationGraph(nx.DiGraph):
         """
         from .expanded_graph import ExpandedGraph
 
-        graph = self.copy()
+        graph = deepcopy(self)
+        if merge_roots:
+            graph = merge_root_nodes(graph)
 
-        for node in nx.topological_sort(graph):
+        for node in nx.lexicographical_topological_sort(graph):
             interior_node = graph.in_degree(node) != 0 and graph.out_degree(node) != 0
-
-            if not interior_node:
-                graph.nodes[node].clear()
 
             if interior_node and node in graph.nodes:
                 graph = split_node(graph, node)
 
-        for node in nx.topological_sort(graph):
+        for node in nx.lexicographical_topological_sort(graph):
             for key in ["split_by", "previous_names", "merged_from"]:
                 if key not in graph.nodes[node]:
                     graph.nodes[node][key] = []
@@ -80,7 +78,7 @@ class SimulationGraph(nx.DiGraph):
         InvertedGraph
             Inverted representation of the expanded graph.
         """
-        expanded_graph = self.expand()
+        expanded_graph = self.expand(merge_roots=merge_roots)
         inverted_graph = expanded_graph.invert(merge_roots=merge_roots)
 
         return inverted_graph
@@ -100,11 +98,11 @@ class SimulationGraph(nx.DiGraph):
 
             return sample_fn(**accepted_args)
 
-        simulation_graph = copy.deepcopy(self)
+        simulation_graph = deepcopy(self)
         meta_dict = simulation_graph.meta_fn() if simulation_graph.meta_fn else {}
         samples_by_node = {}
 
-        for node in nx.topological_sort(simulation_graph):
+        for node in nx.lexicographical_topological_sort(simulation_graph):
             simulation_graph.nodes[node]["reps"] = 1
             parent_nodes = list(simulation_graph.predecessors(node))
             sample_fn = simulation_graph.nodes[node]["sample_fn"]

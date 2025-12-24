@@ -5,7 +5,7 @@ import networkx as nx
 from .simulation_graph import SimulationGraph
 from .utils import has_open_path, merge_root_nodes
 
-from copy import copy
+from copy import deepcopy
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -23,7 +23,7 @@ class ExpandedGraph(nx.DiGraph):
 
     def __init__(self, graph_data=None, *, simulation_graph: SimulationGraph):
         super().__init__(graph_data)  # optionally initializing with existing data
-        self.simulation_graph = copy(simulation_graph)
+        self.simulation_graph = deepcopy(simulation_graph)
 
     def invert(self, merge_roots: bool = True):
         """
@@ -35,7 +35,7 @@ class ExpandedGraph(nx.DiGraph):
         """
         from .inverted_graph import InvertedGraph
 
-        graph = copy(self)
+        graph = deepcopy(self)
         if merge_roots:
             graph = merge_root_nodes(graph)
 
@@ -44,7 +44,9 @@ class ExpandedGraph(nx.DiGraph):
 
         # Sort nodes by outer nodes first (instead of last as in Stuhlmüller2013).
         # We assume that this ordering preserves amortization over exchangeable nodes in most cases.
-        latent_nodes = [node for node in list(nx.topological_sort(graph)) if graph.out_degree(node) != 0]
+        latent_nodes = [
+            node for node in list(nx.lexicographical_topological_sort(graph)) if graph.out_degree(node) != 0
+        ]
 
         inverse = InvertedGraph(expanded_graph=self)
         inverse.add_nodes_from(leaf_nodes)

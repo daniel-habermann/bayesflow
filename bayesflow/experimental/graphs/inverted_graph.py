@@ -1,6 +1,8 @@
-from copy import copy
+from copy import deepcopy
+from itertools import chain
 from typing import TypeAlias
 
+import keras
 import networkx as nx
 
 from .expanded_graph import ExpandedGraph
@@ -22,8 +24,8 @@ class InvertedGraph(nx.DiGraph):
     def __init__(self, graph_data=None, *, expanded_graph: ExpandedGraph):
         super().__init__(graph_data=None)  # optionally initializing with existing data
 
-        self.simulation_graph = copy(expanded_graph.simulation_graph)
-        self.expanded_graph = copy(expanded_graph)
+        self.simulation_graph = deepcopy(expanded_graph.simulation_graph)
+        self.expanded_graph = deepcopy(expanded_graph)
 
     def network_conditions(self) -> dict[int, list[SimulationNode]]:
         """
@@ -32,12 +34,20 @@ class InvertedGraph(nx.DiGraph):
         """
         composition = self.network_composition()
         conditions = self.conditions_by_node()
+
         networks: dict[int, list[SimulationNode]] = {}
 
         for network_idx, nodes in composition.items():
-            networks[network_idx] = []
+            node_set = set(nodes)
+            required = set()
+
             for node in nodes:
-                networks[network_idx].extend(conditions[node])
+                for condition in conditions[node]:
+                    if condition not in node_set:
+                        required.add(condition)
+
+            # remove duplicates
+            networks[network_idx] = list(required)
 
         return networks
 
@@ -154,7 +164,7 @@ class InvertedGraph(nx.DiGraph):
             expanded_node = self.expanded_graph.nodes[node]
 
             if expanded_node["merged_from"] != []:
-                mapping[node] = expanded_node["merged_from"][0]
+                mapping[node] = expanded_node["merged_from"]
             elif expanded_node["previous_names"] == []:
                 mapping[node] = node
             else:
@@ -167,19 +177,32 @@ class InvertedGraph(nx.DiGraph):
         Same output as `detailed_conditions_by_node`, but uses original node
         names instead of names altered by graph expansion.
         """
+
         detailed_conditions = self.detailed_conditions_by_node()
-        node_names = self.original_node_names()
-        conditions = {}
+        original_node_names = self.original_node_names()
 
-        for node in self.simulation_graph.nodes:
-            conditions[node] = []
-            for k, v in detailed_conditions.items():
-                if node_names[k] == node:
-                    conditions[node].extend([node_names[c] for c in v])
+        def names(node):
+            if self.expanded_graph.nodes[node]["merged_from"]:
+                return self.expanded_graph.nodes[node]["merged_from"]
+            else:
+                return [original_node_names[node]]
 
-            conditions[node] = list(set(conditions[node]))
+        result = {}
 
-        return conditions
+        for node, conditions in detailed_conditions.items():
+            keys = names(node)
+
+            values = set()
+
+            for condition in conditions:
+                node_names = names(condition)
+                for name in node_names:
+                    values.add(name)
+
+            for k in keys:
+                result[k] = list(values)
+
+        return result
 
     def detailed_conditions_by_node(self) -> dict[ExpandedNode, list[ExpandedNode]]:
         """
@@ -188,7 +211,7 @@ class InvertedGraph(nx.DiGraph):
         """
         conditions = {node: [] for node in self.nodes}
 
-        for node in nx.topological_sort(self):
+        for node in nx.lexicographical_topological_sort(self):
             conditions[node] = list(self.predecessors(node))
 
         return conditions

@@ -113,7 +113,7 @@ class GraphicalSimulator(Simulator):
             samples_by_node[node] = np.empty(batch_shape, dtype="object")
 
         for batch_idx in np.ndindex(batch_shape):
-            for node in nx.topological_sort(self.graph):
+            for node in nx.lexicographical_topological_sort(self.graph):
                 node_samples = []
 
                 parent_nodes = list(self.graph.predecessors(node))
@@ -152,7 +152,7 @@ class GraphicalSimulator(Simulator):
 
         # collect outputs
         output_dict = {}
-        for node in nx.topological_sort(self.graph):
+        for node in nx.lexicographical_topological_sort(self.graph):
             output_dict.update(self._collect_output(samples_by_node[node]))
 
         return SimulationOutput(output_dict, meta_dict)  # type: ignore
@@ -167,7 +167,7 @@ class GraphicalSimulator(Simulator):
         meta_dict = self.meta_fn() if self.meta_fn else {}
         samples_by_node = {}
 
-        for node in nx.topological_sort(self.graph):
+        for node in nx.lexicographical_topological_sort(self.graph):
             parent_nodes = list(self.graph.predecessors(node))
             sample_fn = self.graph.nodes[node]["sample_fn"]
 
@@ -279,7 +279,7 @@ def sorted_ancestors(graph, node):
     """
     Returns a topologically sorted list of ancestors for a given `node`.
     """
-    return [n for n in nx.topological_sort(graph) if n in nx.ancestors(graph, node)]
+    return [n for n in nx.lexicographical_topological_sort(graph) if n in nx.ancestors(graph, node)]
 
 
 def merge_lists_of_dicts(nested_list: list[list[dict]]) -> list[dict]:
