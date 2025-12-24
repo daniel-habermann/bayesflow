@@ -82,7 +82,6 @@ def has_open_path(graph: nx.DiGraph, x: Node, y: Node, known: list[Node]) -> boo
         return True
 
 
-# TODO: Test node names with underscore
 def add_suffix(string: str, suffix: int):
     """
     Adds a suffix to a string, optionally prepending an underscore if one not
