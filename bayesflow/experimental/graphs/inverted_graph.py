@@ -5,7 +5,7 @@ from typing import TypeAlias
 import networkx as nx
 
 from .expanded_graph import ExpandedGraph
-from .utils import sort_nodes_topologically
+from .utils import merge_root_nodes, sort_nodes_topologically
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -113,16 +113,15 @@ class InvertedGraph(nx.DiGraph):
 
             ['node_a', 'node_b', 'node_c']
         """
-        # retrieve current ordering of data shape
-        shape_order = []
-        expanded_graph = self.expanded_graph
-        data_nodes = self.simulation_graph.data_node()
 
-        for node in expanded_graph.nodes:
-            if data_nodes in expanded_graph.nodes[node]["previous_names"]:
-                shape_order = expanded_graph.nodes[node]["split_by"]
+        merged = merge_root_nodes(self.simulation_graph)
+        ordered = list(nx.lexicographical_topological_sort(merged))
+        reps = self.simulation_graph.nodes[self.simulation_graph.data_node()]["reps"]
 
-        return shape_order
+        if reps == 1:
+            return ordered[1:-1]
+        else:
+            return ordered[1:]
 
     def amortizable_nodes(self) -> list[SimulationNode]:
         amortizable_nodes = []
