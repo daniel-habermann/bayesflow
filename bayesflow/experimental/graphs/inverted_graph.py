@@ -1,5 +1,4 @@
 from copy import deepcopy
-from itertools import chain
 from typing import TypeAlias
 
 import networkx as nx
@@ -143,6 +142,10 @@ class InvertedGraph(nx.DiGraph):
 
         conditions = self.detailed_conditions_by_node()
         node_names = self.original_node_names()
+        data_node = self.simulation_graph.data_node()
+
+        if node == data_node:
+            return False
 
         for k, v in conditions.items():
             if node_names[k] == node:
@@ -163,7 +166,11 @@ class InvertedGraph(nx.DiGraph):
             expanded_node = self.expanded_graph.nodes[node]
 
             if expanded_node["merged_from"] != []:
-                mapping[node] = expanded_node["merged_from"]
+                merged_from = expanded_node["merged_from"]
+                if len(merged_from) == 1:
+                    mapping[node] = merged_from[0]
+                else:
+                    mapping[node] = merged_from
             elif expanded_node["previous_names"] == []:
                 mapping[node] = node
             else:

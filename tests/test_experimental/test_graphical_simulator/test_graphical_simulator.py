@@ -276,12 +276,3 @@ def test_simulation_output():
 
     # __len__
     assert len(output) == 3
-
-
-# def test_merge_lists_of_dicts():
-#     from bayesflow.experimental.graphical_simulator.graphical_simulator import merge_lists_of_dicts
-#
-#     assert merge_lists_of_dicts([[{"a": 1, "b": 2}], [{"c": 3}, {"d": 4}]]) == [
-#         {"a": 1, "b": 2, "c": 3},
-#         {"a": 1, "b": 2, "d": 4},
-#     ]
