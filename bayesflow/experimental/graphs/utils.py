@@ -148,6 +148,18 @@ def add_previous_names_metadata(graph: nx.DiGraph, subgraph: nx.DiGraph, origina
     return graph
 
 
+def sort_nodes_topologically(graph: nx.DiGraph, nodes: list[Node]):
+    """
+    Orders a list of `nodes` according to the topology defined in `graph`.
+    """
+    order = list(nx.lexicographical_topological_sort(graph))
+    position = {node: i for i, node in enumerate(order)}
+
+    sorted_nodes = sorted(nodes, key=lambda n: position[n])
+
+    return sorted_nodes
+
+
 def merge_root_nodes(graph: nx.DiGraph):
     """
     Returns a graph with merged root nodes. This reduces the number of

@@ -2,10 +2,10 @@ from copy import deepcopy
 from itertools import chain
 from typing import TypeAlias
 
-import keras
 import networkx as nx
 
 from .expanded_graph import ExpandedGraph
+from .utils import sort_nodes_topologically
 
 Node: TypeAlias = str
 SimulationNode: TypeAlias = str
@@ -47,7 +47,7 @@ class InvertedGraph(nx.DiGraph):
                         required.add(condition)
 
             # remove duplicates
-            networks[network_idx] = list(required)
+            networks[network_idx] = sort_nodes_topologically(self.simulation_graph, list(required))
 
         return networks
 
@@ -81,7 +81,7 @@ class InvertedGraph(nx.DiGraph):
             network_idx += 1
 
         for k, v in networks.items():
-            networks[k] = list(set(v))
+            networks[k] = sort_nodes_topologically(self.simulation_graph, list(set(v)))
 
         return networks
 
@@ -200,7 +200,7 @@ class InvertedGraph(nx.DiGraph):
                     values.add(name)
 
             for k in keys:
-                result[k] = list(values)
+                result[k] = sort_nodes_topologically(self.simulation_graph, list(values))
 
         return result
 
